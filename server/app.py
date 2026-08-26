@@ -108,10 +108,11 @@ timer_thread.start()
 
 @app.route("/", methods=["GET"])
 def index():
+    host_url = request.host_url.rstrip("/")
     return jsonify({
         "service": "Robo Raksha Server (Person 1 - Builder)",
         "status": "online",
-        "dashboard_ui": "http://localhost:5000/dashboard",
+        "dashboard_ui": f"{host_url}/dashboard",
         "endpoints": [
             "POST /api/telemetry",
             "GET /api/dashboard/status",

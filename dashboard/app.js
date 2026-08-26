@@ -3,10 +3,14 @@
  * Polling engine, UI state rendering, and action dispatch handler.
  */
 
-const SERVER_STATUS_URL = "http://localhost:5000/api/dashboard/status";
-const SERVER_ACTION_URL = "http://localhost:5000/api/dashboard/action";
-const MOCK_FILE_URL = "fake_status.json";
+const getBaseUrl = () => {
+  if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+    return "http://localhost:5000";
+  }
+  return window.location.origin;
+};
 
+const MOCK_FILE_URL = "fake_status.json";
 let mode = "live"; // "live" or "mock"
 let pollInterval = null;
 
@@ -25,7 +29,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function fetchStatus() {
-  const url = mode === "live" ? SERVER_STATUS_URL : MOCK_FILE_URL;
+  const baseUrl = getBaseUrl();
+  const url = mode === "live" ? `${baseUrl}/api/dashboard/status` : MOCK_FILE_URL;
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
@@ -33,14 +38,18 @@ async function fetchStatus() {
     renderDashboard(data);
   } catch (err) {
     console.warn(`Dashboard fetch error from ${url}:`, err);
-    document.getElementById("statusBadge").className = "badge badge-normal";
-    document.getElementById("statusBadge").innerText = "SERVER OFFLINE";
+    const badge = document.getElementById("statusBadge");
+    if (badge) {
+      badge.className = "badge badge-normal";
+      badge.innerText = "SERVER CONNECTING...";
+    }
   }
 }
 
 function renderDashboard(data) {
   // Update Status Badge & State Theme
   const badge = document.getElementById("statusBadge");
+  if (!badge) return;
   const state = data.state || "NORMAL";
   badge.className = "badge";
 
@@ -56,25 +65,33 @@ function renderDashboard(data) {
   }
 
   // Update Severity Score
-  document.getElementById("severityScore").innerText = (data.severity || 0.0).toFixed(1);
+  const scoreElem = document.getElementById("severityScore");
+  if (scoreElem) scoreElem.innerText = (data.severity || 0.0).toFixed(1);
 
   // Update Countdown Number
   const cdNum = document.getElementById("countdownNumber");
-  if (state === "ALERT" || state === "INVESTIGATING") {
-    const secs = data.timer_seconds !== undefined ? data.timer_seconds : 45;
-    cdNum.innerText = secs < 10 ? `00:0${secs}` : `00:${secs}`;
-  } else if (state === "DISPATCHED") {
-    cdNum.innerText = "00:00";
-  } else {
-    cdNum.innerText = "--";
+  if (cdNum) {
+    if (state === "ALERT" || state === "INVESTIGATING") {
+      const secs = data.timer_seconds !== undefined ? data.timer_seconds : 45;
+      cdNum.innerText = secs < 10 ? `00:0${secs}` : `00:${secs}`;
+    } else if (state === "DISPATCHED") {
+      cdNum.innerText = "00:00";
+    } else {
+      cdNum.innerText = "--";
+    }
   }
 
   // Update Telemetry Bar
   if (data.latest_telemetry) {
-    document.getElementById("telemetryFlame").innerText = data.latest_telemetry.flame > 0 ? "🔥 FLAME DETECTED" : "NONE";
-    document.getElementById("telemetrySound").innerText = `${data.latest_telemetry.sound || 0} dB`;
-    document.getElementById("telemetryVibration").innerText = data.latest_telemetry.vibration === 0 ? "⚠️ STATIONARY" : "MOVING";
-    document.getElementById("telemetryDistance").innerText = `${data.latest_telemetry.distance_cm || 0} cm`;
+    const flameEl = document.getElementById("telemetryFlame");
+    const soundEl = document.getElementById("telemetrySound");
+    const vibEl = document.getElementById("telemetryVibration");
+    const distEl = document.getElementById("telemetryDistance");
+
+    if (flameEl) flameEl.innerText = data.latest_telemetry.flame > 0 ? "🔥 FLAME DETECTED" : "NONE";
+    if (soundEl) soundEl.innerText = `${data.latest_telemetry.sound || 0} dB`;
+    if (vibEl) vibEl.innerText = data.latest_telemetry.vibration === 0 ? "⚠️ STATIONARY" : "MOVING";
+    if (distEl) distEl.innerText = `${data.latest_telemetry.distance_cm || 0} cm`;
   }
 }
 
@@ -85,8 +102,9 @@ async function sendAction(actionName) {
     return;
   }
 
+  const baseUrl = getBaseUrl();
   try {
-    const res = await fetch(SERVER_ACTION_URL, {
+    const res = await fetch(`${baseUrl}/api/dashboard/action`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: actionName })
