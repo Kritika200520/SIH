@@ -1,0 +1,50 @@
+name: Robo Raksha Conflict Guard & CI Validator Bot
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  validate-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Server Unit Tests
+        run: |
+          python server/test_server.py
+
+      - name: Check Inter-Module Isolation (Conflict Prevention)
+        run: |
+          echo "🔍 Checking modified files in PR for cross-folder boundary breaches..."
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          
+          TOUCHED_FOLDERS=0
+          echo "$CHANGED_FILES" | grep "^firmware/" && TOUCHED_FOLDERS=$((TOUCHED_FOLDERS+1)) || true
+          echo "$CHANGED_FILES" | grep "^server/" && TOUCHED_FOLDERS=$((TOUCHED_FOLDERS+1)) || true
+          echo "$CHANGED_FILES" | grep "^dashboard/" && TOUCHED_FOLDERS=$((TOUCHED_FOLDERS+1)) || true
+          echo "$CHANGED_FILES" | grep "^comms/" && TOUCHED_FOLDERS=$((TOUCHED_FOLDERS+1)) || true
+
+          if [ $TOUCHED_FOLDERS -gt 1 ]; then
+            echo "⚠️ WARNING: This PR modifies more than 1 module folder! Keep changes strictly within your designated folder to avoid merge conflicts."
+          else
+            echo "✅ Boundary Isolation Passed: Changes are cleanly scoped to a single folder."
+          fi

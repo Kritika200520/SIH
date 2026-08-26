@@ -1,0 +1,19 @@
+firmware:
+  - changed-files:
+      - any-glob-to-any-file: 'firmware/**'
+
+server:
+  - changed-files:
+      - any-glob-to-any-file: 'server/**'
+
+dashboard:
+  - changed-files:
+      - any-glob-to-any-file: 'dashboard/**'
+
+comms:
+  - changed-files:
+      - any-glob-to-any-file: 'comms/**'
+
+contracts:
+  - changed-files:
+      - any-glob-to-any-file: 'contracts/**'
