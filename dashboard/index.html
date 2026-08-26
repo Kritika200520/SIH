@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robo Raksha — Emergency Monitoring Control Room</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="state-normal">
+
+  <header class="navbar">
+    <div class="brand">
+      <span class="logo-icon">🛡️</span>
+      <h1>ROBO RAKSHA <span class="sub">COMMAND CENTER</span></h1>
+    </div>
+    <div class="system-status">
+      <span class="mode-toggle">
+        <label for="mockModeToggle">Mode:</label>
+        <select id="mockModeToggle">
+          <option value="live">Live Server (http://localhost:5000)</option>
+          <option value="mock">Fake JSON File (Offline Mode)</option>
+        </select>
+      </span>
+      <div id="statusBadge" class="badge badge-normal">SYSTEM NORMAL</div>
+    </div>
+  </header>
+
+  <main class="dashboard-grid">
+    
+    <!-- Left Column: Video Feed & Telemetry -->
+    <section class="panel video-panel">
+      <h2>Live Robot Video Feed</h2>
+      <div class="video-container">
+        <img id="videoStream" src="https://via.placeholder.com/640x360/1a1a24/00ffaa?text=ROBO+RAKSHA+LIVE+CAMERA+FEED" alt="Live Stream">
+        <div class="overlay-tag" id="cameraOverlay">CAM-01 [ONLINE]</div>
+      </div>
+
+      <div class="telemetry-bar">
+        <div class="sensor-card">
+          <span class="sensor-title">🔥 Flame</span>
+          <span id="telemetryFlame" class="sensor-value">0</span>
+        </div>
+        <div class="sensor-card">
+          <span class="sensor-title">🔊 Sound</span>
+          <span id="telemetrySound" class="sensor-value">0 dB</span>
+        </div>
+        <div class="sensor-card">
+          <span class="sensor-title">📳 Motion</span>
+          <span id="telemetryVibration" class="sensor-value">ACTIVE</span>
+        </div>
+        <div class="sensor-card">
+          <span class="sensor-title">📏 Distance</span>
+          <span id="telemetryDistance" class="sensor-value">100 cm</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Alert Panel & Controls -->
+    <section class="panel alert-panel">
+      <h2>Emergency Risk Engine</h2>
+
+      <div class="severity-box">
+        <span class="label">Calculated Risk Severity Score</span>
+        <div id="severityScore" class="score-display">0.0</div>
+      </div>
+
+      <div class="countdown-card" id="countdownCard">
+        <span class="label">AUTOMATIC DISPATCH COUNTDOWN</span>
+        <div id="countdownNumber" class="countdown-number">--</div>
+        <span class="subtext">Emergency services dispatched automatically at 00:00</span>
+      </div>
+
+      <div class="action-buttons-container">
+        <h3>Operator Interventions</h3>
+        <div id="buttonsGroup" class="button-group">
+          <!-- Buttons dynamically injected by Person 3 app.js -->
+          <button class="btn btn-dispatch" onclick="sendAction('Dispatch fire')">Dispatch Fire Emergency</button>
+          <button class="btn btn-investigate" onclick="sendAction('Investigate')">Investigate (+30s)</button>
+          <button class="btn btn-cancel" onclick="sendAction('False alarm')">False Alarm</button>
+        </div>
+      </div>
+
+      <div class="event-log-container">
+        <h3>Live Event Audit Log</h3>
+        <ul id="eventLog" class="event-log">
+          <li><span class="time">[INIT]</span> System monitoring started. Connected to Server.</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
