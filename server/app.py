@@ -107,24 +107,15 @@ timer_thread.start()
 
 
 @app.route("/", methods=["GET"])
-def index():
-    host_url = request.host_url.rstrip("/")
-    return jsonify({
-        "service": "Robo Raksha Server (Person 1 - Builder)",
-        "status": "online",
-        "dashboard_ui": f"{host_url}/dashboard",
-        "endpoints": [
-            "POST /api/telemetry",
-            "GET /api/dashboard/status",
-            "POST /api/dashboard/action",
-            "POST /api/reset"
-        ]
-    })
+def root_dashboard():
+    """Serves Person 2/3 Control Room UI directly at main site root!"""
+    dashboard_dir = os.path.abspath(os.path.join(app.root_path, "..", "dashboard"))
+    return send_from_directory(dashboard_dir, "index.html")
 
 
 @app.route("/dashboard", methods=["GET"])
 def serve_dashboard_ui():
-    """Serves Person 2/3 Control Room UI directly from server!"""
+    """Serves Person 2/3 Control Room UI."""
     dashboard_dir = os.path.abspath(os.path.join(app.root_path, "..", "dashboard"))
     return send_from_directory(dashboard_dir, "index.html")
 
@@ -133,6 +124,22 @@ def serve_dashboard_ui():
 def serve_dashboard_assets(filename):
     dashboard_dir = os.path.abspath(os.path.join(app.root_path, "..", "dashboard"))
     return send_from_directory(dashboard_dir, filename)
+
+
+@app.route("/api", methods=["GET"])
+def index():
+    host_url = request.host_url.rstrip("/")
+    return jsonify({
+        "service": "Robo Raksha Server (Person 1 - Builder)",
+        "status": "online",
+        "dashboard_ui": f"{host_url}/",
+        "endpoints": [
+            "POST /api/telemetry",
+            "GET /api/dashboard/status",
+            "POST /api/dashboard/action",
+            "POST /api/reset"
+        ]
+    })
 
 
 @app.route("/api/telemetry", methods=["POST"])
