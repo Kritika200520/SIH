@@ -9,10 +9,14 @@ import json
 import logging
 import os
 import requests
+import sys
 import threading
 import time
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
+
+# Ensure server directory is on sys.path for scoring_engine import
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from scoring_engine import ScoringEngine
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
