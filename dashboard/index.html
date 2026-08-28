@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ROBO RAKSHA — Autonomous Emergency Intelligence & AI Evidence System</title>
+<title>ROBO RAKSHA — Autonomous Emergency Intelligence & Forensic AI System</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -14,9 +14,9 @@
   <!-- Quick Simulation Header Ribbon -->
   <div class="rr-sim-ribbon">
     <span class="sim-label">⚡ AI DEMO SCENARIO:</span>
-    <button class="sim-btn" onclick="triggerScenario('accident')">🚗 Accident (92% Intensity)</button>
-    <button class="sim-btn" onclick="triggerScenario('fire')">🔥 Fire Outbreak</button>
-    <button class="sim-btn" onclick="triggerScenario('person_down')">🚨 Person Prone</button>
+    <button class="sim-btn" onclick="triggerScenario('accident')">🚗 Accident (92% Intensity + Triage)</button>
+    <button class="sim-btn" onclick="triggerScenario('fire')">🔥 Fire (Thermal FLIR)</button>
+    <button class="sim-btn" onclick="triggerScenario('person_down')">🚨 Person Prone (Bradycardia)</button>
     <button class="sim-btn" onclick="triggerScenario('reset')">🔄 Clear / Normal</button>
   </div>
 
@@ -33,8 +33,8 @@
           <span class="rr-mark-dot"></span>
         </div>
         <div class="rr-brand-text">
-          <h1 class="rr-title">ROBO<span class="rr-title-accent">RAKSHA</span> <span class="badge-patent">5 PATENT CLAIMS</span></h1>
-          <p class="rr-subtitle">AUTONOMOUS GENERATIVE AI FORENSIC EMERGENCY SYSTEM</p>
+          <h1 class="rr-title">ROBO<span class="rr-title-accent">RAKSHA</span> <span class="badge-patent">PATENT DEFENSE SUITE</span></h1>
+          <p class="rr-subtitle">GENERATIVE AI FORENSIC INTELLIGENCE, TRIAGE & V2X GREEN CORRIDOR</p>
         </div>
       </div>
 
@@ -52,13 +52,13 @@
           <span class="rr-status-key">WIFI</span>
           <span class="rr-status-val" id="val-wifi">95%</span>
         </div>
+        <div class="rr-status-item" id="status-v2x">
+          <span class="rr-status-key">V2X CORRIDOR</span>
+          <span class="rr-status-val" id="val-v2x">ARMED</span>
+        </div>
         <div class="rr-status-item" id="status-gps">
           <span class="rr-status-key">GPS</span>
           <span class="rr-status-val">FIXED (5KM)</span>
-        </div>
-        <div class="rr-status-item" id="status-battery">
-          <span class="rr-status-key">BATT</span>
-          <span class="rr-status-val">92%</span>
         </div>
         <div class="rr-status-item" id="status-server">
           <span class="rr-status-key">SERVER</span>
@@ -71,10 +71,20 @@
       </div>
     </header>
 
-    <!-- ============================= -->
-    <!-- LIVE ROBOT / ENVIRONMENT VIEW -->
-    <!-- ============================= -->
+    <!-- ============================================== -->
+    <!-- LIVE ROBOT VIEW & MULTI-LENS SWITCHER (RGB/FLIR)-->
+    <!-- ============================================== -->
     <section class="zone-video panel" id="robot-video-feed" aria-label="Live robot camera feed">
+      <div class="feed-header-controls">
+        <div class="lens-switcher">
+          <span class="lens-label">LENS:</span>
+          <button class="lens-btn lens-btn--active" id="lens-rgb" onclick="switchLens('rgb')">🎥 RGB HD</button>
+          <button class="lens-btn" id="lens-thermal" onclick="switchLens('thermal')">🔥 THERMAL FLIR</button>
+          <button class="lens-btn" id="lens-drone" onclick="switchLens('drone')">🚁 DRONE 3D</button>
+        </div>
+        <span class="feed-live"><span class="feed-live-dot"></span>30 FPS LIVE</span>
+      </div>
+
       <div class="feed-frame">
         <img id="live-camera-img" class="feed-img" src="/video_feed" alt="Robot Optical Feed" onerror="this.style.display='none'">
         <div class="feed-scanlines" aria-hidden="true"></div>
@@ -86,7 +96,7 @@
         </div>
 
         <div class="feed-topline">
-          <span class="feed-live"><span class="feed-live-dot"></span>LIVE</span>
+          <span id="feed-lens-tag">OPTICAL RGB SENSOR</span>
           <span class="feed-robot-id">UNIT&nbsp;RX-01</span>
           <span class="feed-signal">SIGNAL <span class="feed-signal-bars"><i></i><i></i><i></i><i></i></span></span>
         </div>
@@ -105,11 +115,11 @@
       <!-- AI Evidence Video Clip Sub-Panel -->
       <div class="evidence-strip">
         <div class="evidence-info">
-          <span class="evidence-tag">📹 AI EVIDENCE CLIP:</span>
+          <span class="evidence-tag">📹 AI FORENSIC EVIDENCE CLIP:</span>
           <span class="evidence-id" id="evidence-clip-id">RX-EVID-8941 (00:08s REPLAY)</span>
           <span class="evidence-status" id="evidence-status">SEALED & HASHED</span>
         </div>
-        <button class="evidence-btn" onclick="exportLogs()">📥 Download Forensic Video Pack</button>
+        <button class="evidence-btn" onclick="exportLogs()">📥 Download Forensic Pack</button>
       </div>
 
       <p class="panel-caption">ROBOT OPTICAL FEED & FORENSIC EVIDENCE BUFFER</p>
@@ -171,7 +181,7 @@
       <!-- Generative AI Accident Statement & Police FIR Summary Box -->
       <div class="ai-statement-card">
         <div class="statement-header">
-          <span class="statement-title">🧠 GENERATIVE AI ACCIDENT EXPLANATION STATEMENT:</span>
+          <span class="statement-title">🧠 GENERATIVE AI ACCIDENT STATEMENT:</span>
           <button class="copy-btn" onclick="copyAIStatement()">📋 Copy Statement</button>
         </div>
         <p class="statement-body" id="ai-statement-text">
@@ -187,6 +197,62 @@
         <div class="alert-meta-item">
           <span class="alert-meta-key">D3 5KM PERIMETER</span>
           <div id="alert-source-sensor" class="alert-meta-val">Active Radius: 5.00 km (14 Responders Armed)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- 🏥 NOVELTY: AI MEDICAL TRIAGE & V2X CORRIDOR   -->
+    <!-- ============================================== -->
+    <section class="zone-triage panel" id="triage-v2x-panel">
+      <p class="panel-heading">🏥 AI CONTACTLESS MEDICAL TRIAGE & V2X CITY TRAFFIC PRE-EMPTION</p>
+      <div class="triage-v2x-grid">
+        <!-- Vitals Column -->
+        <div class="triage-card">
+          <div class="triage-header">
+            <span class="triage-title">REMOTE OPTICAL VITALS (rPPG):</span>
+            <span class="triage-badge" id="triage-code">GREEN (NOMINAL)</span>
+          </div>
+          <div class="vitals-row">
+            <div class="vital-item">
+              <span class="vital-key">HEART RATE</span>
+              <span class="vital-val" id="vital-hr">72 <small>BPM</small></span>
+            </div>
+            <div class="vital-item">
+              <span class="vital-key">RESPIRATION</span>
+              <span class="vital-val" id="vital-resp">15 <small>/min</small></span>
+            </div>
+            <div class="vital-item">
+              <span class="vital-key">CONSCIOUSNESS</span>
+              <span class="vital-val" id="vital-gcs">CONSCIOUS</span>
+            </div>
+            <div class="vital-item">
+              <span class="vital-key">FLIR BODY TEMP</span>
+              <span class="vital-val" id="vital-temp">36.6 <small>°C</small></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- V2X Corridor Column -->
+        <div class="v2x-card">
+          <div class="triage-header">
+            <span class="triage-title">V2X SMART TRAFFIC GREEN CORRIDOR:</span>
+            <span class="v2x-badge" id="v2x-status">STANDBY</span>
+          </div>
+          <div class="v2x-details">
+            <div class="v2x-row">
+              <span class="v2x-k">HOSPITAL:</span>
+              <span class="v2x-v" id="v2x-hosp">Apollo Trauma Centre (2.8 km)</span>
+            </div>
+            <div class="v2x-row">
+              <span class="v2x-k">AMBULANCE ETA:</span>
+              <span class="v2x-v highlight" id="v2x-eta">3 mins (via Green Corridor)</span>
+            </div>
+            <div class="v2x-row">
+              <span class="v2x-k">CORRIDOR ROUTE:</span>
+              <span class="v2x-v" id="v2x-route">MG Road ➔ Residency Rd (4 Signals Cleared)</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -298,12 +364,12 @@
         <button id="help-button" class="rr-btn rr-btn--help" type="button" onclick="sendAction('CONFIRM_ACCIDENT')">
           <span class="rr-btn-index">02</span>
           <span class="rr-btn-text">CONFIRM EMERGENCY (START 5-MIN TIMER)</span>
-          <span class="rr-btn-hint">Arm 5km SOS & responder countdown</span>
+          <span class="rr-btn-hint">Pre-arm V2X corridor & 5km SOS countdown</span>
         </button>
         <button id="dispatch-button" class="rr-btn rr-btn--dispatch" type="button" onclick="sendAction('DISPATCH_AMBULANCE_NOW')">
           <span class="rr-btn-index">03</span>
           <span class="rr-btn-text">DIRECT AMBULANCE & 5KM SOS DISPATCH</span>
-          <span class="rr-btn-hint">Auto-dial ambulance (108) now</span>
+          <span class="rr-btn-hint">Clear V2X traffic green corridor now</span>
         </button>
       </div>
     </section>
@@ -349,7 +415,7 @@
 
     <footer class="zone-footer" id="system-footer">
       <span>ROBO RAKSHA © AUTONOMOUS FORENSIC SAFETY SYSTEMS</span>
-      <span id="footer-timestamp">SYSTEM TIME 23:30:00 IST</span>
+      <span id="footer-timestamp">SYSTEM TIME 23:35:00 IST</span>
     </footer>
 
   </div>

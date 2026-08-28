@@ -96,11 +96,12 @@ body {
   grid-template-areas:
     "header header header"
     "video core alert"
+    "triage triage triage"
     "claims claims claims"
     "sensors sensors sensors"
     "response dispatch timeline"
     "footer footer footer";
-  grid-template-columns: 1.2fr 0.9fr 1.1fr;
+  grid-template-columns: 1.25fr 0.9fr 1.15fr;
   gap: 1.25rem;
   flex: 1;
 }
@@ -181,9 +182,33 @@ body {
 .rr-status-val { color: var(--text-main); font-weight: 700; }
 
 /* ========================================================
-   2. ZONE: VIDEO FEED & EVIDENCE STRIP
+   2. ZONE: VIDEO FEED & MULTI-LENS SWITCHER
    ======================================================== */
 .zone-video { grid-area: video; display: flex; flex-direction: column; }
+.feed-header-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.lens-switcher { display: flex; align-items: center; gap: 4px; }
+.lens-label { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--text-muted); font-weight: bold; margin-right: 4px; }
+.lens-btn {
+  background: #0d121a;
+  border: 1px solid #1f2937;
+  color: var(--text-dim);
+  font-size: 0.68rem;
+  padding: 3px 7px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Space Mono', monospace;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+.lens-btn:hover { background: #1a2230; color: var(--c-accent); }
+.lens-btn--active { background: var(--c-accent); color: #000; border-color: var(--c-accent); }
+
 .feed-frame {
   position: relative;
   background: #000;
@@ -230,7 +255,7 @@ body {
 .feed-crosshair { width: 40px; height: 40px; border: 1px dashed var(--c-accent); border-radius: 50%; margin: 0 auto 6px auto; }
 .feed-center-text { font-size: 0.75rem; letter-spacing: 1px; }
 
-/* AI Evidence Recording Strip */
+/* AI Evidence Strip */
 .evidence-strip {
   display: flex;
   justify-content: space-between;
@@ -308,7 +333,6 @@ body.alert .core-readout { display: none; }
 .zone-alert h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; margin: 0.3rem 0; color: var(--text-main); }
 .zone-alert p { font-size: 0.8rem; color: var(--text-dim); line-height: 1.35; margin-bottom: 0.6rem; }
 
-/* AI Statement Box */
 .ai-statement-card {
   background: #090d14;
   border: 1px solid var(--panel-border);
@@ -329,7 +353,37 @@ body.alert .core-readout { display: none; }
 .alert-meta-val { font-size: 0.75rem; font-weight: 600; color: var(--text-main); margin-top: 2px; }
 
 /* ========================================================
-   5. ZONE: 5 PATENT CLAIMS MATRIX
+   5. ZONE: MEDICAL TRIAGE & V2X GREEN CORRIDOR
+   ======================================================== */
+.zone-triage { grid-area: triage; }
+.triage-v2x-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1rem; }
+
+.triage-card, .v2x-card {
+  background: #090d14;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+}
+
+.triage-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.triage-title { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--text-muted); font-weight: bold; }
+.triage-badge { font-family: 'Space Mono', monospace; font-size: 0.68rem; font-weight: bold; background: rgba(16, 185, 129, 0.15); color: var(--c-safe); padding: 2px 8px; border-radius: 4px; }
+.v2x-badge { font-family: 'Space Mono', monospace; font-size: 0.68rem; font-weight: bold; background: #1a2230; color: var(--text-dim); padding: 2px 8px; border-radius: 4px; }
+
+.vitals-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+.vital-item { background: #0e141f; padding: 0.4rem; border-radius: 4px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+.vital-key { font-family: 'Space Mono', monospace; font-size: 0.58rem; color: var(--text-muted); display: block; }
+.vital-val { font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; font-weight: bold; color: var(--c-accent); }
+.vital-val small { font-size: 0.65rem; color: var(--text-muted); }
+
+.v2x-details { display: flex; flex-direction: column; gap: 4px; font-family: 'Space Mono', monospace; font-size: 0.72rem; }
+.v2x-row { display: flex; gap: 6px; }
+.v2x-k { color: var(--text-muted); min-width: 90px; }
+.v2x-v { color: var(--text-main); font-weight: bold; }
+.v2x-v.highlight { color: var(--c-gold); }
+
+/* ========================================================
+   6. ZONE: 5 PATENT CLAIMS MATRIX
    ======================================================== */
 .zone-claims { grid-area: claims; }
 .claims-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem; }
@@ -349,7 +403,7 @@ body.alert .core-readout { display: none; }
 .claim-val { font-family: 'Space Mono', monospace; font-size: 0.65rem; color: var(--c-accent); font-weight: bold; }
 
 /* ========================================================
-   6. ZONE: SENSOR CONSTELLATION
+   7. ZONE: SENSOR CONSTELLATION
    ======================================================== */
 .zone-sensors { grid-area: sensors; }
 .sensor-rail { display: grid; grid-template-columns: 1fr 1fr 0.6fr 1fr 1fr 1fr; gap: 0.85rem; }
@@ -375,7 +429,7 @@ body.alert .core-readout { display: none; }
 .sensor-state { font-family: 'Space Mono', monospace; font-size: 0.65rem; font-weight: bold; color: var(--theme-color); }
 
 /* ========================================================
-   7. ZONE: HUMAN RESPONSE CONTROLS
+   8. ZONE: HUMAN RESPONSE CONTROLS
    ======================================================== */
 .zone-response { grid-area: response; }
 .response-rail { display: flex; flex-direction: column; gap: 0.6rem; }
@@ -401,7 +455,7 @@ body.alert .core-readout { display: none; }
 .rr-btn--dispatch:hover { border-color: var(--c-critical); background: var(--c-critical-glow); }
 
 /* ========================================================
-   8. ZONE: DISPATCH PANEL
+   9. ZONE: DISPATCH PANEL
    ======================================================== */
 .zone-dispatch { grid-area: dispatch; }
 .dispatch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
@@ -410,7 +464,7 @@ body.alert .core-readout { display: none; }
 .dispatch-val { font-size: 0.75rem; font-weight: bold; color: var(--text-main); margin-top: 2px; }
 
 /* ========================================================
-   9. ZONE: TIMELINE
+   10. ZONE: TIMELINE
    ======================================================== */
 .zone-timeline { grid-area: timeline; }
 .event-log {
@@ -431,7 +485,7 @@ body.alert .core-readout { display: none; }
 .event-row--critical .event-text { color: var(--c-critical); font-weight: bold; }
 
 /* ========================================================
-   10. ZONE: FOOTER
+   11. ZONE: FOOTER
    ======================================================== */
 .zone-footer {
   grid-area: footer;
