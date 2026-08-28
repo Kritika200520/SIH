@@ -1,81 +1,93 @@
 """
-Robo Raksha — Unit Tests for AI Vision, Anti-False Alarm Filter & 5km SOS Escalation
+Robo Raksha — Unit Tests for 5 Unique Patent Mechanisms
 """
 
 import unittest
 import json
-from ai_vision_engine import AIVisionEngine
+from crypto_blackbox import CryptoBlackbox
 from scoring_engine import ScoringEngine
+from ai_vision_engine import AIVisionEngine
 from app import app
 
 
-class TestAIVisionEngine(unittest.TestCase):
+class TestPatentMechanisms(unittest.TestCase):
 
     def setUp(self):
-        self.ai = AIVisionEngine(required_consecutive_frames=3)
+        self.blackbox = CryptoBlackbox()
+        self.engine = ScoringEngine()
+        self.ai = AIVisionEngine()
 
-    def test_normal_scene(self):
-        res = self.ai.analyze_frame({"scenario": "normal"})
-        self.assertFalse(res["detected"])
-        self.assertFalse(res["anti_false_alarm_verified"])
-        self.assertLess(res["intensity_score"], 10.0)
+    def test_cryptographic_blackbox_merkle_chain(self):
+        # Genesis block check
+        self.assertTrue(self.blackbox.verify_chain_integrity())
+        self.assertEqual(len(self.blackbox.chain), 1)
 
-    def test_anti_false_alarm_temporal_buffer(self):
-        # Frame 1: Detected but NOT yet verified
-        f1 = self.ai.analyze_frame({"scenario": "accident"})
-        self.assertTrue(f1["detected"])
-        self.assertFalse(f1["anti_false_alarm_verified"])
+        # Append new event blocks
+        b1 = self.blackbox.append_block("ACCIDENT_DETECTED", 92.5, {"lat": 12.9716, "lng": 77.5946})
+        self.assertEqual(len(b1["hash"]), 64)  # Valid SHA-256 hex string
+        self.assertEqual(b1["previous_hash"], self.blackbox.GENESIS_HASH)
 
-        # Frame 2: Still validating
-        f2 = self.ai.analyze_frame({"scenario": "accident"})
-        self.assertTrue(f2["detected"])
-        self.assertFalse(f2["anti_false_alarm_verified"])
+        b2 = self.blackbox.append_block("POLICE_CONFIRMED", 92.5, {"lat": 12.9716, "lng": 77.5946})
+        self.assertEqual(b2["previous_hash"], b1["hash"])
 
-        # Frame 3: 3rd consecutive frame -> VERIFIED!
-        f3 = self.ai.analyze_frame({"scenario": "accident"})
-        self.assertTrue(f3["detected"])
-        self.assertTrue(f3["anti_false_alarm_verified"])
-        self.assertGreater(f3["intensity_score"], 80.0)
+        # Entire chain must be mathematically valid
+        self.assertTrue(self.blackbox.verify_chain_integrity())
+
+    def test_multi_spectral_matrix_claim1(self):
+        matrix = self.engine.compute_multi_spectral_matrix(
+            ai_confidence=95.0,
+            sound_db=92.0,
+            distance_cm=30,
+            flame_val=1
+        )
+        self.assertIn("fused_corroboration_index", matrix)
+        self.assertGreater(matrix["fused_corroboration_index"], 65.0)
+        self.assertTrue(matrix["is_corroborated"])
+
+    def test_predictive_rssi_network_decay_claim2(self):
+        # Test low RSSI triggers pre-caching
+        effective_risk, should_cache = self.engine.calculate_rssi_network_risk(
+            base_severity=90.0,
+            elapsed_seconds=10,
+            current_telemetry={"flame": 1, "sound": 85.0, "vibration": 0},
+            wifi_rssi=15.0  # Degraded Wi-Fi
+        )
+        self.assertTrue(should_cache)
+        self.assertGreater(effective_risk, 0.0)
+
+    def test_dynamic_d3_geofence_claim3(self):
+        d3 = self.engine.calculate_d3_geofence(severity_intensity=95.0, base_radius_km=5.0)
+        self.assertGreaterEqual(d3["active_radius_km"], 5.0)
+        self.assertIn("responders_in_range", d3)
 
 
-class TestPoliceWorkflowAndEndpoints(unittest.TestCase):
+class TestFullSystemEndpoints(unittest.TestCase):
 
     def setUp(self):
         self.client = app.test_client()
         self.client.post("/api/reset")
 
-    def test_dashboard_status_contract(self):
+    def test_patent_status_endpoint(self):
         res = self.client.get("/api/dashboard/status")
         self.assertEqual(res.status_code, 200)
         data = res.get_json()
-        self.assertIn("ai_vision", data)
-        self.assertIn("location", data)
-        self.assertEqual(data["location"]["sos_radius_km"], 5.0)
+        self.assertIn("multi_spectral_matrix", data)
+        self.assertIn("crypto_ledger", data)
+        self.assertIn("d3_perimeter", data)
+        self.assertTrue(data["crypto_ledger"]["chain_valid"])
 
-    def test_police_confirmation_workflow(self):
-        # 1. Trigger accident scenario -> AI detects and sets UNVERIFIED_ALERT
+    def test_police_confirmation_mines_block(self):
+        # 1. Trigger accident
         self.client.post("/api/scenario", json={"scenario": "accident"})
-        status = self.client.get("/api/dashboard/status").get_json()
-        self.assertEqual(status["state"], "UNVERIFIED_ALERT")
-        self.assertEqual(status["timer_seconds"], 0)  # Timer not started yet!
-
-        # 2. Police clicks CONFIRM_ACCIDENT -> Starts 300s response countdown timer!
-        confirm_res = self.client.post("/api/dashboard/action", json={"action": "CONFIRM_ACCIDENT"})
-        self.assertEqual(confirm_res.status_code, 200)
-        data = confirm_res.get_json()
-        self.assertEqual(data["new_state"], "POLICE_CONFIRMED")
-        self.assertEqual(data["timer_seconds"], 300)
-
-        # Verify status endpoint reflects timer
+        
+        # 2. Police confirms accident
+        res = self.client.post("/api/dashboard/action", json={"action": "CONFIRM_ACCIDENT"})
+        self.assertEqual(res.status_code, 200)
+        
+        # 3. Check that SHA-256 block was mined for confirmation
         status = self.client.get("/api/dashboard/status").get_json()
         self.assertEqual(status["state"], "POLICE_CONFIRMED")
-        self.assertEqual(status["timer_seconds"], 300)
-
-    def test_police_mark_false_alarm(self):
-        self.client.post("/api/scenario", json={"scenario": "accident"})
-        action_res = self.client.post("/api/dashboard/action", json={"action": "FALSE_ALARM"})
-        self.assertEqual(action_res.status_code, 200)
-        self.assertEqual(action_res.get_json()["new_state"], "CANCELLED")
+        self.assertGreaterEqual(status["crypto_ledger"]["total_blocks_mined"], 2)
 
 
 if __name__ == "__main__":

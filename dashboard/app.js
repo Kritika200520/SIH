@@ -1,7 +1,7 @@
 /**
- * Robo Raksha — AI Emergency Vision & 5km SOS Dispatch Logic (Person 3)
- * Polling engine, AI intensity renderer, anti-false-alarm display,
- * police confirmation handler, response countdown clock, and 5km SOS radar visualizer.
+ * Robo Raksha — AI Emergency Vision & 5 Patent Claims Dashboard Logic
+ * Handles real-time polling, Web Audio sirens, Cryptographic block streaming,
+ * Multi-Spectral Matrix updates, D3 Geo-Fence stats, and Police confirmation timers.
  */
 
 const getBaseUrl = () => {
@@ -67,9 +67,11 @@ function renderDashboard(data) {
   const badge = document.getElementById("statusBadge");
   const hudLabel = document.getElementById("hudHazardLabel");
   const aiInfo = data.ai_vision || {};
-  const loc = data.location || {};
+  const spectral = data.multi_spectral_matrix || {};
+  const d3 = data.d3_perimeter || {};
+  const crypto = data.crypto_ledger || {};
 
-  // Status Badge & Sound Warning
+  // Status Badge & Alarm
   if (badge) {
     badge.className = "status-badge";
     if (state === "UNVERIFIED_ALERT") {
@@ -77,7 +79,7 @@ function renderDashboard(data) {
       badge.innerText = `🚨 AI DETECTED: ${(aiInfo.label || "HAZARD").toUpperCase()} (AWAITING POLICE CONFIRMATION)`;
       if (lastState !== "UNVERIFIED_ALERT") {
         playWarningAlarm();
-        logEvent(`🚨 AI VISION DETECTED: ${aiInfo.label} (Intensity: ${aiInfo.intensity_score}%). Awaiting Police Confirmation.`);
+        logEvent(`🚨 AI DETECTED HAZARD: ${aiInfo.label} (Intensity: ${aiInfo.intensity_score}%). Awaiting Police.`);
       }
     } else if (state === "POLICE_CONFIRMED") {
       badge.classList.add("state-alert");
@@ -90,7 +92,7 @@ function renderDashboard(data) {
       badge.innerText = "🚨 ESCALATED: AMBULANCE CALLED & 5KM SOS BROADCASTED";
       if (lastState !== "ESCALATED_SOS_5KM") {
         playWarningAlarm();
-        logEvent(`🚨 RESPONSE TIMER HIT 0! AI auto-dialed Ambulance & sent 5km SOS broadcast.`);
+        logEvent(`🚨 RESPONSE WINDOW EXPIRED! Auto-called Ambulance & Broadcasted 5km SOS.`);
       }
     } else if (state === "RESOLVED") {
       badge.classList.add("state-normal");
@@ -140,17 +142,32 @@ function renderDashboard(data) {
   if (intensityNum) intensityNum.innerText = `${score.toFixed(1)}%`;
   if (intensityFill) intensityFill.style.width = `${Math.min(100, score)}%`;
 
-  // AI Summary
-  const summaryText = document.getElementById("aiSummaryText");
-  if (summaryText) summaryText.innerText = aiInfo.ai_summary || "Visual surveillance clear.";
+  // Patent Claim 1: Multi-Spectral Matrix
+  const specOpt = document.getElementById("specOptical");
+  const specAc = document.getElementById("specAcoustic");
+  const specDep = document.getElementById("specDepth");
+  if (specOpt) specOpt.innerText = `${spectral.optical_confidence || 95}%`;
+  if (specAc) specAc.innerText = `${spectral.acoustic_fft_match || 40}%`;
+  if (specDep) specDep.innerText = `${spectral.structural_depth_variance || 27}%`;
 
-  // GPS Location Details
-  const locAddr = document.getElementById("locAddress");
-  const locCoords = document.getElementById("locCoords");
-  const locMapLink = document.getElementById("locMapLink");
-  if (locAddr && loc.address) locAddr.innerText = loc.address;
-  if (locCoords && loc.lat) locCoords.innerText = `GPS: ${loc.lat}° N, ${loc.lng}° E`;
-  if (locMapLink && loc.maps_url) locMapLink.href = loc.maps_url;
+  // Patent Claim 3: D3 Geo-Fence
+  const d3Rad = document.getElementById("d3Radius");
+  const d3Resp = document.getElementById("d3Responders");
+  const d3Eta = document.getElementById("d3Eta");
+  if (d3Rad) d3Rad.innerText = `${d3.active_radius_km || 5.0} km`;
+  if (d3Resp) d3Resp.innerText = `${d3.responders_in_range || 14} Units`;
+  if (d3Eta) d3Eta.innerText = d3.estimated_first_responder_eta || "4 mins";
+
+  // Patent Claim 4: Cryptographic Blackbox Block Stream
+  const blocksStream = document.getElementById("blocksStream");
+  if (blocksStream && crypto.latest_blocks) {
+    let html = "";
+    crypto.latest_blocks.forEach(blk => {
+      const shortHash = blk.hash ? `${blk.hash.substring(0, 16)}...` : "00000000";
+      html += `<li><span class="block-idx">[BLK #${blk.index}]</span> ${blk.event_type} | <span class="block-hash">${shortHash}</span></li>`;
+    });
+    blocksStream.innerHTML = html;
+  }
 
   // Police Panel Buttons State
   const btnConfirm = document.getElementById("btnConfirmAccident");
@@ -167,7 +184,7 @@ function renderDashboard(data) {
     }
   }
 
-  // Response Countdown Clock (Only runs if POLICE_CONFIRMED)
+  // 5-Minute Countdown Clock
   const cdClock = document.getElementById("countdownClock");
   if (cdClock) {
     if (state === "POLICE_CONFIRMED") {
@@ -184,7 +201,7 @@ function renderDashboard(data) {
     }
   }
 
-  // 5km SOS Radar Badge
+  // 5km SOS Radar Visualizer Badge
   const sosBadge = document.getElementById("sosBadge");
   const sosText = document.getElementById("sosSummaryText");
   if (sosBadge) {
@@ -192,7 +209,7 @@ function renderDashboard(data) {
       sosBadge.innerText = "🚨 5KM BROADCAST SENT";
       sosBadge.style.background = "#ff3b30";
       sosBadge.style.color = "#fff";
-      if (sosText) sosText.innerText = "Ambulance called via AI Voice. SOS SMS sent to 3 responders in 5km perimeter.";
+      if (sosText) sosText.innerText = "Ambulance called via AI Voice. SOS SMS dispatched to all responders in 5km perimeter.";
     } else if (state === "POLICE_CONFIRMED") {
       sosBadge.innerText = "⏳ 5KM BROADCAST PENDING";
       sosBadge.style.background = "#ff9500";
@@ -204,20 +221,6 @@ function renderDashboard(data) {
       sosBadge.style.color = "#8b949e";
       if (sosText) sosText.innerText = "5km Perimeter Standby: 3 registered medical responders & emergency ambulance (108) configured.";
     }
-  }
-
-  // Telemetry Cards
-  if (data.latest_telemetry) {
-    const valSound = document.getElementById("valSound");
-    const valVib = document.getElementById("valVibration");
-    const valDist = document.getElementById("valDistance");
-
-    if (valSound) valSound.innerText = `${data.latest_telemetry.sound || 0} dB`;
-    if (valVib) {
-      valVib.innerText = data.latest_telemetry.vibration === 0 ? "⚠️ STATIONARY" : "ACTIVE";
-      valVib.style.color = data.latest_telemetry.vibration === 0 ? "#ff9500" : "#f0f6fc";
-    }
-    if (valDist) valDist.innerText = `${data.latest_telemetry.distance_cm || 0} cm`;
   }
 }
 
@@ -272,6 +275,6 @@ function exportLogs() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `robo_raksha_ai_dispatch_log_${Date.now()}.txt`;
+  a.download = `robo_raksha_crypto_ledger_${Date.now()}.txt`;
   a.click();
 }
