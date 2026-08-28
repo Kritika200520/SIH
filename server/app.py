@@ -177,10 +177,13 @@ def serve_dashboard_ui():
     return send_from_directory(dashboard_dir, "index.html")
 
 
-@app.route("/dashboard/<path:filename>", methods=["GET"])
-def serve_dashboard_assets(filename):
+@app.route("/<path:filename>", methods=["GET"])
+def serve_static_assets(filename):
     dashboard_dir = os.path.abspath(os.path.join(app.root_path, "..", "dashboard"))
-    return send_from_directory(dashboard_dir, filename)
+    file_path = os.path.join(dashboard_dir, filename)
+    if os.path.exists(file_path):
+        return send_from_directory(dashboard_dir, filename)
+    return jsonify({"error": f"File {filename} not found"}), 404
 
 
 @app.route("/video_feed", methods=["GET"])
