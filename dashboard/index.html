@@ -3,137 +3,190 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Robo Raksha — Tactical Emergency Command Center</title>
+  <title>Robo Raksha — AI Emergency Vision & 5km SOS Dispatch</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="theme-tactical">
 
-  <!-- Top Navbar & Simulation Toolbar -->
+  <!-- Top Navbar & Scenario Simulator Bar -->
   <header class="navbar">
     <div class="brand">
       <span class="logo-shield">🛡️</span>
       <div class="brand-text">
-        <h1>ROBO RAKSHA <span class="badge-tag">TACTICAL V2.0</span></h1>
-        <span class="subtext">Autonomous Risk Assessment & Emergency Dispatch System</span>
+        <h1>ROBO RAKSHA <span class="badge-tag">AI VISION & 5KM SOS</span></h1>
+        <span class="subtext">Generative AI Video Hazard Detection & Automated Multi-Tier Dispatch</span>
       </div>
     </div>
 
-    <!-- Quick Scenario Simulation Toolbar -->
+    <!-- Quick Scenario Test Toolbar -->
     <div class="simulation-toolbar">
-      <span class="toolbar-label">⚡ QUICK SIMULATOR:</span>
-      <button class="sim-btn sim-fire" onclick="triggerScenario('fire')">🔥 Fire Alert</button>
-      <button class="sim-btn sim-sound" onclick="triggerScenario('person_down')">🔊 Person Down</button>
-      <button class="sim-btn sim-wifi" onclick="triggerScenario('wifi_loss')">📶 Wi-Fi Drop</button>
-      <button class="sim-btn sim-reset" onclick="triggerScenario('reset')">🔄 Reset</button>
+      <span class="toolbar-label">⚡ AI SCENARIO TEST:</span>
+      <button class="sim-btn sim-accident" onclick="triggerScenario('accident')">🚗 Car Accident</button>
+      <button class="sim-btn sim-fire" onclick="triggerScenario('fire')">🔥 Fire Outbreak</button>
+      <button class="sim-btn sim-medical" onclick="triggerScenario('person_down')">🚨 Person Prone</button>
+      <button class="sim-btn sim-reset" onclick="triggerScenario('reset')">🔄 Clear / Reset</button>
     </div>
 
     <div class="system-status-group">
-      <div class="wifi-indicator" id="wifiIndicator">
-        <span class="wifi-icon">📶</span> <span id="wifiVal">95%</span>
+      <div class="location-badge" id="locBadge">
+        📍 Bangalore Central
       </div>
-      <div id="statusBadge" class="status-badge state-normal">SYSTEM OPERATIONAL</div>
+      <div id="statusBadge" class="status-badge state-normal">AI SURVEILLANCE ACTIVE</div>
     </div>
   </header>
 
-  <!-- Main Grid Layout -->
+  <!-- Main Command Grid -->
   <main class="command-grid">
 
-    <!-- Left Column: Camera Feed & Real-Time Telemetry -->
+    <!-- Left Column: Live ESP32-CAM Stream & Generative AI Vision Analytics -->
     <section class="grid-panel video-section">
       <div class="panel-header">
-        <h2>🎥 Live Robot Vision & Telemetry</h2>
-        <span class="live-dot">● LIVE</span>
+        <h2>🎥 ESP32-CAM Live Feed & Generative AI Target Tracking</h2>
+        <span class="live-dot">● 30 FPS LIVE</span>
       </div>
 
       <div class="video-frame-container">
-        <img id="cameraStream" src="/video_feed" alt="Live Camera Stream" onerror="this.src='https://via.placeholder.com/640x360/0b0e14/00ffaa?text=ROBO+RAKSHA+LIVE+CAMERA+FEED'">
+        <img id="cameraStream" src="/video_feed" alt="Live Camera Stream" onerror="this.src='https://via.placeholder.com/640x360/0b0e14/00ffaa?text=ESP32-CAM+AI+VISION+FEED'">
         <div class="hud-overlay-top">
-          <span>ROBO-CAM-01</span>
-          <span id="hudFps">30 FPS</span>
+          <span>AI MODEL: GEMINI-VISION-EDGE</span>
+          <span id="aiConfidenceText">CONFIDENCE: 99.2%</span>
         </div>
-        <div class="hud-overlay-bottom" id="hudStatusText">TARGET: CLEAR</div>
+        <div class="hud-overlay-bottom" id="hudHazardLabel">SCENE: ROADWAY CLEAR</div>
+      </div>
+
+      <!-- AI Vision Analysis Card -->
+      <div class="ai-analytics-card">
+        <div class="panel-header">
+          <h3>🧠 Generative AI Real-Time Hazard Analysis</h3>
+          <span class="anti-false-badge" id="antiFalseBadge">🛡️ Anti-False-Alarm: CLEAR</span>
+        </div>
+        
+        <div class="intensity-container">
+          <div class="intensity-label-row">
+            <span class="intensity-title">Hazard Intensity Rating:</span>
+            <span class="intensity-number" id="intensityNum">0%</span>
+          </div>
+          <div class="intensity-bar-bg">
+            <div class="intensity-bar-fill" id="intensityFill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="ai-summary-box">
+          <span class="summary-title">AI Scene Diagnosis:</span>
+          <p id="aiSummaryText" class="summary-content">Continuous visual processing active. No abnormal hazard signatures detected.</p>
+        </div>
       </div>
 
       <!-- Telemetry Cards Bar -->
       <div class="telemetry-grid">
-        <div class="tele-card" id="cardFlame">
-          <span class="tele-icon">🔥</span>
-          <span class="tele-label">Flame Sensor</span>
-          <span class="tele-val" id="valFlame">SAFE</span>
-        </div>
-
         <div class="tele-card" id="cardSound">
           <span class="tele-icon">🔊</span>
           <span class="tele-label">Acoustics</span>
           <span class="tele-val" id="valSound">40 dB</span>
-          <div class="dB-bar-bg"><div class="dB-bar-fill" id="dBFill" style="width: 40%;"></div></div>
         </div>
-
         <div class="tele-card" id="cardVibration">
           <span class="tele-icon">📳</span>
           <span class="tele-label">Motion / Vibration</span>
-          <span class="tele-val" id="valVibration">MOVING</span>
+          <span class="tele-val" id="valVibration">ACTIVE</span>
         </div>
-
         <div class="tele-card" id="cardDistance">
           <span class="tele-icon">📏</span>
           <span class="tele-label">Obstacle Distance</span>
-          <span class="tele-val" id="valDistance">100 cm</span>
+          <span class="tele-val" id="valDistance">110 cm</span>
+        </div>
+        <div class="tele-card" id="cardLocation">
+          <span class="tele-icon">🗺️</span>
+          <span class="tele-label">GPS Radius</span>
+          <span class="tele-val">5.0 KM</span>
         </div>
       </div>
     </section>
 
-    <!-- Right Column: Emergency Risk Engine & Dynamic Actions -->
+    <!-- Right Column: Police Confirmation, Response Timer & 5km SOS Engine -->
     <section class="grid-panel risk-section">
       
-      <!-- Severity Score & Risk Decay Engine -->
-      <div class="risk-card">
+      <!-- Incident Location Card -->
+      <div class="location-card">
         <div class="panel-header">
-          <h2>⚖️ Patent Severity & Risk-Decay Engine</h2>
+          <h2>📍 Verified GPS Incident Location</h2>
         </div>
+        <div class="location-details">
+          <span class="loc-address" id="locAddress">MG Road - Brigade Junction, Bangalore</span>
+          <span class="loc-coords" id="locCoords">GPS: 12.9716° N, 77.5946° E</span>
+          <a id="locMapLink" href="https://maps.google.com/?q=12.9716,77.5946" target="_blank" class="map-link-btn">🗺️ Open in Google Maps</a>
+        </div>
+      </div>
+
+      <!-- Police Confirmation & Decision Panel -->
+      <div class="police-control-card" id="policeCard">
+        <div class="panel-header">
+          <h2>👮 Police & Operator Verification Panel</h2>
+        </div>
+        <p class="police-instructions" id="policeInstructions">
+          AI continuously analyzes video. When an anomaly is verified, confirm below to trigger responder dispatch window.
+        </p>
         
-        <div class="severity-display-container">
-          <div class="score-circle">
-            <span class="score-number" id="severityNum">0.0</span>
-            <span class="score-sub">RISK SCORE</span>
-          </div>
-          <div class="formula-box">
-            <span class="formula-title">Live Risk-Decay Formula:</span>
-            <code class="formula-text">R(t) = S₀ · e⁻λᵗ + ΔS_live</code>
-            <span class="formula-desc" id="formulaDesc">Dynamic continuous re-scoring active</span>
+        <div class="police-actions-grid" id="policeActionsGrid">
+          <button class="btn btn-confirm-accident" id="btnConfirmAccident" onclick="sendPoliceAction('CONFIRM_ACCIDENT')">
+            🚨 CONFIRM ACCIDENT / EMERGENCY
+          </button>
+          <div class="sub-actions-row">
+            <button class="btn btn-false-alarm" onclick="sendPoliceAction('FALSE_ALARM')">
+              ❌ Mark False Alarm
+            </button>
+            <button class="btn btn-direct-ambulance" onclick="sendPoliceAction('DISPATCH_AMBULANCE_NOW')">
+              🚑 Call Ambulance Now
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- Countdown Clock Card -->
+      <!-- 5-Minute Responder Countdown Clock -->
       <div class="countdown-card" id="countdownCard">
-        <span class="countdown-label">AUTOMATIC DISPATCH COUNTDOWN</span>
+        <span class="countdown-label">⏱️ EMERGENCY RESPONSE WINDOW (AFTER POLICE CONFIRMATION)</span>
         <div class="countdown-clock" id="countdownClock">--:--</div>
-        <span class="countdown-sub">Emergency services auto-triggered at 00:00</span>
+        <div class="countdown-warning-box">
+          <span class="warn-icon">⚠️</span>
+          <span class="warn-text">
+            If responders do not confirm arrival before timer hits 00:00:
+            <strong>AI will auto-call Ambulance & broadcast SOS SMS to 5km radius!</strong>
+          </span>
+        </div>
+        <div class="resolve-row" id="resolveRow" style="display: none;">
+          <button class="btn btn-resolved" onclick="sendPoliceAction('HELP_ARRIVED')">
+            ✅ Responders Arrived On-Site (Resolve Emergency)
+          </button>
+        </div>
       </div>
 
-      <!-- Situation-Specific Dynamic Action Menu -->
-      <div class="action-menu-card">
+      <!-- 5km SOS Broadcast Radar Status Visualizer -->
+      <div class="sos-radar-card" id="sosRadarCard">
         <div class="panel-header">
-          <h2>🕹️ Situation-Specific Intervention Menu</h2>
-          <span class="menu-tag" id="menuTag">Standard Menu</span>
+          <h2>📡 5km Radius SOS Broadcast Perimeter</h2>
+          <span class="sos-badge" id="sosBadge">STANDBY</span>
         </div>
-        <div class="dynamic-buttons-grid" id="actionButtonsGrid">
-          <!-- Dynamically populated by app.js based on hazard type -->
-          <button class="btn btn-primary" onclick="sendAction('Dispatch Emergency Services')">Dispatch Emergency Services</button>
-          <button class="btn btn-warning" onclick="sendAction('Investigate (+30s)')">Investigate (+30s)</button>
-          <button class="btn btn-secondary" onclick="sendAction('False Alarm')">False Alarm</button>
+        <div class="radar-visualizer">
+          <div class="radar-circle-outer">
+            <div class="radar-circle-mid">
+              <div class="radar-circle-inner">
+                <span class="radar-pin">📍</span>
+              </div>
+            </div>
+          </div>
+          <div class="sos-summary-text" id="sosSummaryText">
+            5km Perimeter Standby: 3 registered medical responders & emergency ambulance (108) configured.
+          </div>
         </div>
       </div>
 
-      <!-- Event Audit Log with Export -->
+      <!-- Live Audit Log -->
       <div class="audit-log-card">
         <div class="panel-header">
-          <h2>📋 Live Audit Log</h2>
-          <button class="export-btn" onclick="exportLogs()">📥 Export Logs</button>
+          <h2>📋 Live Dispatch & AI Audit Log</h2>
+          <button class="export-btn" onclick="exportLogs()">📥 Export Log</button>
         </div>
         <ul class="log-list" id="logList">
-          <li><span class="log-time">[INIT]</span> Control Room Dashboard connected to Server.</li>
+          <li><span class="log-time">[INIT]</span> Robo Raksha AI Command System online.</li>
         </ul>
       </div>
 

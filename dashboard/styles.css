@@ -1,5 +1,5 @@
 :root {
-  --bg-dark: #0b0e14;
+  --bg-dark: #090c10;
   --panel-bg: #161b22;
   --panel-border: #30363d;
   --text-primary: #f0f6fc;
@@ -9,6 +9,7 @@
   --accent-amber: #ff9500;
   --accent-blue: #007aff;
   --accent-purple: #af52de;
+  --accent-cyan: #00ffaa;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -35,7 +36,7 @@ body.theme-tactical {
 .brand { display: flex; align-items: center; gap: 0.75rem; }
 .logo-shield { font-size: 1.8rem; }
 .brand-text h1 { font-size: 1.25rem; font-weight: 800; letter-spacing: 1px; }
-.brand-text .badge-tag { font-size: 0.65rem; background: var(--accent-blue); padding: 2px 6px; border-radius: 4px; color: #fff; vertical-align: middle; }
+.brand-text .badge-tag { font-size: 0.65rem; background: var(--accent-red); padding: 2px 6px; border-radius: 4px; color: #fff; vertical-align: middle; }
 .brand-text .subtext { font-size: 0.75rem; color: var(--text-secondary); display: block; }
 
 .simulation-toolbar {
@@ -59,20 +60,20 @@ body.theme-tactical {
   transition: all 0.2s ease;
 }
 
-.sim-fire { background: rgba(255, 59, 48, 0.2); color: var(--accent-red); border: 1px solid var(--accent-red); }
-.sim-fire:hover { background: var(--accent-red); color: #fff; }
+.sim-accident { background: rgba(255, 59, 48, 0.25); color: var(--accent-red); border: 1px solid var(--accent-red); }
+.sim-accident:hover { background: var(--accent-red); color: #fff; }
 
-.sim-sound { background: rgba(255, 149, 0, 0.2); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
-.sim-sound:hover { background: var(--accent-amber); color: #000; }
+.sim-fire { background: rgba(255, 149, 0, 0.25); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+.sim-fire:hover { background: var(--accent-amber); color: #000; }
 
-.sim-wifi { background: rgba(175, 82, 222, 0.2); color: var(--accent-purple); border: 1px solid var(--accent-purple); }
-.sim-wifi:hover { background: var(--accent-purple); color: #fff; }
+.sim-medical { background: rgba(175, 82, 222, 0.25); color: var(--accent-purple); border: 1px solid var(--accent-purple); }
+.sim-medical:hover { background: var(--accent-purple); color: #fff; }
 
 .sim-reset { background: rgba(52, 199, 89, 0.2); color: var(--accent-green); border: 1px solid var(--accent-green); }
 .sim-reset:hover { background: var(--accent-green); color: #000; }
 
 .system-status-group { display: flex; align-items: center; gap: 1rem; }
-.wifi-indicator { font-size: 0.8rem; font-weight: bold; color: var(--accent-green); }
+.location-badge { font-size: 0.8rem; font-weight: bold; color: var(--accent-cyan); background: #0d1117; padding: 4px 10px; border-radius: 12px; border: 1px solid var(--panel-border); }
 
 .status-badge {
   padding: 0.4rem 1.1rem;
@@ -84,7 +85,7 @@ body.theme-tactical {
 
 .state-normal { background: rgba(52, 199, 89, 0.15); color: var(--accent-green); border: 1px solid var(--accent-green); }
 .state-alert { background: rgba(255, 59, 48, 0.3); color: #ff7b72; border: 1px solid var(--accent-red); animation: alertFlash 1s infinite alternate; }
-.state-dispatched { background: rgba(175, 82, 222, 0.3); color: #ce93d8; border: 1px solid var(--accent-purple); }
+.state-dispatched { background: rgba(175, 82, 222, 0.35); color: #ce93d8; border: 1px solid var(--accent-purple); }
 
 @keyframes alertFlash {
   from { box-shadow: 0 0 5px rgba(255, 59, 48, 0.5); }
@@ -94,7 +95,7 @@ body.theme-tactical {
 /* Main Grid Layout */
 .command-grid {
   display: grid;
-  grid-template-columns: 1.25fr 1fr;
+  grid-template-columns: 1.2fr 1fr;
   gap: 1.5rem;
   padding: 1.5rem 1.75rem;
   flex: 1;
@@ -113,8 +114,8 @@ body.theme-tactical {
 }
 
 .panel-header h2 { font-size: 1rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+.panel-header h3 { font-size: 0.95rem; color: var(--text-primary); }
 .live-dot { font-size: 0.75rem; color: var(--accent-green); font-weight: bold; }
-.menu-tag { font-size: 0.7rem; color: var(--accent-blue); background: rgba(0, 122, 255, 0.15); padding: 2px 8px; border-radius: 10px; }
 
 /* Camera Video Stream Panel */
 .video-frame-container {
@@ -130,30 +131,70 @@ body.theme-tactical {
 
 .hud-overlay-top {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  right: 12px;
+  top: 10px;
+  left: 10px;
+  right: 10px;
   display: flex;
   justify-content: space-between;
   font-size: 0.75rem;
   font-family: monospace;
-  color: var(--accent-green);
-  background: rgba(0, 0, 0, 0.6);
+  color: var(--accent-cyan);
+  background: rgba(0, 0, 0, 0.7);
   padding: 4px 10px;
   border-radius: 4px;
 }
 
 .hud-overlay-bottom {
   position: absolute;
-  bottom: 12px;
-  left: 12px;
-  font-size: 0.8rem;
+  bottom: 10px;
+  left: 10px;
+  font-size: 0.85rem;
+  font-weight: bold;
   font-family: monospace;
-  color: var(--text-primary);
-  background: rgba(0, 0, 0, 0.7);
-  padding: 4px 10px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 4px 12px;
   border-radius: 4px;
 }
+
+/* AI Analytics Card */
+.ai-analytics-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.anti-false-badge {
+  font-size: 0.72rem;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(52, 199, 89, 0.15);
+  color: var(--accent-green);
+  border: 1px solid var(--accent-green);
+}
+
+.intensity-container { margin-top: 0.25rem; }
+.intensity-label-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; }
+.intensity-title { color: var(--text-secondary); font-weight: bold; }
+.intensity-number { font-size: 1.2rem; font-weight: 900; color: var(--accent-amber); }
+
+.intensity-bar-bg { background: #0d1117; height: 10px; border-radius: 5px; overflow: hidden; border: 1px solid var(--panel-border); }
+.intensity-bar-fill { background: linear-gradient(90deg, #34c759, #ff9500, #ff3b30); height: 100%; transition: width 0.4s ease; }
+
+.ai-summary-box {
+  background: #0d1117;
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--panel-border);
+}
+
+.summary-title { font-size: 0.72rem; color: var(--text-secondary); display: block; font-weight: bold; }
+.summary-content { font-size: 0.82rem; color: var(--text-primary); margin-top: 2px; line-height: 1.3; }
 
 /* Telemetry Grid Bar */
 .telemetry-grid {
@@ -165,83 +206,39 @@ body.theme-tactical {
 .tele-card {
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
-  padding: 0.85rem;
+  padding: 0.75rem;
   border-radius: 8px;
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 
-.tele-icon { font-size: 1.2rem; }
-.tele-label { font-size: 0.7rem; color: var(--text-secondary); }
-.tele-val { font-size: 1.05rem; font-weight: 800; color: var(--text-primary); }
+.tele-icon { font-size: 1.1rem; }
+.tele-label { font-size: 0.65rem; color: var(--text-secondary); display: block; }
+.tele-val { font-size: 0.95rem; font-weight: 800; color: var(--text-primary); }
 
-.dB-bar-bg { background: #0d1117; height: 4px; border-radius: 2px; overflow: hidden; margin-top: 4px; }
-.dB-bar-fill { background: var(--accent-green); height: 100%; transition: width 0.3s ease; }
+/* Location Card */
+.location-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 1.1rem;
+}
 
-/* Emergency Risk Engine Card */
-.risk-card {
+.location-details { display: flex; flex-direction: column; gap: 4px; margin-top: 0.5rem; }
+.loc-address { font-size: 0.95rem; font-weight: bold; color: var(--text-primary); }
+.loc-coords { font-size: 0.75rem; color: var(--text-secondary); font-family: monospace; }
+.map-link-btn { font-size: 0.75rem; color: var(--accent-blue); text-decoration: none; font-weight: bold; margin-top: 4px; }
+.map-link-btn:hover { text-decoration: underline; }
+
+/* Police Control Panel */
+.police-control-card {
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
   border-radius: 10px;
   padding: 1.25rem;
 }
 
-.severity-display-container {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  margin-top: 0.75rem;
-}
-
-.score-circle {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  border: 4px solid var(--accent-amber);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: #0d1117;
-}
-
-.score-number { font-size: 1.8rem; font-weight: 900; color: var(--accent-amber); }
-.score-sub { font-size: 0.55rem; color: var(--text-secondary); font-weight: bold; }
-
-.formula-box { flex: 1; background: #0d1117; padding: 0.75rem 1rem; border-radius: 6px; border: 1px solid var(--panel-border); }
-.formula-title { font-size: 0.7rem; color: var(--text-secondary); display: block; }
-.formula-text { font-family: monospace; color: var(--accent-blue); font-size: 0.95rem; font-weight: bold; display: block; margin: 2px 0; }
-.formula-desc { font-size: 0.7rem; color: var(--accent-green); }
-
-/* Countdown Clock Card */
-.countdown-card {
-  background: #0d1117;
-  border: 1px solid var(--panel-border);
-  border-radius: 10px;
-  padding: 1.2rem;
-  text-align: center;
-}
-
-.countdown-label { font-size: 0.75rem; color: var(--text-secondary); font-weight: bold; }
-.countdown-clock { font-size: 3.2rem; font-weight: 900; font-family: monospace; color: var(--accent-red); margin: 0.2rem 0; letter-spacing: 2px; }
-.countdown-sub { font-size: 0.7rem; color: var(--text-secondary); }
-
-/* Action Buttons Grid */
-.action-menu-card {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: 10px;
-  padding: 1.25rem;
-}
-
-.dynamic-buttons-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-  margin-top: 0.75rem;
-}
+.police-instructions { font-size: 0.78rem; color: var(--text-secondary); margin: 0.4rem 0 0.75rem 0; line-height: 1.3; }
+.police-actions-grid { display: flex; flex-direction: column; gap: 0.6rem; }
 
 .btn {
   padding: 0.85rem;
@@ -254,19 +251,81 @@ body.theme-tactical {
 }
 
 .btn:active { transform: scale(0.98); }
-.btn-primary { background: var(--accent-red); color: #fff; }
-.btn-primary:hover { background: #d32f2f; }
-.btn-warning { background: var(--accent-amber); color: #000; }
-.btn-warning:hover { background: #e68a00; }
-.btn-secondary { background: #21262d; color: var(--text-primary); border: 1px solid var(--panel-border); }
-.btn-secondary:hover { background: #30363d; }
+.btn-confirm-accident { background: var(--accent-red); color: #fff; font-size: 1rem; padding: 1rem; box-shadow: 0 0 10px rgba(255, 59, 48, 0.4); }
+.btn-confirm-accident:hover { background: #d32f2f; }
+
+.sub-actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.btn-false-alarm { background: #21262d; color: var(--text-primary); border: 1px solid var(--panel-border); }
+.btn-false-alarm:hover { background: #30363d; }
+.btn-direct-ambulance { background: var(--accent-amber); color: #000; }
+.btn-direct-ambulance:hover { background: #e68a00; }
+.btn-resolved { background: var(--accent-green); color: #000; width: 100%; margin-top: 0.5rem; }
+
+/* 5-Minute Countdown Clock */
+.countdown-card {
+  background: #0d1117;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 1.2rem;
+  text-align: center;
+}
+
+.countdown-label { font-size: 0.72rem; color: var(--text-secondary); font-weight: bold; }
+.countdown-clock { font-size: 3.2rem; font-weight: 900; font-family: monospace; color: var(--accent-red); margin: 0.2rem 0; letter-spacing: 2px; }
+.countdown-warning-box { font-size: 0.72rem; color: var(--text-secondary); background: rgba(255, 149, 0, 0.1); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255, 149, 0, 0.3); }
+.countdown-warning-box strong { color: var(--accent-amber); }
+
+/* 5km Radar Broadcast Visualizer */
+.sos-radar-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 1.1rem;
+}
+
+.sos-badge { font-size: 0.7rem; background: #21262d; padding: 2px 8px; border-radius: 4px; color: var(--text-secondary); font-weight: bold; }
+
+.radar-visualizer { display: flex; align-items: center; gap: 1.25rem; margin-top: 0.75rem; }
+.radar-circle-outer {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 59, 48, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.radar-circle-mid {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 59, 48, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.radar-circle-inner {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(255, 59, 48, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.radar-pin { font-size: 0.8rem; }
+.sos-summary-text { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.3; flex: 1; }
 
 /* Audit Log */
 .audit-log-card {
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
   border-radius: 10px;
-  padding: 1.25rem;
+  padding: 1.1rem;
 }
 
 .export-btn { font-size: 0.7rem; background: #21262d; border: 1px solid var(--panel-border); color: var(--text-primary); padding: 4px 8px; border-radius: 4px; cursor: pointer; }
@@ -274,9 +333,9 @@ body.theme-tactical {
 
 .log-list {
   list-style: none;
-  max-height: 140px;
+  max-height: 130px;
   overflow-y: auto;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   background: #0d1117;
   padding: 0.75rem;
   border-radius: 6px;

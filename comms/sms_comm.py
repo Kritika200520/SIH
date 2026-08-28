@@ -1,7 +1,7 @@
 """
-Robo Raksha — Comms & Dispatch Module (Person 4)
-Handles SIM800L GSM module integration, dynamic SMS payload formatting,
-GPS coordinate insertion, auto-dialing simulation, and HTTP listener for Person 1 dispatches.
+Robo Raksha — Comms & 5km Radius SOS Dispatch Engine (Person 4)
+Handles GSM SIM800L module communication, AI Voice Ambulance auto-dialing,
+and 5km Radius Emergency SOS Broadcast with exact GPS location.
 """
 
 import argparse
@@ -10,79 +10,113 @@ import logging
 import time
 from flask import Flask, request, jsonify
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [COMMS] %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [COMMS-5KM] %(message)s")
 
 app = Flask(__name__)
 
-# Configured Target Phone Number for Testing (OWN PHONE ONLY!)
-TARGET_PHONE_NUMBER = "+919876543210"
+# Configured Target Emergency Phone Numbers
+EMERGENCY_AMBULANCE_NUMBER = "108"
+REGISTERED_NEARBY_RESPONDERS = [
+    "+919876543210",
+    "+919123456780",
+    "+919988776655"
+]
 
 
 def send_sim800l_sms(phone_number: str, message: str) -> bool:
-    """
-    Simulates / handles SIM800L AT commands over Serial UART.
-    AT+CMGF=1 (Text mode)
-    AT+CMGS="<phone_number>"
-    > <message> <Ctrl+Z>
-    """
-    logging.info(f"📱 [SIM800L AT COMMAND DISPATCH]")
-    logging.info(f"   Target Phone: {phone_number}")
-    logging.info(f"   SMS Body    :\n   {message}")
-    logging.info("   Executing AT+CMGF=1 ... OK")
-    logging.info(f"   Executing AT+CMGS=\"{phone_number}\" ... OK")
-    logging.info("   Message Sent Successfully! ✅\n")
+    """Simulates / sends SMS over SIM800L UART AT commands."""
+    logging.info(f"📱 [SIM800L SMS SENT] -> {phone_number}")
+    logging.info(f"   Message: \"{message}\"")
     return True
 
 
-def trigger_autodial(phone_number: str) -> bool:
+def trigger_ai_ambulance_call(phone_number: str, location_str: str, hazard_label: str) -> bool:
     """
-    Simulates / handles SIM800L auto-dialing voice call:
-    ATD<phone_number>;
+    [PATENT ESCALATION MECHANISM]
+    Simulates / triggers AI Voice Synthesis Auto-Dial to Emergency Ambulance Dispatch:
+    ATD108;
     """
-    logging.info(f"📞 [SIM800L AUTO-DIAL] Calling {phone_number} via ATD ... Call initiated! 🔔")
+    logging.warning("=" * 65)
+    logging.warning(f"📞 [AI VOICE CALL INITIATED] Dialing Ambulance Service ({phone_number})...")
+    logging.warning(f"   Voice Payload: 'EMERGENCY! Severe {hazard_label} confirmed. Responders did not arrive in time window. Location: {location_str}'")
+    logging.warning("   SIM800L Voice Channel Active: CONNECTED 🔔")
+    logging.warning("=" * 65)
     return True
+
+
+@app.route("/", methods=["GET"])
+def comms_index():
+    return jsonify({
+        "service": "Robo Raksha Comms & 5km Radius SOS Dispatcher",
+        "status": "online",
+        "endpoints": [
+            "POST /api/comms/dispatch",
+            "POST /api/comms/broadcast_sos"
+        ]
+    })
 
 
 @app.route("/api/comms/dispatch", methods=["POST"])
-def handle_dispatch_request():
-    """
-    Server -> Comms Contract Endpoint.
-    Receives JSON: { "service": "fire", "lat": 12.9716, "lng": 77.5946, "message": "..." }
-    """
+def receive_dispatch():
     data = request.get_json(force=True, silent=True) or {}
     service = data.get("service", "emergency")
     lat = data.get("lat", 12.9716)
     lng = data.get("lng", 77.5946)
-    raw_message = data.get("message")
+    message = data.get("message", "")
 
-    if not raw_message:
-        raw_message = f"ROBO RAKSHA {service.upper()} ALERT! Location: Lat {lat}, Lng {lng}"
+    logging.info(f"🚨 [STANDARD DISPATCH] Service: {service.upper()} | GPS: {lat}, {lng}")
+    send_sim800l_sms(REGISTERED_NEARBY_RESPONDERS[0], message)
+    return jsonify({"status": "DISPATCH_SENT", "sms_queued": True}), 200
 
-    # Send SMS & Trigger Auto-dial
-    sms_success = send_sim800l_sms(TARGET_PHONE_NUMBER, raw_message)
-    dial_success = trigger_autodial(TARGET_PHONE_NUMBER)
+
+@app.route("/api/comms/broadcast_sos", methods=["POST"])
+def broadcast_5km_sos():
+    """
+    [PATENT NOVELTY ENDPOINT]
+    Triggered when Response Timer expires (Responders did not arrive in time).
+    Auto-calls Ambulance & Broadcasts SOS SMS to all registered responders within 5km radius!
+    """
+    data = request.get_json(force=True, silent=True) or {}
+    lat = data.get("lat", 12.9716)
+    lng = data.get("lng", 77.5946)
+    hazard_label = data.get("hazard_label", "Severe Accident")
+    intensity = data.get("intensity", 90.0)
+    address = data.get("address", "MG Road Junction, Bangalore")
+    maps_url = f"https://maps.google.com/?q={lat},{lng}"
+
+    # 1. Trigger AI Voice Auto-Dial to Ambulance
+    call_success = trigger_ai_ambulance_call(EMERGENCY_AMBULANCE_NUMBER, f"{address} ({maps_url})", hazard_label)
+
+    # 2. Broadcast SOS Message to 5km Radius Responders
+    sos_body = (
+        f"🚨 [5KM RADIUS SOS ALERT] {hazard_label.upper()}!\n"
+        f"Intensity: {intensity}%. Emergency response window expired. Immediate civilian/medical assistance needed!\n"
+        f"📍 Location: {address}\n"
+        f"🗺️ Map: {maps_url}"
+    )
+
+    sent_count = 0
+    for number in REGISTERED_NEARBY_RESPONDERS:
+        send_sim800l_sms(number, sos_body)
+        sent_count += 1
+
+    logging.info(f"📡 5KM RADIUS SOS BROADCAST COMPLETE: Sent to {sent_count} responders in 5km perimeter.")
 
     return jsonify({
-        "status": "DISPATCH_EXECUTED",
-        "sms_sent": sms_success,
-        "auto_dial_initiated": dial_success,
-        "target_number": TARGET_PHONE_NUMBER
+        "status": "5KM_SOS_BROADCAST_COMPLETED",
+        "ambulance_call_initiated": call_success,
+        "sos_messages_dispatched": sent_count,
+        "radius_km": 5.0,
+        "location": {"lat": lat, "lng": lng, "address": address, "map_url": maps_url}
     }), 200
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Robo Raksha Comms Module (Person 4)")
-    parser.add_argument("--test-sms", action="store_true", help="Week 1-2 Task: Send one 'test' SMS to configured number")
-    parser.add_argument("--port", type=int, default=5001, help="HTTP Listener port for Person 1 dispatches")
-
+    parser = argparse.ArgumentParser(description="Robo Raksha Comms 5km SOS Module")
+    parser.add_argument("--port", type=int, default=5001, help="HTTP Listener port")
     args = parser.parse_args()
-
-    if args.test_sms:
-        print("▶️ Running Week 1-2 Task: Sending test SMS to phone...")
-        send_sim800l_sms(TARGET_PHONE_NUMBER, "test")
-    else:
-        print(f"📡 Starting Comms Dispatch HTTP Server on port {args.port}...")
-        app.run(host="0.0.0.0", port=args.port, debug=False)
+    print(f"📡 Robo Raksha Comms Server starting on port {args.port}...")
+    app.run(host="0.0.0.0", port=args.port, debug=False)
 
 
 if __name__ == "__main__":

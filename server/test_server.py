@@ -1,48 +1,44 @@
 """
-Robo Raksha — Integrated Multi-Role Unit Tests (Persons 1, 2, 3, 4)
-Tests severity calculation, patent risk-decay, dynamic situation menus, scenario triggers, and API contracts.
+Robo Raksha — Unit Tests for AI Vision, Anti-False Alarm Filter & 5km SOS Escalation
 """
 
 import unittest
 import json
+from ai_vision_engine import AIVisionEngine
 from scoring_engine import ScoringEngine
 from app import app
 
 
-class TestScoringEngine(unittest.TestCase):
+class TestAIVisionEngine(unittest.TestCase):
 
     def setUp(self):
-        self.engine = ScoringEngine(threshold=7.0)
+        self.ai = AIVisionEngine(required_consecutive_frames=3)
 
-    def test_normal_telemetry(self):
-        telemetry = {"flame": 0, "sound": 40.0, "vibration": 1, "distance_cm": 100}
-        score, event = self.engine.compute_baseline_score(telemetry)
-        self.assertEqual(score, 0.0)
-        self.assertEqual(event, "none")
+    def test_normal_scene(self):
+        res = self.ai.analyze_frame({"scenario": "normal"})
+        self.assertFalse(res["detected"])
+        self.assertFalse(res["anti_false_alarm_verified"])
+        self.assertLess(res["intensity_score"], 10.0)
 
-    def test_fire_event_scoring(self):
-        telemetry = {"flame": 1, "sound": 87.0, "vibration": 0, "distance_cm": 45}
-        score, event = self.engine.compute_baseline_score(telemetry)
-        self.assertEqual(score, 12.0)
-        self.assertEqual(event, "fire")
+    def test_anti_false_alarm_temporal_buffer(self):
+        # Frame 1: Detected but NOT yet verified
+        f1 = self.ai.analyze_frame({"scenario": "accident"})
+        self.assertTrue(f1["detected"])
+        self.assertFalse(f1["anti_false_alarm_verified"])
 
-    def test_person_down_scoring(self):
-        telemetry = {"flame": 0, "sound": 95.0, "vibration": 0, "distance_cm": 90}
-        score, event = self.engine.compute_baseline_score(telemetry)
-        self.assertEqual(score, 7.0)
-        self.assertEqual(event, "person_down_or_distress")
+        # Frame 2: Still validating
+        f2 = self.ai.analyze_frame({"scenario": "accident"})
+        self.assertTrue(f2["detected"])
+        self.assertFalse(f2["anti_false_alarm_verified"])
 
-    def test_situation_specific_menu_generation(self):
-        fire_menu = self.engine.get_situation_specific_menu("fire")
-        self.assertIn("Dispatch Fire Dept", fire_menu)
-        self.assertIn("Activate Suppressor", fire_menu)
-
-        person_menu = self.engine.get_situation_specific_menu("person_down_or_distress")
-        self.assertIn("Dispatch Paramedics", person_menu)
-        self.assertIn("Activate Voice Beacon", person_menu)
+        # Frame 3: 3rd consecutive frame -> VERIFIED!
+        f3 = self.ai.analyze_frame({"scenario": "accident"})
+        self.assertTrue(f3["detected"])
+        self.assertTrue(f3["anti_false_alarm_verified"])
+        self.assertGreater(f3["intensity_score"], 80.0)
 
 
-class TestServerEndpoints(unittest.TestCase):
+class TestPoliceWorkflowAndEndpoints(unittest.TestCase):
 
     def setUp(self):
         self.client = app.test_client()
@@ -52,35 +48,34 @@ class TestServerEndpoints(unittest.TestCase):
         res = self.client.get("/api/dashboard/status")
         self.assertEqual(res.status_code, 200)
         data = res.get_json()
-        self.assertIn("state", data)
-        self.assertIn("event", data)
-        self.assertIn("severity", data)
-        self.assertIn("options", data)
-        self.assertIn("wifi_signal", data)
+        self.assertIn("ai_vision", data)
+        self.assertIn("location", data)
+        self.assertEqual(data["location"]["sos_radius_km"], 5.0)
 
-    def test_scenario_trigger_fire(self):
-        res = self.client.post("/api/scenario", json={"scenario": "fire"})
-        self.assertEqual(res.status_code, 200)
-        data = res.get_json()
-        self.assertEqual(data["state"], "ALERT")
-        self.assertEqual(data["severity"], 12.0)
-
-        # Verify status endpoint reflects fire scenario and patent menu options
+    def test_police_confirmation_workflow(self):
+        # 1. Trigger accident scenario -> AI detects and sets UNVERIFIED_ALERT
+        self.client.post("/api/scenario", json={"scenario": "accident"})
         status = self.client.get("/api/dashboard/status").get_json()
-        self.assertEqual(status["event"], "fire")
-        self.assertIn("Dispatch Fire Dept", status["options"])
+        self.assertEqual(status["state"], "UNVERIFIED_ALERT")
+        self.assertEqual(status["timer_seconds"], 0)  # Timer not started yet!
 
-    def test_scenario_trigger_wifi_loss(self):
-        res = self.client.post("/api/scenario", json={"scenario": "wifi_loss"})
-        self.assertEqual(res.status_code, 200)
+        # 2. Police clicks CONFIRM_ACCIDENT -> Starts 300s response countdown timer!
+        confirm_res = self.client.post("/api/dashboard/action", json={"action": "CONFIRM_ACCIDENT"})
+        self.assertEqual(confirm_res.status_code, 200)
+        data = confirm_res.get_json()
+        self.assertEqual(data["new_state"], "POLICE_CONFIRMED")
+        self.assertEqual(data["timer_seconds"], 300)
+
+        # Verify status endpoint reflects timer
         status = self.client.get("/api/dashboard/status").get_json()
-        self.assertLess(status["wifi_signal"], 30)
+        self.assertEqual(status["state"], "POLICE_CONFIRMED")
+        self.assertEqual(status["timer_seconds"], 300)
 
-    def test_operator_dispatch_action(self):
-        self.client.post("/api/scenario", json={"scenario": "fire"})
-        action_res = self.client.post("/api/dashboard/action", json={"action": "Dispatch Fire Dept"})
+    def test_police_mark_false_alarm(self):
+        self.client.post("/api/scenario", json={"scenario": "accident"})
+        action_res = self.client.post("/api/dashboard/action", json={"action": "FALSE_ALARM"})
         self.assertEqual(action_res.status_code, 200)
-        self.assertEqual(action_res.get_json()["new_state"], "DISPATCHED")
+        self.assertEqual(action_res.get_json()["new_state"], "CANCELLED")
 
 
 if __name__ == "__main__":
