@@ -76,6 +76,7 @@ body {
 }
 
 .sim-label { font-size: 0.7rem; color: var(--text-muted); font-weight: bold; }
+.sim-divider { color: var(--panel-border); font-size: 0.8rem; margin: 0 4px; }
 .sim-btn {
   background: #151d2a;
   border: 1px solid #283548;
@@ -88,6 +89,7 @@ body {
   transition: all 0.2s ease;
 }
 .sim-btn:hover { background: #283548; border-color: var(--c-accent); color: var(--c-accent); }
+.sim-btn--edge { background: rgba(16, 185, 129, 0.25); border-color: var(--c-safe); color: var(--c-safe); font-weight: bold; }
 
 /* Main Shell Layout */
 .rr-shell {

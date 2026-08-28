@@ -55,6 +55,23 @@ function updateClock() {
   }
 }
 
+async function toggleAIMode(mode) {
+  const isOff = mode === "offline_edge_slm";
+  document.getElementById("btn-edge-ai").classList.toggle("sim-btn--edge", isOff);
+  document.getElementById("btn-cloud-ai").classList.toggle("sim-btn--edge", !isOff);
+
+  const baseUrl = getBaseUrl();
+  try {
+    await fetch(`${baseUrl}/api/ai_mode`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mode: mode })
+    });
+    appendTimelineEvent(`Switched Generative AI Engine to ${isOff ? 'OFFLINE EDGE SLM (AIR-GAPPED 12ms)' : 'CLOUD GEMINI-VISION'}`, "normal");
+    fetchStatus();
+  } catch (e) {}
+}
+
 async function switchLens(mode) {
   currentLens = mode;
   document.querySelectorAll(".lens-btn").forEach(b => b.classList.remove("lens-btn--active"));

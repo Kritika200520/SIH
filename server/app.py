@@ -232,6 +232,19 @@ def video_feed():
     return Response(generate_mjpeg_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
+@app.route("/api/ai_mode", methods=["POST"])
+def toggle_ai_mode():
+    global ai_vision_data
+    data = request.get_json(force=True, silent=True) or {}
+    mode = data.get("mode", "offline_edge_slm")
+    with state_lock:
+        is_off = mode == "offline_edge_slm"
+        ai_vision.ai_mode = mode
+        ai_vision_data["engine_mode"] = "OFFLINE EDGE SLM (ONNX INT4)" if is_off else "HYBRID EDGE-CLOUD GEMINI"
+        ai_vision_data["inference_latency_ms"] = 12.4 if is_off else 128.0
+    return jsonify({"status": "ai_mode_updated", "ai_mode": mode, "engine": ai_vision_data["engine_mode"]})
+
+
 @app.route("/api/lens_mode", methods=["POST"])
 def switch_lens_mode():
     global active_lens_mode

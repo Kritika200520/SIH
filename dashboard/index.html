@@ -14,10 +14,14 @@
   <!-- Quick Simulation Header Ribbon -->
   <div class="rr-sim-ribbon">
     <span class="sim-label">⚡ AI DEMO SCENARIO:</span>
-    <button class="sim-btn" onclick="triggerScenario('accident')">🚗 Accident (92% Intensity + Triage)</button>
+    <button class="sim-btn" onclick="triggerScenario('accident')">🚗 Accident (92% + Triage)</button>
     <button class="sim-btn" onclick="triggerScenario('fire')">🔥 Fire (Thermal FLIR)</button>
-    <button class="sim-btn" onclick="triggerScenario('person_down')">🚨 Person Prone (Bradycardia)</button>
-    <button class="sim-btn" onclick="triggerScenario('reset')">🔄 Clear / Normal</button>
+    <button class="sim-btn" onclick="triggerScenario('person_down')">🚨 Person Prone</button>
+    <button class="sim-btn" onclick="triggerScenario('reset')">🔄 Clear</button>
+    <span class="sim-divider">|</span>
+    <span class="sim-label">🧠 AI ENGINE:</span>
+    <button class="sim-btn sim-btn--edge" id="btn-edge-ai" onclick="toggleAIMode('offline_edge_slm')">🔒 OFFLINE EDGE SLM (12ms)</button>
+    <button class="sim-btn" id="btn-cloud-ai" onclick="toggleAIMode('cloud_gemini')">☁️ CLOUD GEMINI</button>
   </div>
 
   <div class="rr-shell">
