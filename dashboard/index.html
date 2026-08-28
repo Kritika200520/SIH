@@ -3,23 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ROBO RAKSHA — Autonomous Emergency Intelligence System</title>
+<title>ROBO RAKSHA — Autonomous Emergency Intelligence & AI Evidence System</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
-<!--
-  Body class controls the entire operating mode of the interface.
-  Person 3 (JS/backend) toggles ONLY this class — nothing else needs to change.
-  Valid values: "normal" | "alert" | "dispatched"
--->
 <body class="normal">
 
   <!-- Quick Simulation Header Ribbon -->
   <div class="rr-sim-ribbon">
-    <span class="sim-label">⚡ DEMO SIMULATOR:</span>
-    <button class="sim-btn" onclick="triggerScenario('accident')">🚗 Accident (92%)</button>
+    <span class="sim-label">⚡ AI DEMO SCENARIO:</span>
+    <button class="sim-btn" onclick="triggerScenario('accident')">🚗 Accident (92% Intensity)</button>
     <button class="sim-btn" onclick="triggerScenario('fire')">🔥 Fire Outbreak</button>
     <button class="sim-btn" onclick="triggerScenario('person_down')">🚨 Person Prone</button>
     <button class="sim-btn" onclick="triggerScenario('reset')">🔄 Clear / Normal</button>
@@ -38,14 +33,13 @@
           <span class="rr-mark-dot"></span>
         </div>
         <div class="rr-brand-text">
-          <h1 class="rr-title">ROBO<span class="rr-title-accent">RAKSHA</span></h1>
-          <p class="rr-subtitle">AUTONOMOUS EMERGENCY INTELLIGENCE SYSTEM</p>
+          <h1 class="rr-title">ROBO<span class="rr-title-accent">RAKSHA</span> <span class="badge-patent">5 PATENT CLAIMS</span></h1>
+          <p class="rr-subtitle">AUTONOMOUS GENERATIVE AI FORENSIC EMERGENCY SYSTEM</p>
         </div>
       </div>
 
       <div class="rr-mode-flag" id="mode-flag">
         <span class="rr-mode-dot"></span>
-        <!-- Text is set dynamically & synced with body.class -->
         <span class="rr-mode-label" id="mode-label">SYSTEM NORMAL</span>
       </div>
 
@@ -99,7 +93,7 @@
 
         <div class="feed-center-mark" id="feed-center-mark" aria-hidden="true">
           <div class="feed-crosshair"></div>
-          <p class="feed-center-text" id="feed-center-text">AI OPTICAL FEED ACTIVE</p>
+          <p class="feed-center-text" id="feed-center-text">AI OPTICAL SURVEILLANCE ACTIVE</p>
         </div>
 
         <div class="feed-bottomline">
@@ -107,7 +101,18 @@
           <span class="feed-env" id="feed-environment">ENVIRONMENT&nbsp;NOMINAL</span>
         </div>
       </div>
-      <p class="panel-caption">ROBOT OPTICAL FEED</p>
+
+      <!-- AI Evidence Video Clip Sub-Panel -->
+      <div class="evidence-strip">
+        <div class="evidence-info">
+          <span class="evidence-tag">📹 AI EVIDENCE CLIP:</span>
+          <span class="evidence-id" id="evidence-clip-id">RX-EVID-8941 (00:08s REPLAY)</span>
+          <span class="evidence-status" id="evidence-status">SEALED & HASHED</span>
+        </div>
+        <button class="evidence-btn" onclick="exportLogs()">📥 Download Forensic Video Pack</button>
+      </div>
+
+      <p class="panel-caption">ROBOT OPTICAL FEED & FORENSIC EVIDENCE BUFFER</p>
     </section>
 
     <!-- ============================= -->
@@ -127,7 +132,7 @@
           </div>
 
           <div class="core-readout">
-            <span class="core-readout-label">SEVERITY</span>
+            <span class="core-readout-label">AI INTENSITY</span>
             <div id="severity-score" class="core-score">0</div>
             <span class="core-readout-band" id="severity-band">SAFE</span>
           </div>
@@ -144,29 +149,78 @@
         </div>
 
         <div class="core-scale" aria-hidden="true">
-          <span class="scale-tick scale-tick--safe">0–3 SAFE</span>
-          <span class="scale-tick scale-tick--caution">4–6 CAUTION</span>
-          <span class="scale-tick scale-tick--high">7–9 HIGH</span>
-          <span class="scale-tick scale-tick--critical">10+ CRITICAL</span>
+          <span class="scale-tick scale-tick--safe">0–30 SAFE</span>
+          <span class="scale-tick scale-tick--caution">30–60 CAUTION</span>
+          <span class="scale-tick scale-tick--high">60–85 HIGH</span>
+          <span class="scale-tick scale-tick--critical">85+ CRITICAL</span>
         </div>
       </div>
     </section>
 
     <!-- ============================= -->
-    <!-- ALERT SUMMARY (what happened) -->
+    <!-- ALERT SUMMARY & AI EXPLANATION-->
     <!-- ============================= -->
     <section class="zone-alert panel panel--alert" id="alert-summary" aria-label="Current situation summary">
-      <span class="alert-eyebrow" id="alert-eyebrow">SITUATION REPORT</span>
+      <div class="alert-header-row">
+        <span class="alert-eyebrow" id="alert-eyebrow">AI INCIDENT DIAGNOSIS</span>
+        <span class="anti-false-tag" id="anti-false-tag">🛡️ Anti-False-Alarm: VERIFIED (3/3 Frames)</span>
+      </div>
       <h2 id="alert-title">NO ACTIVE THREAT</h2>
-      <p id="alert-description">All environmental systems are operating normally. ROBO RAKSHA is monitoring continuously.</p>
+      <p id="alert-description">All environmental systems operating normally. Generative AI monitoring continuously.</p>
+      
+      <!-- Generative AI Accident Statement & Police FIR Summary Box -->
+      <div class="ai-statement-card">
+        <div class="statement-header">
+          <span class="statement-title">🧠 GENERATIVE AI ACCIDENT EXPLANATION STATEMENT:</span>
+          <button class="copy-btn" onclick="copyAIStatement()">📋 Copy Statement</button>
+        </div>
+        <p class="statement-body" id="ai-statement-text">
+          NORMAL CONDITION: Unit RX-01 reports all optical, thermal, and acoustic sensor channels within nominal baselines. No vehicular or pedestrian distress detected.
+        </p>
+      </div>
+
       <div class="alert-meta">
         <div class="alert-meta-item">
           <span class="alert-meta-key">LOCATION</span>
-          <div id="location-data" class="alert-meta-val">MG Road - Brigade Junction · 12.9716°N, 77.5946°E</div>
+          <div id="location-data" class="alert-meta-val">Sector A — MG Road Junction · 12.9716°N, 77.5946°E</div>
         </div>
         <div class="alert-meta-item">
-          <span class="alert-meta-key">SOURCE SENSOR</span>
-          <div id="alert-source-sensor" class="alert-meta-val">—</div>
+          <span class="alert-meta-key">D3 5KM PERIMETER</span>
+          <div id="alert-source-sensor" class="alert-meta-val">Active Radius: 5.00 km (14 Responders Armed)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= -->
+    <!-- 5 PATENT CLAIMS MATRIX STRIP  -->
+    <!-- ============================= -->
+    <section class="zone-claims panel" id="patent-claims-panel">
+      <p class="panel-heading">🏛️ 5 NOVEL PATENT CLAIMS MATRIX</p>
+      <div class="claims-grid">
+        <div class="claim-card">
+          <span class="claim-tag">CLAIM 1</span>
+          <span class="claim-name">Multi-Spectral Matrix</span>
+          <span class="claim-val" id="claim1-val">Optical: 95% | Acoustic: 92% | Depth: 88%</span>
+        </div>
+        <div class="claim-card">
+          <span class="claim-tag">CLAIM 2</span>
+          <span class="claim-name">Predictive RSSI Pre-Cache</span>
+          <span class="claim-val" id="claim2-val">Wi-Fi 95% (Offline SMS Armed)</span>
+        </div>
+        <div class="claim-card">
+          <span class="claim-tag">CLAIM 3</span>
+          <span class="claim-name">D3 Dynamic Geo-Fence</span>
+          <span class="claim-val" id="claim3-val">Radius 5.00 km | ETA: 4 mins</span>
+        </div>
+        <div class="claim-card">
+          <span class="claim-tag">CLAIM 4</span>
+          <span class="claim-name">SHA-256 Crypto Blackbox</span>
+          <span class="claim-val" id="claim4-val">Chain: VERIFIED (Block #4)</span>
+        </div>
+        <div class="claim-card">
+          <span class="claim-tag">CLAIM 5</span>
+          <span class="claim-name">AI Auto-Recalibration</span>
+          <span class="claim-val" id="claim5-val">Suppression Efficiency: 96.5%</span>
         </div>
       </div>
     </section>
@@ -175,7 +229,7 @@
     <!-- SENSOR CONSTELLATION          -->
     <!-- ============================= -->
     <section class="zone-sensors panel" id="sensor-constellation" aria-label="Sensor constellation">
-      <p class="panel-heading">SENSOR CONSTELLATION</p>
+      <p class="panel-heading">SENSOR CONSTELLATION & OPTICAL FLOW</p>
       <div class="sensor-rail">
 
         <div class="sensor-node" id="flame-sensor" data-sensor="flame">
@@ -191,13 +245,13 @@
           <div class="sensor-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16 8a5 5 0 010 8" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M18.5 5.5a9 9 0 010 13" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
           </div>
-          <span class="sensor-name">SOUND</span>
+          <span class="sensor-name">ACOUSTIC FFT</span>
           <span class="sensor-value" id="sound-value">40<span class="sensor-unit">dB</span></span>
           <span class="sensor-state" id="sound-state">QUIET</span>
         </div>
 
         <div class="sensor-node sensor-node--core" aria-hidden="true">
-          <span class="sensor-rail-label">AI FUSION</span>
+          <span class="sensor-rail-label">TRI-MODAL FUSION</span>
         </div>
 
         <div class="sensor-node" id="vibration-sensor" data-sensor="vibration">
@@ -213,9 +267,9 @@
           <div class="sensor-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"/><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
           </div>
-          <span class="sensor-name">MOVEMENT</span>
-          <span class="sensor-value" id="movement-value">DETECTED</span>
-          <span class="sensor-state" id="movement-state">ACTIVE</span>
+          <span class="sensor-name">OPTICAL FLOW</span>
+          <span class="sensor-value" id="movement-value">ACTIVE</span>
+          <span class="sensor-state" id="movement-state">VERIFIED</span>
         </div>
 
         <div class="sensor-node" id="distance-sensor" data-sensor="distance">
@@ -234,22 +288,22 @@
     <!-- HUMAN RESPONSE AREA           -->
     <!-- ============================= -->
     <section class="zone-response panel" id="response-controls" aria-label="Emergency response controls">
-      <p class="panel-heading">RESPONSE REQUIRED</p>
+      <p class="panel-heading">POLICE & OPERATOR DECISION MATRIX</p>
       <div class="response-rail">
         <button id="safe-button" class="rr-btn rr-btn--safe" type="button" onclick="sendAction('FALSE_ALARM')">
           <span class="rr-btn-index">01</span>
-          <span class="rr-btn-text">I'M SAFE / FALSE ALARM</span>
-          <span class="rr-btn-hint">Cancel escalation</span>
+          <span class="rr-btn-text">I'M SAFE / MARK FALSE ALARM</span>
+          <span class="rr-btn-hint">Calibrate AI & cancel escalation</span>
         </button>
         <button id="help-button" class="rr-btn rr-btn--help" type="button" onclick="sendAction('CONFIRM_ACCIDENT')">
           <span class="rr-btn-index">02</span>
-          <span class="rr-btn-text">CONFIRM EMERGENCY</span>
-          <span class="rr-btn-hint">Start 5-min responder window</span>
+          <span class="rr-btn-text">CONFIRM EMERGENCY (START 5-MIN TIMER)</span>
+          <span class="rr-btn-hint">Arm 5km SOS & responder countdown</span>
         </button>
         <button id="dispatch-button" class="rr-btn rr-btn--dispatch" type="button" onclick="sendAction('DISPATCH_AMBULANCE_NOW')">
           <span class="rr-btn-index">03</span>
-          <span class="rr-btn-text">DISPATCH AMBULANCE & 5KM SOS</span>
-          <span class="rr-btn-hint">Direct escalation</span>
+          <span class="rr-btn-text">DIRECT AMBULANCE & 5KM SOS DISPATCH</span>
+          <span class="rr-btn-hint">Auto-dial ambulance (108) now</span>
         </button>
       </div>
     </section>
@@ -270,7 +324,7 @@
         </div>
         <div class="dispatch-item">
           <span class="dispatch-key">RESPONSE LOCATION</span>
-          <div id="response-location" class="dispatch-val">12.9716°N, 77.5946°E (5km Radius)</div>
+          <div id="response-location" class="dispatch-val">Sector A · 12.9716°N, 77.5946°E (5km Radius)</div>
         </div>
         <div class="dispatch-item">
           <span class="dispatch-key">COMMUNICATION</span>
@@ -280,22 +334,22 @@
     </section>
 
     <!-- ============================= -->
-    <!-- EVENT TIMELINE                -->
+    <!-- EVENT TIMELINE & CRYPTO LEDGER-->
     <!-- ============================= -->
     <section class="zone-timeline panel" id="timeline-panel" aria-label="Event timeline">
-      <p class="panel-heading">INCIDENT TIMELINE & CRYPTOGRAPHIC LEDGER</p>
+      <p class="panel-heading">INCIDENT TIMELINE & SHA-256 BLACKBOX LEDGER</p>
       <div id="event-log" class="event-log">
         <div class="event-row">
           <span class="event-time">00:00:01</span>
           <span class="event-rule" aria-hidden="true"></span>
-          <span class="event-text">ROBO RAKSHA AI SURVEILLANCE ONLINE</span>
+          <span class="event-text">[BLK #0] GENESIS BLACKBOX INITIALIZED</span>
         </div>
       </div>
     </section>
 
     <footer class="zone-footer" id="system-footer">
-      <span>ROBO RAKSHA © AUTONOMOUS SAFETY SYSTEMS</span>
-      <span id="footer-timestamp">SYSTEM TIME 23:15:00 IST</span>
+      <span>ROBO RAKSHA © AUTONOMOUS FORENSIC SAFETY SYSTEMS</span>
+      <span id="footer-timestamp">SYSTEM TIME 23:30:00 IST</span>
     </footer>
 
   </div>

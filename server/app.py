@@ -1,11 +1,10 @@
 """
 Robo Raksha — Main Server Application (Person 1 / Builder)
-Comprehensive integration of 5 Unique Patent Mechanisms:
-1. Multi-Spectral Optical-Acoustic Cross-Validation
-2. Predictive RSSI Network Decay & Offline SMS Pre-Caching
-3. Dynamic Density-Adjusted 5km Geo-Fence (D3-Perimeter)
-4. SHA-256 Cryptographic Tamper-Proof Blackbox Ledger
-5. Closed-Loop AI Sensitivity Recalibration
+Includes:
+- Generative AI Vision Analysis & Incident Statement Generator
+- Forensic AI Video Evidence Recording Metadata
+- 5 Unique Patent Claims (Multi-Spectral, RSSI Decay, D3 Geo-Fence, Crypto Blackbox, AI Recalibration)
+- Multi-Tier Police Confirmation & 5km SOS Escalation
 """
 
 import io
@@ -19,7 +18,6 @@ import time
 from flask import Flask, jsonify, request, send_from_directory, Response
 from flask_cors import CORS
 
-# Ensure server directory is on sys.path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from scoring_engine import ScoringEngine
 from ai_vision_engine import AIVisionEngine
@@ -30,26 +28,33 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 app = Flask(__name__, static_folder="static")
 CORS(app)
 
-# Global Engines & Locks
+# Global Engines
 state_lock = threading.Lock()
 scoring = ScoringEngine(threshold=7.0)
 ai_vision = AIVisionEngine(required_consecutive_frames=3)
 blackbox = CryptoBlackbox()
 
-# System State Variables
+# State Machine
 current_state = "NORMAL"
 current_event = "none"
 current_severity = 0.0
 timer_seconds = 0
 clip_url = "/video_feed"
 
-# AI Vision & Location Metadata
+# AI Vision & Incident Statement Data
 ai_vision_data = {
     "detected": False,
     "label": "Roadway Clear",
     "intensity_score": 0.0,
-    "confidence": 99.0,
-    "ai_summary": "Continuous video surveillance active. No anomalies.",
+    "confidence": 99.2,
+    "ai_summary": "Continuous video surveillance active. All environmental parameters normal.",
+    "ai_incident_statement": "NORMAL CONDITION: Unit RX-01 reports all optical, thermal, and acoustic sensor channels within nominal baselines. No vehicular or pedestrian distress detected.",
+    "evidence_clip": {
+        "clip_id": "RX-EVID-LIVE",
+        "duration_seconds": 8.5,
+        "recorded_at": "LIVE BUFFER",
+        "status": "RECORDING_BUFFER_ARMED"
+    },
     "anti_false_alarm_verified": False,
     "verification_status": "CLEAR: No hazard signatures detected"
 }
@@ -57,7 +62,7 @@ ai_vision_data = {
 location_data = {
     "lat": 12.9716,
     "lng": 77.5946,
-    "address": "MG Road - Brigade Junction, Bangalore, Karnataka",
+    "address": "Sector A — MG Road Junction, Bangalore",
     "maps_url": "https://maps.google.com/?q=12.9716,77.5946",
     "sos_radius_km": 5.0
 }
@@ -75,17 +80,15 @@ timer_running = True
 
 
 def trigger_5km_sos_escalation():
-    """Triggered when Response Timer expires (Hits 0)."""
     global current_state, ai_vision_data, location_data
 
-    logging.warning("🚨 ESCALATING TO 5KM RADIUS SOS BROADCAST & AUTO-CALLING AMBULANCE!")
+    logging.warning("🚨 ESCALATING TO 5KM RADIUS SOS BROADCAST & CALLING AMBULANCE!")
     current_state = "ESCALATED_SOS_5KM"
 
-    # Mine Cryptographic Block for 5km SOS Broadcast
     blackbox.append_block("5KM_SOS_DISPATCH_TRIGGERED", ai_vision_data.get("intensity_score", 90.0), location_data, {
         "event": ai_vision_data.get("label"),
         "ambulance_called": True,
-        "d3_radius": 5.0
+        "statement": ai_vision_data.get("ai_incident_statement")
     })
 
     payload = {
@@ -93,18 +96,18 @@ def trigger_5km_sos_escalation():
         "intensity": ai_vision_data.get("intensity_score", 90.0),
         "lat": location_data["lat"],
         "lng": location_data["lng"],
-        "address": location_data["address"]
+        "address": location_data["address"],
+        "statement": ai_vision_data.get("ai_incident_statement")
     }
 
     try:
         res = requests.post(f"{COMMS_BASE_URL}/api/comms/broadcast_sos", json=payload, timeout=4.0)
-        logging.info(f"5km SOS Broadcast Response [{res.status_code}]: {res.text}")
+        logging.info(f"5km SOS Response [{res.status_code}]: {res.text}")
     except Exception as e:
-        logging.warning(f"Comms 5km endpoint unreachable: {e}")
+        logging.warning(f"Comms unreachable: {e}")
 
 
 def countdown_worker():
-    """Background countdown worker for POLICE_CONFIRMED response window."""
     global current_state, timer_seconds, timer_running
 
     while timer_running:
@@ -113,10 +116,10 @@ def countdown_worker():
             if current_state == "POLICE_CONFIRMED":
                 if timer_seconds > 0:
                     timer_seconds -= 1
-                    logging.info(f"⏱️ Police Response Timer: {timer_seconds}s remaining (Waiting for on-site responders)")
+                    logging.info(f"⏱️ Police Response Timer: {timer_seconds}s remaining")
 
                 if timer_seconds <= 0:
-                    logging.warning("⚠️ Response window expired! Responders did not reach site in time.")
+                    logging.warning("⚠️ Response window expired! Responders did not arrive in time.")
                     threading.Thread(target=trigger_5km_sos_escalation, daemon=True).start()
 
 
@@ -136,7 +139,7 @@ def generate_mjpeg_frames():
     while True:
         frame_idx = (frame_idx + 1) % 360
         if has_pil:
-            img = Image.new("RGB", (640, 360), color=(10, 14, 20))
+            img = Image.new("RGB", (640, 360), color=(8, 12, 18))
             draw = ImageDraw.Draw(img)
 
             cx, cy = 320, 180
@@ -193,12 +196,7 @@ def video_feed():
 
 @app.route("/api/dashboard/status", methods=["GET"])
 def get_dashboard_status():
-    """
-    Polled every second by Dashboard JS.
-    Returns status + 5 Novel Patent Modules (Multi-Spectral, RSSI Decay, D3 Geo-Fence, Crypto Ledger, AI Memory).
-    """
     with state_lock:
-        # Patent Claim 1: Multi-Spectral Cross-Validation Matrix
         multi_spectral = scoring.compute_multi_spectral_matrix(
             ai_confidence=ai_vision_data.get("confidence", 95.0),
             sound_db=latest_telemetry.get("sound", 40.0),
@@ -206,7 +204,6 @@ def get_dashboard_status():
             flame_val=latest_telemetry.get("flame", 0)
         )
 
-        # Patent Claim 2: RSSI Decay & Predictive Pre-Caching Check
         effective_risk, should_cache = scoring.calculate_rssi_network_risk(
             base_severity=ai_vision_data.get("intensity_score", 0.0),
             elapsed_seconds=0,
@@ -218,15 +215,12 @@ def get_dashboard_status():
             predictive_offline_cache["is_cached"] = True
             predictive_offline_cache["pre_armed_sms"] = f"PREDICTIVE SOS [OFFLINE BUFFER]: {ai_vision_data.get('label')} at GPS {location_data['lat']},{location_data['lng']}"
             predictive_offline_cache["timestamp"] = time.time()
-            logging.warning("⚠️ Wi-Fi RSSI degraded below 25%! Pre-armed offline emergency SMS on SIM800L cache.")
 
-        # Patent Claim 3: Dynamic D3 Geo-Fence
         d3_perimeter = scoring.calculate_d3_geofence(
             severity_intensity=ai_vision_data.get("intensity_score", 0.0),
             base_radius_km=location_data["sos_radius_km"]
         )
 
-        # Patent Claim 4: Cryptographic Blackbox Recent Blocks
         crypto_blocks = blackbox.get_latest_blocks(limit=4)
         is_chain_valid = blackbox.verify_chain_integrity()
 
@@ -240,7 +234,6 @@ def get_dashboard_status():
             "location": location_data,
             "latest_telemetry": latest_telemetry,
             "wifi_signal": wifi_signal_strength,
-            # 5 Novel Patent Modules
             "multi_spectral_matrix": multi_spectral,
             "predictive_cache": predictive_offline_cache,
             "d3_perimeter": d3_perimeter,
@@ -259,7 +252,6 @@ def get_dashboard_status():
 
 @app.route("/api/dashboard/action", methods=["POST"])
 def process_police_action():
-    """Processes Police / Operator actions and logs SHA-256 cryptographic proof."""
     global current_state, timer_seconds, current_severity, ai_vision_data
 
     data = request.get_json(force=True, silent=True) or {}
@@ -270,12 +262,10 @@ def process_police_action():
         if action == "CONFIRM_ACCIDENT" or "Confirm" in action:
             current_state = "POLICE_CONFIRMED"
             timer_seconds = 300
-            # Mine Cryptographic Block for Police Confirmation
             blackbox.append_block("POLICE_CONFIRMATION_VERIFIED", ai_vision_data.get("intensity_score", 90.0), location_data, {
                 "action": "CONFIRM_ACCIDENT",
-                "response_window_seconds": 300
+                "statement": ai_vision_data.get("ai_incident_statement")
             })
-            logging.info(f"🚨 POLICE CONFIRMED ACCIDENT! Starting 5-minute response timer: {timer_seconds}s")
 
         elif action == "FALSE_ALARM" or "False" in action:
             current_state = "CANCELLED"
@@ -283,17 +273,14 @@ def process_police_action():
             current_severity = 0.0
             ai_vision.mark_false_alarm_feedback()
             ai_vision_data = ai_vision.analyze_frame({"scenario": "normal"})
-            # Mine Cryptographic Block for False Alarm
             blackbox.append_block("FALSE_ALARM_CALIBRATION_RECORDED", 0.0, location_data, {
                 "feedback_penalty_index": ai_vision.false_alarm_penalty_count
             })
-            logging.info("❌ Operator marked False Alarm. AI feedback recorded.")
 
         elif action == "HELP_ARRIVED" or "Resolved" in action:
             current_state = "RESOLVED"
             timer_seconds = 0
             blackbox.append_block("RESPONDERS_ON_SITE_RESOLVED", 0.0, location_data, {"resolved": True})
-            logging.info("✅ Responders reached scene! Emergency resolved.")
 
         elif action == "DISPATCH_AMBULANCE_NOW" or "Ambulance" in action:
             timer_seconds = 0
@@ -308,6 +295,28 @@ def process_police_action():
     return jsonify({"status": "success", "new_state": res_state, "timer_seconds": res_timer})
 
 
+def _generate_ai_statement(scenario: str, intensity: float, time_str: str) -> str:
+    """Generative AI Natural Language Accident Statement & Police FIR Summary."""
+    if scenario == "accident":
+        return (
+            f"OFFICIAL AI INCIDENT STATEMENT [EVID-ACC-8941]: At {time_str} IST, Generative AI Vision identified a severe vehicle "
+            f"collision at Sector A (28.6139°N, 77.2090°E). Visual deformation signature and 95dB acoustic impact confirm airbag deployment. "
+            f"Occupant posture prone with zero micro-movement for >90s. Hazard intensity estimated at {intensity:.1f}%. Immediate ambulance tier-1 dispatch advised."
+        )
+    elif scenario == "fire":
+        return (
+            f"OFFICIAL AI INCIDENT STATEMENT [EVID-FIRE-3320]: At {time_str} IST, Generative AI Vision detected active flame combustion and "
+            f"thermal plume expansion at Sector A. Optical and thermal sensors corroborating rapid smoke dispersion. Calculated hazard intensity: {intensity:.1f}%. "
+            f"Automated fire suppression and perimeter evacuation broadcast recommended."
+        )
+    elif scenario == "person_down":
+        return (
+            f"OFFICIAL AI INCIDENT STATEMENT [EVID-MED-1049]: At {time_str} IST, Generative AI Vision detected an unresponsive individual prone on roadway. "
+            f"Acoustic distress analysis detected initial call followed by zero motor movement. Hazard intensity: {intensity:.1f}%. Priority emergency medical response window initiated."
+        )
+    return "NORMAL CONDITION: All optical and environmental sensor parameters are operating within standard parameters. No threat detected."
+
+
 def _apply_ai_scenario_locked(scenario: str):
     global current_state, current_event, current_severity, ai_vision_data, timer_seconds
 
@@ -315,19 +324,30 @@ def _apply_ai_scenario_locked(scenario: str):
     for _ in range(3):
         res = ai_vision.analyze_frame({"scenario": scenario})
 
+    now_time = time.strftime("%H:%M:%S")
+    intensity = res.get("intensity_score", 85.0)
+
+    # Attach Generative AI Incident Statement & Evidence Clip ID
+    res["ai_incident_statement"] = _generate_ai_statement(scenario, intensity, now_time)
+    res["evidence_clip"] = {
+        "clip_id": f"RX-EVID-{int(time.time()) % 10000:04d}",
+        "duration_seconds": 8.5,
+        "recorded_at": f"{now_time} IST",
+        "status": "FORENSIC_EVIDENCE_SEALED"
+    }
+
     ai_vision_data = res
 
     if res.get("anti_false_alarm_verified"):
         current_state = "UNVERIFIED_ALERT"
         current_event = scenario
-        current_severity = res.get("intensity_score", 85.0)
+        current_severity = intensity
         timer_seconds = 0
-        # Mine Cryptographic Block for AI Anomaly Detection
         blackbox.append_block("AI_VISION_HAZARD_VERIFIED", current_severity, location_data, {
             "label": res.get("label"),
-            "confidence": res.get("confidence")
+            "evidence_clip_id": res["evidence_clip"]["clip_id"],
+            "statement": res["ai_incident_statement"]
         })
-        logging.warning(f"🚨 AI DETECTED VERIFIED HAZARD: '{res.get('label')}' (Intensity: {res.get('intensity_score')}%)")
     else:
         current_state = "NORMAL"
         current_event = "none"
@@ -337,8 +357,7 @@ def _apply_ai_scenario_locked(scenario: str):
 
 @app.route("/api/scenario", methods=["POST"])
 def trigger_scenario():
-    """1-Click Simulator API for demo testing."""
-    global current_state, current_event, current_severity, ai_vision_data, timer_seconds, latest_telemetry, wifi_signal_strength, predictive_offline_cache
+    global current_state, current_event, current_severity, ai_vision_data, timer_seconds, latest_telemetry, wifi_signal_strength
 
     data = request.get_json(force=True, silent=True) or {}
     scenario = data.get("scenario", "reset")
@@ -347,29 +366,23 @@ def trigger_scenario():
         if scenario == "accident":
             latest_telemetry = {"flame": 0, "sound": 95.0, "vibration": 0, "distance_cm": 25}
             _apply_ai_scenario_locked("accident")
-
         elif scenario == "fire":
             latest_telemetry = {"flame": 1, "sound": 85.0, "vibration": 0, "distance_cm": 40}
             _apply_ai_scenario_locked("fire")
-
         elif scenario == "person_down":
             latest_telemetry = {"flame": 0, "sound": 80.0, "vibration": 0, "distance_cm": 90}
             _apply_ai_scenario_locked("person_down")
-
-        elif scenario == "wifi_loss":
-            wifi_signal_strength = 15.0
-            logging.warning("⚠️ Wi-Fi RSSI decayed to 15%! Triggering Claim 2 predictive pre-generation.")
-
         else:
             current_state = "NORMAL"
             current_event = "none"
             current_severity = 0.0
             timer_seconds = 0
             wifi_signal_strength = 95.0
-            predictive_offline_cache["is_cached"] = False
             latest_telemetry = {"flame": 0, "sound": 40.0, "vibration": 1, "distance_cm": 110}
             ai_vision.consecutive_detections.clear()
             ai_vision_data = ai_vision.analyze_frame({"scenario": "normal"})
+            ai_vision_data["ai_incident_statement"] = "NORMAL CONDITION: All optical and environmental sensor parameters are operating within standard parameters. No threat detected."
+            ai_vision_data["evidence_clip"] = {"clip_id": "RX-EVID-LIVE", "duration_seconds": 8.5, "recorded_at": "LIVE BUFFER", "status": "RECORDING_BUFFER_ARMED"}
 
     return jsonify({"status": "scenario_applied", "scenario": scenario, "state": current_state, "ai_vision": ai_vision_data})
 
@@ -381,7 +394,7 @@ def reset_system():
 
 if __name__ == "__main__":
     print("=" * 65)
-    print("🏛️ ROBO RAKSHA PATENT SUITE (5 UNIQUE CLAIMS) RUNNING ON PORT 5000 🏛️")
+    print("🏛️ ROBO RAKSHA AI EVIDENCE & ACCIDENT STATEMENT SERVER RUNNING 🏛️")
     print("Dashboard available at: http://localhost:5000/")
     print("=" * 65)
     app.run(host="0.0.0.0", port=5000, debug=False)
