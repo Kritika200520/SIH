@@ -1,131 +1,102 @@
+# -*- coding: utf-8 -*-
 """
-Robo Raksha — Enhanced Patent Scoring, Multi-Spectral Matrix & D3-GeoFence Engine
-Modules for Claim 1 (Multi-Spectral), Claim 2 (RSSI Decay), and Claim 3 (D3 Perimeter).
+Bhoomi-Raksha: Risk Fusion & Threat Verification Scoring Engine
+Combines VLM Vision Depth, InSAR Satellite Radar Shift, GSI Geotechnical Fs, and IMD Rainfall.
 """
+import time, math
 
-import math
-import time
-from typing import Dict, Any, Tuple, List
+class RiskScoringEngine:
+    def __init__(self):
+        self.state = "NORMAL"
+        self.severity_score = 0
+        self.alert_level = "SAFE"
+        self.timer_seconds = 300
+        self.timer_active = False
+        self.last_update = time.time()
+        self.latest_telemetry = {}
+        self.event_log = [
+            {"time": "00:00:01", "event": "BHOOMI-RAKSHA GEOTECHNICAL MONITORING ONLINE", "type": "INFO"}
+        ]
 
-
-class ScoringEngine:
-    """
-    Core Mathematical Engine implementing:
-    1. Multi-Spectral Optical-Acoustic Cross-Validation
-    2. Predictive RSSI Network Decay Formula
-    3. Dynamic D3-Perimeter Geo-Fence Adjustment
-    4. Situation-Specific Action Menu Synthesis
-    """
-
-    FLAME_POINTS = 5
-    SOUND_POINTS = 3
-    NO_MOVEMENT_POINTS = 4
-    SOUND_DB_THRESHOLD = 70.0
-    EMERGENCY_SCORE_THRESHOLD = 7.0
-
-    def __init__(self, threshold: float = 7.0, decay_lambda: float = 0.05, rssi_beta: float = 0.4):
-        self.threshold = threshold
-        self.decay_lambda = decay_lambda
-        self.rssi_beta = rssi_beta  # Network entropy factor
-
-    def compute_multi_spectral_matrix(self, ai_confidence: float, sound_db: float, distance_cm: int, flame_val: int) -> Dict[str, Any]:
+    def compute_composite_risk(self, vlm_data, insar_disp_mm, fs_data, rainfall_24h_mm, cluster_count=1):
         """
-        [PATENT CLAIM 1: Multi-Spectral Cross-Validation Matrix]
-        Cross-validates Generative AI visual confidence against:
-        - Optical Flow Visual Weight (40%)
-        - Acoustic Frequency FFT Signature (35%)
-        - Ultrasonic Structural Depth Distortion (25%)
+        Multi-Factor Threat Index (0 - 100):
+        - VLM Crack Depth & Turbidity: 30%
+        - InSAR Satellite Displacement: 25%
+        - Geotechnical Slope Fs (Inverted): 25%
+        - IMD 24h Cumulative Rainfall: 20%
+        - Multi-report cluster multiplier
         """
-        # 1. Optical Confidence (0-100%)
-        optical_score = min(100.0, max(0.0, ai_confidence))
-
-        # 2. Acoustic FFT Signature Match (0-100%)
-        # Normal ambient is ~40dB; 90dB+ strongly correlates with high acoustic energy signature
-        acoustic_score = min(100.0, max(0.0, (sound_db / 100.0) * 100.0))
-
-        # 3. Structural Depth Variance (0-100%)
-        # Distance < 50cm indicates physical proximity or sudden obstacle presence
-        depth_score = min(100.0, max(15.0, (150.0 - min(150, distance_cm)) / 150.0 * 100.0))
-
-        # Fused Tri-Modal Corroboration Index
-        fused_index = (optical_score * 0.40) + (acoustic_score * 0.35) + (depth_score * 0.25)
-        is_corroborated = fused_index >= 65.0 or (flame_val > 0 and optical_score >= 80.0)
-
+        # 1. VLM Component (0 - 100)
+        crack_depth = vlm_data.get("fissure_depth_cm", 0.0)
+        turbidity = vlm_data.get("turbidity_index_pct", 0.0)
+        tilt = vlm_data.get("vegetation_tilt_deg", 0.0)
+        
+        vlm_score = min(100.0, (crack_depth / 10.0) * 50.0 + (turbidity / 100.0) * 30.0 + (tilt / 25.0) * 20.0)
+        
+        # 2. InSAR Component (0 - 100)
+        insar_score = min(100.0, (insar_disp_mm / 20.0) * 100.0)
+        
+        # 3. Geotechnical Slope Fs Component
+        # Fs = 1.0 is critical (100 risk), Fs >= 2.0 is safe (0 risk)
+        fs = fs_data.get("safety_factor_fs", 1.8)
+        if fs <= 0.8:
+            fs_score = 100.0
+        elif fs <= 1.0:
+            fs_score = 90.0
+        elif fs <= 1.3:
+            fs_score = 65.0
+        elif fs <= 1.6:
+            fs_score = 30.0
+        else:
+            fs_score = 10.0
+            
+        # 4. Rainfall Component (0 - 100)
+        rainfall_score = min(100.0, (rainfall_24h_mm / 100.0) * 100.0)
+        
+        # Weighted Fusion
+        composite = (0.30 * vlm_score) + (0.25 * insar_score) + (0.25 * fs_score) + (0.20 * rainfall_score)
+        
+        # Cluster Multiplier (Corroborating Crowdsourced Reports within 500m)
+        if cluster_count >= 3:
+            composite = min(100.0, composite * 1.15)
+        elif cluster_count == 2:
+            composite = min(100.0, composite * 1.08)
+            
+        final_score = round(composite, 1)
+        
+        # Determine Threat Classification
+        if final_score >= 70.0:
+            status = "CRITICAL_EMERGENCY"
+            verification = "VERIFIED_MULTI_FACTOR_IMMINENT"
+        elif final_score >= 45.0:
+            status = "ELEVATED_WATCH"
+            verification = "CORROBORATING_ANOMALIES_DETECTED"
+        else:
+            status = "NORMAL_SAFE"
+            verification = "WITHIN_NOMINAL_BASELINES"
+            
         return {
-            "optical_confidence": round(optical_score, 1),
-            "acoustic_fft_match": round(acoustic_score, 1),
-            "structural_depth_variance": round(depth_score, 1),
-            "fused_corroboration_index": round(fused_index, 1),
-            "is_corroborated": is_corroborated,
-            "signature_status": "CORROBORATED (Tri-Modal Verified)" if is_corroborated else "UNVERIFIED (Single Modality Only)"
+            "composite_risk_score": final_score,
+            "status": status,
+            "verification_status": verification,
+            "breakdown": {
+                "vlm_vision_score": round(vlm_score, 1),
+                "insar_radar_score": round(insar_score, 1),
+                "geotechnical_fs_score": round(fs_score, 1),
+                "imd_rainfall_score": round(rainfall_score, 1),
+                "spatial_cluster_reports": cluster_count
+            }
         }
 
-    def calculate_rssi_network_risk(self, base_severity: float, elapsed_seconds: float, current_telemetry: Dict[str, Any], wifi_rssi: float) -> Tuple[float, bool]:
-        """
-        [PATENT CLAIM 2: Predictive RSSI Network Decay Formula]
-        R_effective(t) = [S0 * e^(-lambda * t) + Delta_S_live] * [1 + beta * ((100 - RSSI) / 100)]
-        """
-        live_score, _ = self.compute_baseline_score(current_telemetry)
-        decayed_initial = base_severity * math.exp(-self.decay_lambda * elapsed_seconds)
-        raw_risk = max(live_score, decayed_initial)
+    def add_log(self, event_text, event_type="INFO"):
+        curr_time = time.strftime("%H:%M:%S")
+        self.event_log.insert(0, {
+            "time": curr_time,
+            "event": event_text,
+            "type": event_type
+        })
+        if len(self.event_log) > 25:
+            self.event_log.pop()
 
-        # Network Degradation Multiplier
-        bounded_rssi = max(5.0, min(100.0, wifi_rssi))
-        network_multiplier = 1.0 + self.rssi_beta * ((100.0 - bounded_rssi) / 100.0)
-
-        effective_risk = round(raw_risk * network_multiplier, 2)
-        should_pre_cache_sms = bounded_rssi < 25.0
-
-        return effective_risk, should_pre_cache_sms
-
-    def calculate_d3_geofence(self, severity_intensity: float, base_radius_km: float = 5.0) -> Dict[str, Any]:
-        """
-        [PATENT CLAIM 3: Dynamic Density-Adjusted 5km Geo-Fence (D3-Perimeter)]
-        Adapts the 5km base broadcast perimeter based on accident severity and estimated responder ETA.
-        """
-        # Dynamic radius expansion for high-intensity multi-vehicle or fire incidents
-        intensity_factor = max(1.0, (severity_intensity / 100.0) * 1.5)
-        active_radius_km = round(base_radius_km * intensity_factor, 2)
-
-        # Estimated responders in dynamically scaled perimeter
-        estimated_responders_in_range = int(round(active_radius_km * 2.8))
-        estimated_eta_minutes = max(3, int(round(12.0 / active_radius_km * 1.8)))
-
-        return {
-            "base_radius_km": base_radius_km,
-            "active_radius_km": active_radius_km,
-            "responders_in_range": estimated_responders_in_range,
-            "estimated_first_responder_eta": f"{estimated_eta_minutes} mins",
-            "perimeter_shape": "DYNAMIC_DENSITY_ELLIPSE",
-            "status": "ARMED_ACTIVE"
-        }
-
-    def compute_baseline_score(self, telemetry: Dict[str, Any]) -> Tuple[float, str]:
-        flame = int(telemetry.get("flame", 0))
-        sound = float(telemetry.get("sound", 0))
-        vibration = int(telemetry.get("vibration", 0))
-
-        score = 0.0
-        events = []
-
-        if flame > 0:
-            score += self.FLAME_POINTS
-            events.append("fire")
-
-        if sound >= self.SOUND_DB_THRESHOLD:
-            score += self.SOUND_POINTS
-            events.append("loud_sound")
-
-        if vibration == 0:
-            score += self.NO_MOVEMENT_POINTS
-            events.append("no_movement")
-
-        primary_event = "none"
-        if "fire" in events:
-            primary_event = "fire"
-        elif "loud_sound" in events and "no_movement" in events:
-            primary_event = "person_down_or_distress"
-        elif "loud_sound" in events:
-            primary_event = "acoustic_anomaly"
-
-        return score, primary_event
+scoring_engine = RiskScoringEngine()
