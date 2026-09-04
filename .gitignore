@@ -23,6 +23,12 @@ wheels/
 venv/
 ENV/
 
+# Environment & Secrets
+.env
+.env.*
+server/.env
+*.secret
+
 # IDE & OS
 .vscode/
 .idea/

@@ -1032,6 +1032,142 @@ html, body {
   50% { opacity: 0.4; }
 }
 
+/* ==========================================================================
+   AI SPAM & AUTHENTICITY PROTOCOL CARD
+   ========================================================================== */
+.spam-filter-card {
+  background: rgba(14, 19, 32, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.spam-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.spam-title-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.spam-icon {
+  font-size: 0.9rem;
+}
+
+.spam-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #fff;
+  font-family: var(--font-mono);
+}
+
+.spam-pitch-note {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+  margin: 0;
+}
+
+.spam-preset-pills {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+
+.spam-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-secondary);
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 5px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spam-pill:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.spam-pill--active {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-safe);
+  border-color: var(--accent-safe);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+}
+
+.spam-pill--blocked {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--accent-danger);
+  border-color: var(--accent-danger);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+}
+
+.spam-telemetry-box {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.spam-telem-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.67rem;
+  font-family: var(--font-mono);
+}
+
+.spam-telem-row .telem-k {
+  color: var(--text-muted);
+}
+
+.spam-telem-row .telem-v {
+  font-weight: 600;
+  max-width: 190px;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spam-reason-box {
+  background: rgba(16, 185, 129, 0.08);
+  border-left: 3px solid var(--accent-safe);
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+
+.spam-reason-box--blocked {
+  background: rgba(239, 68, 68, 0.1);
+  border-left-color: var(--accent-danger);
+}
+
+.spam-reason-text {
+  font-size: 0.68rem;
+  color: var(--text-primary);
+  line-height: 1.35;
+  display: block;
+}
+
 /* Responsive adjustment */
 @media (max-width: 1100px) {
   .floating-panel {

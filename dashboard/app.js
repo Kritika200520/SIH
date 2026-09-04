@@ -621,10 +621,119 @@ function renderDashboard(data) {
     }
   }
 
-  // 6. Mini Audit Ticker
+  // 6. AI Anti-Spam & Image Authenticity Protocol
+  if (telem.spam_filter) {
+    updateSpamFilterUI(telem.spam_filter);
+  }
+
+  // 7. Mini Audit Ticker
   if (data.event_log && data.event_log.length > 0) {
     const latestEvent = data.event_log[0];
     document.getElementById("audit-ticker-msg").innerText = `[${latestEvent.time}] ${latestEvent.event}`;
+  }
+}
+
+/**
+ * Render AI Anti-Spam & Authenticity Protocol HUD
+ */
+function updateSpamFilterUI(verif) {
+  if (!verif) return;
+
+  const badge = document.getElementById("spam-status-badge");
+  const reasonBox = document.getElementById("spam-reason-box");
+  const reasonText = document.getElementById("spam-decision-reason");
+  const gpsDelta = document.getElementById("spam-gps-delta");
+  const towerCid = document.getElementById("spam-tower-cid");
+  const dhashMatch = document.getElementById("spam-dhash-match");
+  const elaScore = document.getElementById("spam-ela-score");
+
+  const isPassed = (verif.verification_status === "VERIFIED_AUTHENTIC");
+  const isFlagged = (verif.verification_status === "SUSPICIOUS_FLAGGED");
+
+  if (badge) {
+    badge.innerText = `${verif.status_badge} (${verif.composite_trust_score}%)`;
+    badge.className = isPassed ? "badge-mini badge-mini--safe" : (isFlagged ? "badge-mini badge-mini--amber" : "badge-mini badge-mini--danger");
+  }
+
+  if (reasonBox) {
+    reasonBox.className = isPassed ? "spam-reason-box" : "spam-reason-box spam-reason-box--blocked";
+  }
+
+  if (reasonText) {
+    const icon = isPassed ? "✅" : (isFlagged ? "⚠️" : "🚫");
+    reasonText.innerHTML = `<strong>${icon} Decision:</strong> ${verif.decision_reason}`;
+  }
+
+  const geo = verif.geolocation_check || {};
+  if (gpsDelta) {
+    if (geo.exif_gps_status === "MATCH") {
+      gpsDelta.innerHTML = `<span class="text-safe">${geo.gps_delta_meters}m Delta (MATCH - Ward 9)</span>`;
+    } else if (geo.exif_gps_status === "STRIPPED_OR_MISSING") {
+      gpsDelta.innerHTML = `<span class="text-amber">Stripped / WhatsApp WebP</span>`;
+    } else {
+      gpsDelta.innerHTML = `<span class="text-danger">${geo.distance_to_sector_km}km (OUT OF BOUNDS)</span>`;
+    }
+  }
+
+  const tower = verif.cell_tower_check || {};
+  if (towerCid) {
+    if (tower.telecom_circle_valid) {
+      towerCid.innerHTML = `<span class="text-safe">Circle Valid (LAC:${tower.lac} / CID:${tower.cid})</span>`;
+    } else {
+      towerCid.innerHTML = `<span class="text-danger">MISMATCH (Non-Disaster Circle)</span>`;
+    }
+  }
+
+  const auth = verif.authenticity_check || {};
+  if (dhashMatch) {
+    if (auth.duplicate_detected) {
+      dhashMatch.innerHTML = `<span class="text-danger">${auth.similarity_match_pct}% Match (${auth.matched_archive_record})</span>`;
+    } else {
+      dhashMatch.innerHTML = `<span class="text-safe">0% Duplicate (Unique Field Frame)</span>`;
+    }
+  }
+
+  if (elaScore) {
+    if (auth.tampering_software_flag) {
+      elaScore.innerHTML = `<span class="text-danger">TAMPERED (${auth.software_signature})</span>`;
+    } else if (auth.ela_compression_score >= 80) {
+      elaScore.innerHTML = `<span class="text-safe">${auth.ela_compression_score}% Raw Sensor Consistency</span>`;
+    } else {
+      elaScore.innerHTML = `<span class="text-amber">${auth.ela_compression_score}% Recompressed</span>`;
+    }
+  }
+}
+
+/**
+ * Interactive Spam Filter Preset Trigger
+ */
+async function testSpamPreset(presetKey) {
+  document.querySelectorAll(".spam-pill").forEach(p => {
+    p.classList.remove("spam-pill--active");
+    p.classList.remove("spam-pill--blocked");
+  });
+  
+  const activePill = document.getElementById(`btn-spam-${presetKey}`);
+  if (activePill) {
+    if (presetKey === "live_authentic_field") {
+      activePill.classList.add("spam-pill--active");
+    } else {
+      activePill.classList.add("spam-pill--blocked");
+    }
+  }
+
+  try {
+    const res = await fetch("/api/spam-filter/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ preset_key: presetKey })
+    });
+    const data = await res.json();
+    if (data.success && data.verification) {
+      updateSpamFilterUI(data.verification);
+    }
+  } catch (err) {
+    console.error("Spam preset test error:", err);
   }
 }
 

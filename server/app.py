@@ -12,6 +12,7 @@ from vlm_engine import vlm_engine
 from broadcast_agent import broadcast_agent
 from scoring_engine import scoring_engine
 from routing_engine import routing_engine
+from spam_filter import spam_filter_engine
 
 app = Flask(__name__, static_folder="../dashboard", static_url_path="")
 CORS(app)
@@ -26,7 +27,8 @@ CURRENT_STATE = {
     "selected_dialect": "Garhwali",
     "operator_status": "MONITORING",
     "sim_reports": [],
-    "last_broadcast": None
+    "last_broadcast": None,
+    "last_spam_check": None
 }
 
 def init_default_scenario(scenario_key="chamoli_fissure"):
@@ -69,6 +71,13 @@ def init_default_scenario(scenario_key="chamoli_fissure"):
         turbidity_pct=vlm_data.get("turbidity_index_pct", 45.0)
     )
 
+    # AI Hallucination & Spam Filter Verification
+    spam_verif = spam_filter_engine.verify_report(
+        test_case_key="live_authentic_field",
+        sector_id=sector_profile["id"]
+    )
+    CURRENT_STATE["last_spam_check"] = spam_verif
+
     CURRENT_STATE["active_scenario_id"] = scenario_key
     CURRENT_STATE["region_id"] = sector_profile["id"]
     CURRENT_STATE["selected_dialect"] = dialect_to_use
@@ -89,7 +98,8 @@ def init_default_scenario(scenario_key="chamoli_fissure"):
         "cluster_report_count": cluster_n,
         "sector_profile": sector_profile,
         "broadcast": broadcast_data,
-        "dynamic_routing": nav_routes
+        "dynamic_routing": nav_routes,
+        "spam_filter": spam_verif
     }
     
     scoring_engine.add_log(f"Scenario Activated: {vlm_data['title']} (Risk: {scoring_engine.severity_score}%)", "ALERT" if scoring_engine.severity_score >= 65 else "INFO")
@@ -119,7 +129,8 @@ def get_dashboard_status():
         "telemetry": scoring_engine.latest_telemetry,
         "event_log": scoring_engine.event_log,
         "dialects": broadcast_agent.list_dialects(),
-        "available_scenarios": vlm_engine.get_presets()
+        "available_scenarios": vlm_engine.get_presets(),
+        "spam_filter_presets": spam_filter_engine.get_test_presets()
     })
 
 @app.route("/api/scenario/trigger", methods=["POST"])
@@ -152,6 +163,33 @@ def get_navigation_routes():
         "routing": routes
     })
 
+@app.route("/api/spam-filter/verify", methods=["POST"])
+def verify_spam_protocol():
+    data = request.get_json() or {}
+    preset_key = data.get("preset_key", "live_authentic_field")
+    sector_id = data.get("sector_id", CURRENT_STATE["region_id"])
+    telemetry = data.get("telemetry")
+    
+    result = spam_filter_engine.verify_report(
+        telemetry=telemetry,
+        sector_id=sector_id,
+        test_case_key=preset_key
+    )
+    CURRENT_STATE["last_spam_check"] = result
+    scoring_engine.latest_telemetry["spam_filter"] = result
+    
+    if result["verification_status"] == "REJECTED_SPAM":
+        scoring_engine.add_log(f"AI Anti-Spam BLOCKED: {result['decision_reason']}", "CRITICAL")
+    elif result["verification_status"] == "SUSPICIOUS_FLAGGED":
+        scoring_engine.add_log(f"AI Anti-Spam FLAGGED: {result['decision_reason']}", "WARNING")
+    else:
+        scoring_engine.add_log(f"AI Anti-Spam PASSED: Trust Score {result['composite_trust_score']}%", "INFO")
+        
+    return jsonify({
+        "success": True,
+        "verification": result
+    })
+
 @app.route("/api/citizen/report", methods=["POST"])
 def submit_citizen_report():
     data = request.get_json() or {}
@@ -159,18 +197,41 @@ def submit_citizen_report():
     voice_text = data.get("voice_memo", "Heavy soil fissures and rock displacement on upper cliff path.")
     location = data.get("location", "Chamoli Village Sector 3")
     reporter = data.get("reporter_name", "Local Villager (WhatsApp Ingestion)")
+    preset_key = data.get("test_case_key", "live_authentic_field")
+    sector_id = data.get("sector_id", CURRENT_STATE["region_id"])
     
+    # Run Anti-Spam & Authenticity Protocol FIRST
+    verif = spam_filter_engine.verify_report(
+        image_data=image_base64,
+        telemetry=data.get("telemetry"),
+        sector_id=sector_id,
+        test_case_key=preset_key
+    )
+    CURRENT_STATE["last_spam_check"] = verif
+    scoring_engine.latest_telemetry["spam_filter"] = verif
+    
+    if verif["verification_status"] == "REJECTED_SPAM":
+        scoring_engine.add_log(f"Spam Protocol Blocked Report: {verif['decision_reason']}", "CRITICAL")
+        return jsonify({
+            "success": False,
+            "spam_blocked": True,
+            "message": "Report blocked by AI Anti-Spam & Authenticity Protocol.",
+            "verification": verif
+        }), 400
+        
     vlm_result = vlm_engine.analyze_image(image_data=image_base64, voice_text=voice_text, location=location)
     vlm_result["reporter_info"] = reporter
     vlm_result["timestamp"] = time.strftime("%H:%M:%S")
+    vlm_result["spam_verification"] = verif
     
     CURRENT_STATE["sim_reports"].insert(0, vlm_result)
-    scoring_engine.add_log(f"Citizen Ingestion (WhatsApp): {vlm_result['hazard_classification']} from {location}", "WARNING")
+    scoring_engine.add_log(f"Citizen Ingestion Verified: {vlm_result['hazard_classification']} from {location} (Trust: {verif['composite_trust_score']}%)", "WARNING")
     
     return jsonify({
         "success": True,
-        "message": "Citizen multimodal report processed and verified by VLM Engine.",
-        "vlm_result": vlm_result
+        "message": "Citizen report passed Anti-Spam Protocol and analyzed by VLM Engine.",
+        "vlm_result": vlm_result,
+        "verification": verif
     })
 
 @app.route("/api/reports", methods=["GET"])

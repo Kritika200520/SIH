@@ -168,10 +168,67 @@
 
       <!-- VLM Geotechnical Diagnostic Explanation -->
       <div class="explanation-card">
-        <span class="exp-title">?? GEOTECHNICAL AI DIAGNOSIS:</span>
+        <span class="exp-title">📊 GEOTECHNICAL AI DIAGNOSIS:</span>
         <p class="exp-text" id="vlm-explanation">
           VLM extracted an 8.4cm deep longitudinal tension fissure along the crown scarp. High pore-water pressure indicates imminent rotational slump failure.
         </p>
+      </div>
+
+      <!-- 4. AI Hallucination & Spam Filter (Computer Vision Protocol) -->
+      <div class="spam-filter-card">
+        <div class="spam-header">
+          <div class="spam-title-group">
+            <span class="spam-icon">🛡️</span>
+            <span class="spam-title">AI SPAM & AUTHENTICITY PROTOCOL</span>
+          </div>
+          <span class="badge-mini badge-mini--safe" id="spam-status-badge">PASSED (99%)</span>
+        </div>
+
+        <p class="spam-pitch-note">
+          Cross-references EXIF metadata with live cell tower stream and perceptual sub-hashes to block stock photos, old disasters, and GPS spoofing.
+        </p>
+
+        <!-- Interactive Test Triggers -->
+        <div class="spam-preset-pills">
+          <button class="spam-pill spam-pill--active" id="btn-spam-live_authentic_field" onclick="testSpamPreset('live_authentic_field')">
+            🟢 Field Photo (Joshimath)
+          </button>
+          <button class="spam-pill" id="btn-spam-recycled_stock_spam" onclick="testSpamPreset('recycled_stock_spam')">
+            🔴 Recycled Stock Photo
+          </button>
+          <button class="spam-pill" id="btn-spam-gps_spoof_hoax" onclick="testSpamPreset('gps_spoof_hoax')">
+            🔴 GPS Spoof (Mumbai)
+          </button>
+          <button class="spam-pill" id="btn-spam-manipulated_photoshop_fake" onclick="testSpamPreset('manipulated_photoshop_fake')">
+            🔴 Photoshop Tampered
+          </button>
+        </div>
+
+        <!-- Real-time Verification Telemetry -->
+        <div class="spam-telemetry-box">
+          <div class="spam-telem-row">
+            <span class="telem-k">🛰️ EXIF vs GPS STREAM:</span>
+            <span class="telem-v text-safe" id="spam-gps-delta">14.0 m (MATCH - Ward 9)</span>
+          </div>
+          <div class="spam-telem-row">
+            <span class="telem-k">📶 TOWER TRIANGULATION:</span>
+            <span class="telem-v text-safe" id="spam-tower-cid">BSNL Circle UK (LAC: 2481 / CID: 58210)</span>
+          </div>
+          <div class="spam-telem-row">
+            <span class="telem-k">🖼️ dHash DEDUPLICATION:</span>
+            <span class="telem-v text-safe" id="spam-dhash-match">0% Duplicate (Unique Field Frame)</span>
+          </div>
+          <div class="spam-telem-row">
+            <span class="telem-k">🔬 COMPRESSION / ELA:</span>
+            <span class="telem-v text-safe" id="spam-ela-score">96% Raw Sensor Consistency</span>
+          </div>
+        </div>
+
+        <div class="spam-reason-box" id="spam-reason-box">
+          <span class="spam-reason-text" id="spam-decision-reason">
+            ✅ Verified: EXIF GPS, Cell Tower ID, Raw Sensor Noise & Timestamp match. Zero duplicate hashes in national archive.
+          </span>
+        </div>
       </div>
     </div>
   </aside>
