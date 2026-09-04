@@ -7,12 +7,21 @@ import os, time, json
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 
+# Load .env file for API credentials
+try:
+    from dotenv import load_dotenv
+    load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+    load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
+except ImportError:
+    pass  # dotenv optional; credentials can be set as system env vars
+
 from geo_rag import geo_rag_engine
 from vlm_engine import vlm_engine
 from broadcast_agent import broadcast_agent
 from scoring_engine import scoring_engine
 from routing_engine import routing_engine
 from spam_filter import spam_filter_engine
+from whatsapp_service import whatsapp_service
 
 app = Flask(__name__, static_folder="../dashboard", static_url_path="")
 CORS(app)
@@ -291,6 +300,28 @@ def operator_action():
         "state": scoring_engine.state,
         "message": f"Action {action} recorded."
     })
+
+@app.route("/api/whatsapp/send", methods=["POST"])
+def send_whatsapp_alert():
+    data = request.get_json() or {}
+    recipient = data.get("phone", "")
+    sector_id = CURRENT_STATE.get("region_id", "chamoli_joshimath")
+    bc = CURRENT_STATE.get("last_broadcast") or {}
+
+    alert_text = bc.get("speech_script", "CRITICAL EMERGENCY: Severe landslide risk verified. Evacuate immediately!")
+    safe_route = bc.get("evacuation_route", "Evacuate to designated high-ridge shelter immediately.")
+
+    if not recipient:
+        return jsonify({"success": False, "message": "Phone number required. E.g. +919876543210"}), 400
+
+    result = whatsapp_service.send_evacuation_alert(
+        recipient_phone=recipient,
+        alert_message=alert_text,
+        safe_route=safe_route
+    )
+    if result.get("success"):
+        scoring_engine.add_log(f"WhatsApp SOS Dispatched to {recipient} via Meta Cloud API", "CRITICAL")
+    return jsonify(result)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
