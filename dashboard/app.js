@@ -1,7 +1,7 @@
 /**
  * BHOOMI-RAKSHA DASHBOARD CONTROLLER
+ * Fullscreen Map Hero & Linear / Apple Titanium Glass HUD
  * Disaster Management: Landslide & Flash-Flood Early Warning System
- * Featuring Interactive Google Maps-Style Traffic/Hazard Corridors
  */
 
 // Global Map & UI State
@@ -24,7 +24,7 @@ let activeScenario = "chamoli_fissure";
 
 // Coordinates and Realistic Mountain Road Network Waypoints
 const SECTOR_DATA = {
-  "chamoli_joshimath": {
+  "chamoli_fissure": {
     lat: 30.5562,
     lng: 79.5636,
     zoom: 14,
@@ -32,7 +32,7 @@ const SECTOR_DATA = {
     roads: [
       {
         id: "rd-nh58-1",
-        name: "NH-58 Badrinath National Highway (Marwari Ward 9)",
+        name: "NH-58 Badrinath Highway (Marwari Ward 9)",
         status: "BLOCKED",
         severity: "CRITICAL",
         color: "#ff2a5f",
@@ -53,7 +53,7 @@ const SECTOR_DATA = {
         name: "Joshimath Lower Bazaar Road (Downslope Ravine)",
         status: "SLOW",
         severity: "WARNING",
-        color: "#ffb703",
+        color: "#f59e0b",
         weight: 6,
         opacity: 0.9,
         cause: "Subsurface Subsidence 14.8mm/yr & Pavement Buckling",
@@ -70,7 +70,7 @@ const SECTOR_DATA = {
         name: "Auli High Ridge Evacuation Corridor (Safe Route)",
         status: "CLEAR",
         severity: "SAFE",
-        color: "#00f5a0",
+        color: "#10b981",
         weight: 6,
         opacity: 0.9,
         cause: "Stable Bedrock Quartzite (Elevation +2800m)",
@@ -88,7 +88,7 @@ const SECTOR_DATA = {
     fissurePoint: { lat: 30.5562, lng: 79.5636, label: "Tension Scarp: 8.4cm Depth" }
   },
 
-  "wayanad_meppadi": {
+  "wayanad_flood": {
     lat: 11.5332,
     lng: 76.1320,
     zoom: 14,
@@ -104,7 +104,7 @@ const SECTOR_DATA = {
         opacity: 0.95,
         cause: "Massive Debris Flow Slurry (Turbidity 94.8%) & Bridge Damage",
         detour: "Halt all traffic; evacuate upstream towards Chembra Peak Camp",
-        delay: "ROAD CUT-OFF",
+        delay: "BRIDGE CUT-OFF",
         points: [
           [11.5280, 76.1260],
           [11.5310, 76.1290],
@@ -117,7 +117,7 @@ const SECTOR_DATA = {
         name: "Mundakkai Tea Estate Access Road",
         status: "SLOW",
         severity: "WARNING",
-        color: "#ffb703",
+        color: "#f59e0b",
         weight: 6,
         opacity: 0.9,
         cause: "Heavy Water Inundation & Silt Accumulation (145mm Rain)",
@@ -134,7 +134,7 @@ const SECTOR_DATA = {
         name: "Meppadi Higher Secondary School Evacuation Corridor",
         status: "CLEAR",
         severity: "SAFE",
-        color: "#00f5a0",
+        color: "#10b981",
         weight: 6,
         opacity: 0.9,
         cause: "Elevated Ridge Safe Zone",
@@ -152,7 +152,7 @@ const SECTOR_DATA = {
     fissurePoint: { lat: 11.5332, lng: 76.1320, label: "Debris Slurry Dam Breach Zone" }
   },
 
-  "shimla_ridge": {
+  "shimla_subsidence": {
     lat: 31.1048,
     lng: 77.1734,
     zoom: 14,
@@ -181,7 +181,7 @@ const SECTOR_DATA = {
         name: "Krishna Nagar Downhill Road",
         status: "SLOW",
         severity: "WARNING",
-        color: "#ffb703",
+        color: "#f59e0b",
         weight: 6,
         opacity: 0.9,
         cause: "Subsurface Creep & Slope Surcharge",
@@ -198,7 +198,7 @@ const SECTOR_DATA = {
         name: "The Ridge Municipal Plaza Evacuation Corridor",
         status: "CLEAR",
         severity: "SAFE",
-        color: "#00f5a0",
+        color: "#10b981",
         weight: 6,
         opacity: 0.9,
         cause: "Stable Jutogh Quartzite Bedrock",
@@ -226,7 +226,7 @@ const SECTOR_DATA = {
         name: "NH-58 Rishikesh-Devprayag Mountain Highway",
         status: "CLEAR",
         severity: "SAFE",
-        color: "#00f5a0",
+        color: "#10b981",
         weight: 6,
         opacity: 0.9,
         cause: "Nominal Dry Road (Fs = 2.1)",
@@ -262,35 +262,38 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /**
- * Initialize Leaflet Map with Custom Cyber Dark Tiles & Click Interactivity
+ * Initialize Fullscreen Leaflet Map
  */
 function initMap() {
-  const defaultCoord = SECTOR_DATA["chamoli_joshimath"];
+  const defaultCoord = SECTOR_DATA["chamoli_fissure"];
   map = L.map('hazard-map', {
-    zoomControl: true,
+    zoomControl: false,
     attributionControl: false
   }).setView([defaultCoord.lat, defaultCoord.lng], defaultCoord.zoom);
 
-  // High-Contrast CartoDB Voyager Map Layer
+  // CartoDB Voyager Map Layer
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
     maxZoom: 19,
     subdomains: 'abcd'
   }).addTo(map);
+
+  // Add zoom control top right
+  L.control.zoom({ position: 'topright' }).addTo(map);
 
   // Map Click Listener to simulate dynamic report placement
   map.on('click', (e) => {
     handleMapClick(e.latlng);
   });
 
-  renderMapCorridors("chamoli_joshimath");
+  renderMapCorridors("chamoli_fissure");
 }
 
 /**
  * Render Interactive Color-Coded Road Corridors & Hazard Overlays
  */
-function renderMapCorridors(sectorKey) {
+function renderMapCorridors(scenarioKey) {
   if (!map) return;
-  const sector = SECTOR_DATA[sectorKey] || SECTOR_DATA["chamoli_joshimath"];
+  const sector = SECTOR_DATA[scenarioKey] || SECTOR_DATA["chamoli_fissure"];
 
   // Clear existing layers
   Object.keys(currentLayers).forEach(k => {
@@ -311,7 +314,6 @@ function renderMapCorridors(sectorKey) {
       className: road.status === 'BLOCKED' ? 'traffic-road-blocked' : (road.status === 'SLOW' ? 'traffic-road-slow' : 'traffic-road-clear')
     });
 
-    // Interactive Hover & Click
     polyline.on('mouseover', () => updateRoadHUD(road));
     polyline.on('click', () => {
       updateRoadHUD(road);
@@ -359,7 +361,7 @@ function renderMapCorridors(sectorKey) {
   if (sector.shelter) {
     const shelterPin = L.circleMarker([sector.shelter.lat, sector.shelter.lng], {
       radius: 10,
-      fillColor: "#00f5a0",
+      fillColor: "#10b981",
       color: "#ffffff",
       weight: 3,
       opacity: 1,
@@ -380,8 +382,7 @@ function renderMapCorridors(sectorKey) {
       color: "#ffffff",
       weight: 3,
       opacity: 1,
-      fillOpacity: 0.95,
-      className: "pulse-fissure-marker"
+      fillOpacity: 0.95
     });
     photoPin.bindPopup(`<b>?? CITIZEN PHOTO VERIFIED</b><br>${sector.fissurePoint.label}<br>VLM Ground Tension Failure Confirmed`);
     if (layerVisibility.pins) {
@@ -398,18 +399,25 @@ function updateRoadHUD(road) {
   document.getElementById("hud-road-name").innerText = road.name;
   
   const statusEl = document.getElementById("hud-status");
+  const delayEl = document.getElementById("hud-delay");
+  
   if (road.status === "BLOCKED") {
-    statusEl.innerHTML = `? 94% BLOCKED (CRITICAL HAZARD)`;
-    statusEl.className = "hud-v text-danger";
+    statusEl.innerHTML = `ROAD BLOCKED (ACTIVE FISSURE SLUMP)`;
+    statusEl.className = "traffic-status-text text-danger";
+    delayEl.innerText = road.delay;
+    delayEl.className = "traffic-delay-tag";
   } else if (road.status === "SLOW") {
-    statusEl.innerHTML = `?? SLOW TRAFFIC (${road.delay})`;
-    statusEl.className = "hud-v text-warning";
+    statusEl.innerHTML = `SLOW TRAFFIC (${road.delay})`;
+    statusEl.className = "traffic-status-text text-amber";
+    delayEl.innerText = road.delay;
+    delayEl.className = "traffic-delay-tag";
   } else {
-    statusEl.innerHTML = `? CLEAR & OPEN (EVACUATION CORRIDOR)`;
-    statusEl.className = "hud-v text-safe";
+    statusEl.innerHTML = `CLEAR & OPEN (EVACUATION CORRIDOR)`;
+    statusEl.className = "traffic-status-text text-safe";
+    delayEl.innerText = "Flowing";
+    delayEl.className = "traffic-delay-tag";
   }
 
-  document.getElementById("hud-cause").innerText = road.cause;
   document.getElementById("hud-detour").innerText = road.detour;
 }
 
@@ -421,10 +429,10 @@ function toggleMapLayer(layerName) {
   const btn = document.getElementById(`tog-${layerName}`);
   
   if (layerVisibility[layerName]) {
-    btn.classList.add("layer-btn--active");
+    btn.classList.add("layer-pill--active");
     currentLayers[layerName].forEach(l => l.addTo(map));
   } else {
-    btn.classList.remove("layer-btn--active");
+    btn.classList.remove("layer-pill--active");
     currentLayers[layerName].forEach(l => map.removeLayer(l));
   }
 }
@@ -444,7 +452,6 @@ async function handleMapClick(latlng) {
   newPin.bindPopup(`<b>?? NEW CITIZEN UPLOAD PROCESSED</b><br>Lat: ${latlng.lat.toFixed(4)}, Lng: ${latlng.lng.toFixed(4)}<br>VLM Depth: 8.1cm Fissure Detected!`).openPopup();
   currentLayers.pins.push(newPin);
 
-  // Send to backend API
   try {
     await fetch("/api/citizen/report", {
       method: "POST",
@@ -497,26 +504,25 @@ function renderDashboard(data) {
   // 1. Header Telemetry
   const trafficStat = document.getElementById("stat-traffic");
   if (data.severity_score >= 70) {
-    trafficStat.innerHTML = `?? SEVERE ROAD BLOCKAGES`;
-    trafficStat.className = "stat-v text-danger";
+    trafficStat.innerHTML = `?? 94% BLOCKED`;
+    trafficStat.className = "chip-v text-danger";
   } else if (data.severity_score >= 40) {
-    trafficStat.innerHTML = `?? CAUTION / SLOW TRAFFIC`;
-    trafficStat.className = "stat-v text-warning";
+    trafficStat.innerHTML = `?? SLOW TRAFFIC`;
+    trafficStat.className = "chip-v text-amber";
   } else {
-    trafficStat.innerHTML = `?? ROADS CLEAR & OPEN`;
-    trafficStat.className = "stat-v text-safe";
+    trafficStat.innerHTML = `?? ROADS CLEAR`;
+    trafficStat.className = "chip-v text-safe";
   }
 
-  document.getElementById("stat-sar").innerText = `${telem.sar_insar_displacement_mm || 14.8} mm/yr SHIFT`;
-  document.getElementById("stat-fs").innerText = `Fs = ${fs.safety_factor_fs || 0.84} (${fs.stability_status || "CRITICAL"})`;
-  document.getElementById("map-target-name").innerText = `SECTOR: ${(profile.region_name || "JOSHIMATH").toUpperCase()}`;
+  document.getElementById("stat-sar").innerText = `${telem.sar_insar_displacement_mm || 14.8} mm/yr`;
+  document.getElementById("stat-fs").innerText = `${fs.safety_factor_fs || 0.84} (${fs.stability_status ? fs.stability_status.split('_')[0] : "CRITICAL"})`;
 
-  // 2. VLM Vision Panel (Voice memo removed, focused on visual diagnostics)
+  // 2. VLM Vision Panel
   document.getElementById("vlm-tag-depth").innerText = `DEPTH: ${vlm.fissure_depth_cm || 8.4} cm`;
   document.getElementById("vlm-tag-class").innerText = (vlm.hazard_classification || "TENSION SCARP").replace(/_/g, " ");
   document.getElementById("vlm-tag-conf").innerText = `${vlm.confidence_score_pct || 93.5}% CONFIDENCE`;
   document.getElementById("reporter-loc").innerText = vlm.location_name || "Marwari Ward 9, Joshimath";
-  document.getElementById("reporter-name").innerText = vlm.reporter_info || "WhatsApp Verified Citizen Node";
+  document.getElementById("reporter-name").innerText = vlm.reporter_info || "WhatsApp Citizen Ingestion API";
 
   // VLM Metrics
   document.getElementById("metric-depth").innerHTML = `${vlm.fissure_depth_cm || 0} <small>cm</small>`;
@@ -536,19 +542,18 @@ function renderDashboard(data) {
   // 3. Multi-Factor Risk Gauge
   const score = risk.composite_risk_score || data.severity_score || 87;
   document.getElementById("risk-score-num").innerText = score;
-  document.getElementById("composite-score-badge").innerText = `RISK: ${score} / 100`;
-  document.getElementById("threat-status-tag").innerText = risk.status ? risk.status.replace(/_/g, " ") : "CRITICAL IMMINENT";
+  document.getElementById("composite-score-badge").innerText = `RISK: ${score}/100`;
 
-  // Radial Fill
+  // Radial Arc
   const circle = document.getElementById("gauge-fill-circle");
-  const dashOffset = 314 - (314 * (score / 100));
+  const dashOffset = 264 - (264 * (score / 100));
   circle.style.strokeDashoffset = dashOffset;
   if (score >= 70) {
     circle.style.stroke = "#ff2a5f";
   } else if (score >= 40) {
-    circle.style.stroke = "#ffb703";
+    circle.style.stroke = "#f59e0b";
   } else {
-    circle.style.stroke = "#00f5a0";
+    circle.style.stroke = "#10b981";
   }
 
   // Risk Breakdown
@@ -566,16 +571,15 @@ function renderDashboard(data) {
   const ragList = document.getElementById("rag-excerpts-list");
   if (profile.geology) {
     ragList.innerHTML = `
-      <li>[GSI Hazard Atlas]: Region categorized under High Landslide Zone (${profile.state}).</li>
-      <li>[Geological Stratigraphy]: Bedrock: ${profile.geology}. Critical slope: ${profile.critical_slope_angle_deg}?.</li>
-      <li>[Hydrological Trigger]: 24-Hour precipitation trigger threshold is ${profile.rainfall_threshold_24h_mm} mm.</li>
+      <li>[GSI Atlas]: High Landslide Zone (${profile.state}).</li>
+      <li>[Stratigraphy]: Bedrock: ${profile.geology}. Critical slope: ${profile.critical_slope_angle_deg}?.</li>
+      <li>[Threshold]: 24h Rainfall Trigger: ${profile.rainfall_threshold_24h_mm} mm.</li>
     `;
-    document.getElementById("rag-sector-tag").innerText = `GSI SHEET #${profile.id ? profile.id.toUpperCase() : "CHAMOLI"}`;
+    document.getElementById("rag-sector-tag").innerText = `SHEET #${profile.id ? profile.id.toUpperCase() : "CHAMOLI"}`;
   }
 
   // 4. Dialect Broadcast Panel
   if (bc.dialect) {
-    document.getElementById("bc-dialect-tag").innerText = `DIALECT: ${(bc.dialect_name || bc.dialect).toUpperCase()}`;
     document.getElementById("bc-script-text").innerText = bc.speech_script || bc.broadcast_text;
     document.getElementById("bc-route-text").innerText = bc.evacuation_route || "";
     document.getElementById("audio-label").innerText = `Emergency Broadcast Voice Note (${bc.dialect})`;
@@ -589,16 +593,10 @@ function renderDashboard(data) {
     }
   }
 
-  // 5. Event Logs
+  // 5. Mini Audit Ticker
   if (data.event_log && data.event_log.length > 0) {
-    const logBox = document.getElementById("audit-log-box");
-    logBox.innerHTML = data.event_log.slice(0, 5).map(e => `
-      <div class="log-entry ${e.type === 'CRITICAL' || e.type === 'ALERT' ? 'log-entry--critical' : 'log-entry--alert'}">
-        <span class="log-t">${e.time}</span>
-        <span class="log-badge">${e.type || 'INFO'}</span>
-        <span class="log-msg">${e.event}</span>
-      </div>
-    `).join("");
+    const latestEvent = data.event_log[0];
+    document.getElementById("audit-ticker-msg").innerText = `[${latestEvent.time}] ${latestEvent.event}`;
   }
 }
 
@@ -608,15 +606,14 @@ function renderDashboard(data) {
 async function selectScenario(scenarioId) {
   activeScenario = scenarioId;
   
-  document.querySelectorAll(".sc-btn").forEach(b => b.classList.remove("sc-btn--active"));
+  document.querySelectorAll(".sc-pill").forEach(b => b.classList.remove("sc-pill--active"));
   const activeBtn = document.getElementById(`btn-sc-${scenarioId.split('_')[0]}`);
-  if (activeBtn) activeBtn.classList.add("sc-btn--active");
+  if (activeBtn) activeBtn.classList.add("sc-pill--active");
 
   if (SCENARIO_IMAGES[scenarioId]) {
     document.getElementById("vlm-preview-img").src = SCENARIO_IMAGES[scenarioId];
   }
 
-  // Render Google Maps Style Corridors for this Scenario
   renderMapCorridors(scenarioId);
 
   try {
@@ -646,7 +643,6 @@ async function changeDialect(dialectKey) {
     });
     const data = await res.json();
     if (data.success && data.broadcast) {
-      document.getElementById("bc-dialect-tag").innerText = `DIALECT: ${data.broadcast.dialect_name.toUpperCase()}`;
       document.getElementById("bc-script-text").innerText = data.broadcast.speech_script;
       document.getElementById("bc-route-text").innerText = data.broadcast.evacuation_route;
       document.getElementById("audio-label").innerText = `Emergency Broadcast Voice Note (${dialectKey})`;
