@@ -11,6 +11,7 @@ from geo_rag import geo_rag_engine
 from vlm_engine import vlm_engine
 from broadcast_agent import broadcast_agent
 from scoring_engine import scoring_engine
+from routing_engine import routing_engine
 
 app = Flask(__name__, static_folder="../dashboard", static_url_path="")
 CORS(app)
@@ -61,6 +62,13 @@ def init_default_scenario(scenario_key="chamoli_fissure"):
     dialect_to_use = vlm_data.get("dialect", sector_profile.get("primary_dialect", "Garhwali"))
     broadcast_data = broadcast_agent.generate_alert(dialect_key=dialect_to_use, sector_name=sector_profile["region_name"])
     
+    # Dynamic Hazard Routing Calculation
+    nav_routes = routing_engine.compute_evacuation_routes(
+        sector_id=sector_profile["id"],
+        vlm_depth_cm=vlm_data.get("fissure_depth_cm", 8.4),
+        turbidity_pct=vlm_data.get("turbidity_index_pct", 45.0)
+    )
+
     CURRENT_STATE["active_scenario_id"] = scenario_key
     CURRENT_STATE["region_id"] = sector_profile["id"]
     CURRENT_STATE["selected_dialect"] = dialect_to_use
@@ -80,7 +88,8 @@ def init_default_scenario(scenario_key="chamoli_fissure"):
         "slope_angle_deg": slope_angle,
         "cluster_report_count": cluster_n,
         "sector_profile": sector_profile,
-        "broadcast": broadcast_data
+        "broadcast": broadcast_data,
+        "dynamic_routing": nav_routes
     }
     
     scoring_engine.add_log(f"Scenario Activated: {vlm_data['title']} (Risk: {scoring_engine.severity_score}%)", "ALERT" if scoring_engine.severity_score >= 65 else "INFO")
@@ -124,6 +133,25 @@ def trigger_scenario():
         "telemetry": scoring_engine.latest_telemetry
     })
 
+@app.route("/api/routing/navigate", methods=["POST"])
+def get_navigation_routes():
+    data = request.get_json() or {}
+    sector_id = data.get("sector_id", CURRENT_STATE["region_id"])
+    vlm_depth = float(data.get("vlm_depth_cm", 8.4))
+    turbidity = float(data.get("turbidity_pct", 45.0))
+    mode = data.get("mode", "vehicle")
+    
+    routes = routing_engine.compute_evacuation_routes(
+        sector_id=sector_id,
+        vlm_depth_cm=vlm_depth,
+        turbidity_pct=turbidity,
+        mode=mode
+    )
+    return jsonify({
+        "success": True,
+        "routing": routes
+    })
+
 @app.route("/api/citizen/report", methods=["POST"])
 def submit_citizen_report():
     data = request.get_json() or {}
@@ -132,7 +160,6 @@ def submit_citizen_report():
     location = data.get("location", "Chamoli Village Sector 3")
     reporter = data.get("reporter_name", "Local Villager (WhatsApp Ingestion)")
     
-    # Run VLM
     vlm_result = vlm_engine.analyze_image(image_data=image_base64, voice_text=voice_text, location=location)
     vlm_result["reporter_info"] = reporter
     vlm_result["timestamp"] = time.strftime("%H:%M:%S")

@@ -1,28 +1,31 @@
 /**
  * BHOOMI-RAKSHA DASHBOARD CONTROLLER
  * Fullscreen Map Hero & Linear / Apple Titanium Glass HUD
- * Disaster Management: Landslide & Flash-Flood Early Warning System
+ * Featuring Dynamic Pathfinding & Road Evacuation Routing Engine
  */
 
 // Global Map & UI State
 let map = null;
 let currentLayers = {
   traffic: [],
+  routes: [],
   insar: [],
   evac: [],
   pins: []
 };
 let layerVisibility = {
   traffic: true,
+  routes: true,
   insar: true,
   evac: true,
   pins: true
 };
+let currentEvacMode = "vehicle";
 let isAudioPlaying = false;
 let audioElement = null;
 let activeScenario = "chamoli_fissure";
 
-// Coordinates and Realistic Mountain Road Network Waypoints
+// Coordinates and Mountain Road Networks
 const SECTOR_DATA = {
   "chamoli_fissure": {
     lat: 30.5562,
@@ -271,27 +274,24 @@ function initMap() {
     attributionControl: false
   }).setView([defaultCoord.lat, defaultCoord.lng], defaultCoord.zoom);
 
-  // CartoDB Voyager Map Layer
   L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
     maxZoom: 19,
     subdomains: 'abcd'
   }).addTo(map);
 
-  // Add zoom control top right
   L.control.zoom({ position: 'topright' }).addTo(map);
 
-  // Map Click Listener to simulate dynamic report placement
   map.on('click', (e) => {
     handleMapClick(e.latlng);
   });
 
-  renderMapCorridors("chamoli_fissure");
+  renderMapLayers("chamoli_fissure");
 }
 
 /**
- * Render Interactive Color-Coded Road Corridors & Hazard Overlays
+ * Render Interactive Color-Coded Corridors, InSAR & Dynamic Pathfinding Polylines
  */
-function renderMapCorridors(scenarioKey) {
+function renderMapLayers(scenarioKey, routingData = null) {
   if (!map) return;
   const sector = SECTOR_DATA[scenarioKey] || SECTOR_DATA["chamoli_fissure"];
 
@@ -303,7 +303,7 @@ function renderMapCorridors(scenarioKey) {
 
   map.flyTo([sector.lat, sector.lng], sector.zoom, { duration: 1.0 });
 
-  // 1. Render Google Maps-style Road Polylines
+  // 1. Render Base Road Traffic Corridors
   sector.roads.forEach(road => {
     const polyline = L.polyline(road.points, {
       color: road.color,
@@ -314,9 +314,7 @@ function renderMapCorridors(scenarioKey) {
       className: road.status === 'BLOCKED' ? 'traffic-road-blocked' : (road.status === 'SLOW' ? 'traffic-road-slow' : 'traffic-road-clear')
     });
 
-    polyline.on('mouseover', () => updateRoadHUD(road));
     polyline.on('click', () => {
-      updateRoadHUD(road);
       polyline.bindPopup(`
         <div style="font-family: sans-serif; font-size: 13px;">
           <strong style="color: ${road.color}; font-size: 14px;">${road.status === 'BLOCKED' ? '? ' : (road.status === 'SLOW' ? '?? ' : '? ')}${road.name}</strong><br><br>
@@ -333,12 +331,41 @@ function renderMapCorridors(scenarioKey) {
     currentLayers.traffic.push(polyline);
   });
 
-  // Set initial HUD with first blocked or active road
-  if (sector.roads.length > 0) {
-    updateRoadHUD(sector.roads[0]);
+  // 2. Render Dynamic Pathfinding Polylines (Naive Google Maps vs Bhoomi-Raksha Safe)
+  if (routingData) {
+    // 2A. Naive Google Maps Route (Red Dashed Line)
+    if (routingData.google_maps_naive && routingData.google_maps_naive.waypoints.length > 1) {
+      const naivePoly = L.polyline(routingData.google_maps_naive.waypoints, {
+        color: "#ef4444",
+        weight: 5,
+        opacity: 0.9,
+        dashArray: "6, 8",
+        className: "route-poly-naive"
+      });
+      naivePoly.bindPopup(`<b>? NAIVE GOOGLE MAPS ROUTE</b><br>${routingData.google_maps_naive.warning}`);
+      if (layerVisibility.routes) {
+        naivePoly.addTo(map);
+      }
+      currentLayers.routes.push(naivePoly);
+    }
+
+    // 2B. Bhoomi-Raksha Safe Evacuation Route (Solid Emerald Glowing Polyline)
+    if (routingData.bhoomi_raksha_safe && routingData.bhoomi_raksha_safe.waypoints.length > 1) {
+      const safePoly = L.polyline(routingData.bhoomi_raksha_safe.waypoints, {
+        color: "#10b981",
+        weight: 7,
+        opacity: 0.95,
+        className: "route-poly-safe"
+      });
+      safePoly.bindPopup(`<b>? BHOOMI-RAKSHA DYNAMIC SAFE CORRIDOR</b><br>${routingData.bhoomi_raksha_safe.safety_clearance}`);
+      if (layerVisibility.routes) {
+        safePoly.addTo(map);
+      }
+      currentLayers.routes.push(safePoly);
+    }
   }
 
-  // 2. Sentinel-1 InSAR Deformation Heat Radar Ring
+  // 3. Sentinel-1 InSAR Deformation Heat Radar Ring
   const insarCircle = L.circle([sector.lat + 0.0015, sector.lng - 0.002], {
     color: '#00f0ff',
     fillColor: '#00f0ff',
@@ -357,7 +384,7 @@ function renderMapCorridors(scenarioKey) {
   }
   currentLayers.insar.push(insarCircle);
 
-  // 3. Safe Highland Shelter Marker (Green Shield)
+  // 4. Safe Highland Shelter Marker (Green Shield)
   if (sector.shelter) {
     const shelterPin = L.circleMarker([sector.shelter.lat, sector.shelter.lng], {
       radius: 10,
@@ -374,7 +401,7 @@ function renderMapCorridors(scenarioKey) {
     currentLayers.evac.push(shelterPin);
   }
 
-  // 4. Critical Citizen Photo Pin (Red Pulsing Marker)
+  // 5. Critical Citizen Photo Pin (Red Marker)
   if (sector.fissurePoint) {
     const photoPin = L.circleMarker([sector.fissurePoint.lat, sector.fissurePoint.lng], {
       radius: 11,
@@ -393,36 +420,7 @@ function renderMapCorridors(scenarioKey) {
 }
 
 /**
- * Update the Road Segment HUD Card on Hover/Click
- */
-function updateRoadHUD(road) {
-  document.getElementById("hud-road-name").innerText = road.name;
-  
-  const statusEl = document.getElementById("hud-status");
-  const delayEl = document.getElementById("hud-delay");
-  
-  if (road.status === "BLOCKED") {
-    statusEl.innerHTML = `ROAD BLOCKED (ACTIVE FISSURE SLUMP)`;
-    statusEl.className = "traffic-status-text text-danger";
-    delayEl.innerText = road.delay;
-    delayEl.className = "traffic-delay-tag";
-  } else if (road.status === "SLOW") {
-    statusEl.innerHTML = `SLOW TRAFFIC (${road.delay})`;
-    statusEl.className = "traffic-status-text text-amber";
-    delayEl.innerText = road.delay;
-    delayEl.className = "traffic-delay-tag";
-  } else {
-    statusEl.innerHTML = `CLEAR & OPEN (EVACUATION CORRIDOR)`;
-    statusEl.className = "traffic-status-text text-safe";
-    delayEl.innerText = "Flowing";
-    delayEl.className = "traffic-delay-tag";
-  }
-
-  document.getElementById("hud-detour").innerText = road.detour;
-}
-
-/**
- * Toggle Map Layers (Traffic, InSAR, Evac, Pins)
+ * Toggle Map Layers (Traffic, Routes, InSAR, Evac, Pins)
  */
 function toggleMapLayer(layerName) {
   layerVisibility[layerName] = !layerVisibility[layerName];
@@ -438,7 +436,46 @@ function toggleMapLayer(layerName) {
 }
 
 /**
- * Handle Map Click: Simulate User Dropping Citizen Report Pin
+ * Switch Evacuation Mode (Vehicle vs Foot Trail)
+ */
+async function switchEvacMode(mode) {
+  currentEvacMode = mode;
+  document.getElementById("btn-mode-veh").classList.toggle("mode-btn--active", mode === "vehicle");
+  document.getElementById("btn-mode-foot").classList.toggle("mode-btn--active", mode === "foot");
+
+  try {
+    const res = await fetch("/api/routing/navigate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mode: mode, vlm_depth_cm: 8.4, turbidity_pct: 45.0 })
+    });
+    const data = await res.json();
+    if (data.success && data.routing) {
+      updateRoutingUI(data.routing);
+      renderMapLayers(activeScenario, data.routing);
+    }
+  } catch (e) {
+    console.error("Evac mode switch error:", e);
+  }
+}
+
+/**
+ * Update Routing Side-by-Side Comparison UI
+ */
+function updateRoutingUI(routing) {
+  if (!routing) return;
+  const naive = routing.google_maps_naive || {};
+  const safe = routing.bhoomi_raksha_safe || {};
+
+  document.getElementById("naive-dist").innerText = `${naive.distance_km || 3.6} km ? ${naive.status === 'BLOCKED' || naive.hazard_exposure_pct > 50 ? '+4.5h DELAY' : '8 mins'}`;
+  document.getElementById("naive-warn").innerText = naive.warning || "Routes directly into active tension scarp collapse!";
+
+  document.getElementById("safe-dist").innerText = `${safe.distance_km || 4.2} km ? ${safe.eta_minutes || 12} mins (OPEN)`;
+  document.getElementById("safe-desc").innerText = safe.safety_clearance || "Hazard Cost Surface Algorithm penalizes valley shear plane; dynamically routes via Auli High Ridge bypass.";
+}
+
+/**
+ * Handle Map Click: Drop Simulated Report Pin
  */
 async function handleMapClick(latlng) {
   const newPin = L.circleMarker([latlng.lat, latlng.lng], {
@@ -500,31 +537,24 @@ function renderDashboard(data) {
   const risk = telem.risk_fusion || {};
   const bc = telem.broadcast || {};
   const profile = telem.sector_profile || {};
+  const routing = telem.dynamic_routing || null;
 
   // 1. Header Telemetry
-  const trafficStat = document.getElementById("stat-traffic");
-  if (data.severity_score >= 70) {
-    trafficStat.innerHTML = `?? 94% BLOCKED`;
-    trafficStat.className = "chip-v text-danger";
-  } else if (data.severity_score >= 40) {
-    trafficStat.innerHTML = `?? SLOW TRAFFIC`;
-    trafficStat.className = "chip-v text-amber";
-  } else {
-    trafficStat.innerHTML = `?? ROADS CLEAR`;
-    trafficStat.className = "chip-v text-safe";
-  }
-
   document.getElementById("stat-sar").innerText = `${telem.sar_insar_displacement_mm || 14.8} mm/yr`;
   document.getElementById("stat-fs").innerText = `${fs.safety_factor_fs || 0.84} (${fs.stability_status ? fs.stability_status.split('_')[0] : "CRITICAL"})`;
 
-  // 2. VLM Vision Panel
+  // 2. Routing Comparison UI & Polyline Overlays
+  if (routing) {
+    updateRoutingUI(routing);
+  }
+
+  // 3. VLM Vision Panel
   document.getElementById("vlm-tag-depth").innerText = `DEPTH: ${vlm.fissure_depth_cm || 8.4} cm`;
   document.getElementById("vlm-tag-class").innerText = (vlm.hazard_classification || "TENSION SCARP").replace(/_/g, " ");
   document.getElementById("vlm-tag-conf").innerText = `${vlm.confidence_score_pct || 93.5}% CONFIDENCE`;
   document.getElementById("reporter-loc").innerText = vlm.location_name || "Marwari Ward 9, Joshimath";
   document.getElementById("reporter-name").innerText = vlm.reporter_info || "WhatsApp Citizen Ingestion API";
 
-  // VLM Metrics
   document.getElementById("metric-depth").innerHTML = `${vlm.fissure_depth_cm || 0} <small>cm</small>`;
   document.getElementById("bar-depth").style.width = `${Math.min(100, (vlm.fissure_depth_cm || 0) * 10)}%`;
   
@@ -539,12 +569,11 @@ function renderDashboard(data) {
 
   document.getElementById("vlm-explanation").innerText = vlm.geotechnical_explanation || "";
 
-  // 3. Multi-Factor Risk Gauge
+  // 4. Multi-Factor Risk Gauge
   const score = risk.composite_risk_score || data.severity_score || 87;
   document.getElementById("risk-score-num").innerText = score;
   document.getElementById("composite-score-badge").innerText = `RISK: ${score}/100`;
 
-  // Radial Arc
   const circle = document.getElementById("gauge-fill-circle");
   const dashOffset = 264 - (264 * (score / 100));
   circle.style.strokeDashoffset = dashOffset;
@@ -556,7 +585,6 @@ function renderDashboard(data) {
     circle.style.stroke = "#10b981";
   }
 
-  // Risk Breakdown
   const bk = risk.breakdown || {};
   document.getElementById("bk-vlm").innerText = `${bk.vlm_vision_score || 84}%`;
   document.getElementById("prog-vlm").style.width = `${bk.vlm_vision_score || 84}%`;
@@ -578,7 +606,7 @@ function renderDashboard(data) {
     document.getElementById("rag-sector-tag").innerText = `SHEET #${profile.id ? profile.id.toUpperCase() : "CHAMOLI"}`;
   }
 
-  // 4. Dialect Broadcast Panel
+  // 5. Dialect Broadcast Panel
   if (bc.dialect) {
     document.getElementById("bc-script-text").innerText = bc.speech_script || bc.broadcast_text;
     document.getElementById("bc-route-text").innerText = bc.evacuation_route || "";
@@ -593,7 +621,7 @@ function renderDashboard(data) {
     }
   }
 
-  // 5. Mini Audit Ticker
+  // 6. Mini Audit Ticker
   if (data.event_log && data.event_log.length > 0) {
     const latestEvent = data.event_log[0];
     document.getElementById("audit-ticker-msg").innerText = `[${latestEvent.time}] ${latestEvent.event}`;
@@ -614,8 +642,6 @@ async function selectScenario(scenarioId) {
     document.getElementById("vlm-preview-img").src = SCENARIO_IMAGES[scenarioId];
   }
 
-  renderMapCorridors(scenarioId);
-
   try {
     const res = await fetch("/api/scenario/trigger", {
       method: "POST",
@@ -624,6 +650,7 @@ async function selectScenario(scenarioId) {
     });
     const data = await res.json();
     if (data.success && data.telemetry) {
+      renderMapLayers(scenarioId, data.telemetry.dynamic_routing);
       renderDashboard({ telemetry: data.telemetry });
     }
   } catch (e) {
@@ -714,7 +741,7 @@ async function triggerOperatorAction(actionName) {
     });
     const data = await res.json();
     if (actionName === "CONFIRM_DISPATCH") {
-      alert("?? EVACUATION ALERT CONFIRMED!\n\nHyper-localized voice alert dispatched via WhatsApp & IVR blast to village Gram Pradhans.\nRoad corridors updated with red congestion blockages.");
+      alert("?? EVACUATION ALERT CONFIRMED!\n\nHyper-localized voice alert dispatched via WhatsApp & IVR blast to village Gram Pradhans.\nRoad corridors updated with dynamic safe bypasses.");
       toggleAudioPlayback();
     } else {
       alert("??? System calibrated. False alarm registered in forensic audit log.");

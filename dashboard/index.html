@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BHOOMI-RAKSHA ? Fullscreen Geospatial Landslide & Flash-Flood AI Command Center</title>
+  <title>BHOOMI-RAKSHA ? Dynamic Evacuation Pathfinding & Vision-RAG AI</title>
   
   <!-- Fonts: Inter + Fira Code -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,7 +33,7 @@
         <span class="brand-name">BHOOMI<span class="text-accent">-RAKSHA</span></span>
       </div>
       <span class="brand-divider">/</span>
-      <span class="brand-sub">MOES ? GENAI VISION-RAG</span>
+      <span class="brand-sub">DYNAMIC EVACUATION ROUTING ? GENAI MOAT</span>
     </div>
 
     <!-- Center Scenario Selector -->
@@ -55,8 +55,8 @@
     <!-- Right Live Telemetry Quick Pills -->
     <div class="hud-telemetry">
       <div class="telem-chip">
-        <span class="chip-k">ROAD TRAFFIC</span>
-        <span class="chip-v text-danger" id="stat-traffic">?? 94% BLOCKED</span>
+        <span class="chip-k">ROUTING ENGINE</span>
+        <span class="chip-v text-safe" id="stat-routing">HAZARD-AWARE A*</span>
       </div>
       <div class="telem-chip">
         <span class="chip-k">InSAR SHIFT</span>
@@ -70,34 +70,50 @@
   </header>
 
   <!-- ============================================== -->
-  <!-- FLOATING LEFT WIDGET: TRAFFIC & VLM PHOTO HUD  -->
+  <!-- FLOATING LEFT WIDGET: ROUTING COMPARISON & VLM -->
   <!-- ============================================== -->
   <aside class="floating-panel floating-panel--left glass-card" id="panel-left">
     <div class="panel-header">
       <div class="panel-title-group">
         <svg class="panel-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-          <circle cx="12" cy="13" r="4"/>
+          <polygon points="12 2 19 21 12 17 5 21 12 2"/>
         </svg>
-        <h3>ROAD TRAFFIC & CITIZEN VLM INSPECTOR</h3>
+        <h3>DYNAMIC PATHFINDING VS GOOGLE MAPS</h3>
       </div>
-      <span class="badge-mini badge-mini--danger" id="vlm-status-badge">HIGH RISK</span>
+      <span class="badge-mini badge-mini--safe" id="routing-badge">HAZARD RE-WEIGHTED</span>
     </div>
 
     <div class="panel-body">
-      <!-- 1. Google Maps-style Road Traffic Blockage Banner -->
-      <div class="road-traffic-box" id="road-traffic-box">
-        <div class="traffic-header">
-          <span class="traffic-route-name" id="hud-road-name">NH-58 Badrinath National Highway (KM 248)</span>
-          <span class="traffic-delay-tag" id="hud-delay">+4.5 hrs delay</span>
+      <!-- 1. Side-by-Side Pathfinding Comparison Card (The SIH Pitch Moat) -->
+      <div class="route-comparison-card">
+        <div class="route-comp-header">
+          <span class="comp-title">?? REAL-TIME EVACUATION ROUTE ARBITRATION</span>
+          <div class="evac-mode-switch">
+            <button class="mode-btn mode-btn--active" id="btn-mode-veh" onclick="switchEvacMode('vehicle')">?? Vehicle</button>
+            <button class="mode-btn" id="btn-mode-foot" onclick="switchEvacMode('foot')">?? Foot Trail</button>
+          </div>
         </div>
-        <div class="traffic-status-line">
-          <div class="traffic-light-dot bg-danger"></div>
-          <span class="traffic-status-text text-danger" id="hud-status">ROAD BLOCKED (ACTIVE FISSURE SLUMP)</span>
+
+        <!-- Google Maps (Naive Baseline) -->
+        <div class="route-option route-option--naive">
+          <div class="route-opt-top">
+            <span class="route-tag tag-danger">? STANDARD GOOGLE MAPS (NAIVE)</span>
+            <span class="route-stat text-danger" id="naive-dist">3.6 km ? +4.5h DELAY</span>
+          </div>
+          <p class="route-warning-text" id="naive-warn">
+            Routes directly into active 8.4cm Tension Fissure collapse at KM 248! (Hazard Exposure: 95%)
+          </p>
         </div>
-        <div class="traffic-detour-row">
-          <span class="detour-k">RECOMMENDED DETOUR:</span>
-          <span class="detour-v" id="hud-detour">Divert traffic via Auli High Ridge B-4 Bypass</span>
+
+        <!-- Bhoomi-Raksha Dynamic Safe Route -->
+        <div class="route-option route-option--safe">
+          <div class="route-opt-top">
+            <span class="route-tag tag-safe">? BHOOMI-RAKSHA HAZARD-AWARE CORRIDOR</span>
+            <span class="route-stat text-safe" id="safe-dist">4.2 km ? 12 mins (OPEN)</span>
+          </div>
+          <p class="route-clear-text" id="safe-desc">
+            Hazard Cost Surface Algorithm penalizes valley shear plane; dynamically routes via Auli High Ridge B-4 bypass to elevation +2800m.
+          </p>
         </div>
       </div>
 
@@ -279,16 +295,17 @@
     <div class="map-layers-group">
       <span class="hud-label">MAP LAYERS:</span>
       <button class="layer-pill layer-pill--active" id="tog-traffic" onclick="toggleMapLayer('traffic')">?? Traffic Corridors</button>
+      <button class="layer-pill layer-pill--active" id="tog-routes" onclick="toggleMapLayer('routes')">??? Dynamic Routes</button>
       <button class="layer-pill layer-pill--active" id="tog-insar" onclick="toggleMapLayer('insar')">??? Sentinel-1 InSAR</button>
-      <button class="layer-pill layer-pill--active" id="tog-evac" onclick="toggleMapLayer('evac')">?? Safe Corridors</button>
+      <button class="layer-pill layer-pill--active" id="tog-evac" onclick="toggleMapLayer('evac')">?? High-Ridge Shelters</button>
       <button class="layer-pill layer-pill--active" id="tog-pins" onclick="toggleMapLayer('pins')">?? Citizen Reports</button>
       <button class="layer-pill layer-pill--highlight" onclick="simulateNewCitizenClick()">? Drop Test Pin</button>
     </div>
 
     <!-- Mini Audit Log -->
     <div class="audit-mini-ticker">
-      <span class="audit-tag">FORENSIC LEDGER:</span>
-      <span class="audit-msg" id="audit-ticker-msg">Block #894: Cluster #CH-04 verified with InSAR 14.8mm shift & Fs = 0.84. Road segment marked RED BLOCKED.</span>
+      <span class="audit-tag">HAZARD SURFACE:</span>
+      <span class="audit-msg" id="audit-ticker-msg">NetworkX Hazard Surface active: Blocked NH-58 Marwari Ward 9 edge re-weighted to ? cost. Traffic rerouted to Auli B-4 bypass.</span>
     </div>
   </footer>
 
