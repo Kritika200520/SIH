@@ -1,6 +1,7 @@
 /* ==========================================================================
    BHOOMI-RAKSHA STYLESHEET
    Modern Cyber-Geological Disaster Management UI Theme
+   Featuring Google Maps-Style Traffic Congestion & Road Hazard Overlays
    ========================================================================== */
 
 :root {
@@ -305,6 +306,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .head-left {
@@ -320,6 +323,18 @@ body {
   color: var(--text-primary);
   letter-spacing: 0.5px;
   font-family: var(--font-mono);
+}
+
+.map-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.map-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 .map-badge, .source-tag, .fusion-score-badge {
@@ -340,14 +355,117 @@ body {
 }
 
 /* ==========================================================================
-   PANEL 1: GEOSPATIAL MAP VIEWPORT
+   PANEL 1: MAP CONTROLS & TRAFFIC CORRIDORS
    ========================================================================== */
+.map-layer-bar {
+  padding: 8px 16px;
+  background: #090e1b;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.layer-toggle-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.layer-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.layer-btn {
+  background: var(--bg-panel-sub);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.layer-btn:hover {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.layer-btn--active {
+  background: rgba(0, 240, 255, 0.15);
+  color: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+}
+
+.btn-map-action {
+  background: rgba(255, 42, 95, 0.15);
+  color: var(--accent-danger);
+  border: 1px solid var(--accent-danger);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+}
+
+.btn-map-action:hover {
+  background: var(--accent-danger);
+  color: #fff;
+}
+
 .map-viewport {
   height: 380px;
   width: 100%;
   background: #0a0f1d;
   position: relative;
   z-index: 1;
+}
+
+/* Road HUD Card */
+.road-hud-card {
+  padding: 12px 18px;
+  background: #090e1b;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 900px) {
+  .road-hud-card {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.hud-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.hud-k {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.hud-v {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .map-footer-strip {
@@ -367,18 +485,42 @@ body {
   gap: 6px;
 }
 
+.legend-line {
+  width: 18px;
+  height: 4px;
+  border-radius: 2px;
+}
+.line-red { background: var(--accent-danger); box-shadow: 0 0 6px var(--accent-danger); }
+.line-orange { background: var(--accent-warning); box-shadow: 0 0 6px var(--accent-warning); }
+.line-green { background: var(--accent-safe); box-shadow: 0 0 6px var(--accent-safe); }
+
 .legend-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
 }
-.dot-red { background: var(--accent-danger); box-shadow: 0 0 6px var(--accent-danger); }
-.dot-orange { background: var(--accent-warning); box-shadow: 0 0 6px var(--accent-warning); }
+.dot-cyan { background: var(--accent-cyan); box-shadow: 0 0 6px var(--accent-cyan); }
 .dot-green { background: var(--accent-safe); box-shadow: 0 0 6px var(--accent-safe); }
-.dot-blue { background: var(--accent-cyan); box-shadow: 0 0 6px var(--accent-cyan); }
+
+/* Traffic Road Polylines custom classes */
+.traffic-road-blocked {
+  filter: drop-shadow(0 0 8px #ff2a5f);
+  animation: road-pulse 2s infinite ease-in-out;
+}
+.traffic-road-slow {
+  filter: drop-shadow(0 0 6px #ffb703);
+}
+.traffic-road-clear {
+  filter: drop-shadow(0 0 6px #00f5a0);
+}
+
+@keyframes road-pulse {
+  0%, 100% { opacity: 0.95; }
+  50% { opacity: 0.65; }
+}
 
 /* ==========================================================================
-   PANEL 2: VLM CITIZEN INGESTION
+   PANEL 2: VLM CITIZEN PHOTO INGESTION
    ========================================================================== */
 .vlm-card {
   padding: 18px;
@@ -389,7 +531,7 @@ body {
 
 .vlm-media-box {
   position: relative;
-  height: 180px;
+  height: 200px;
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid var(--border-subtle);
@@ -400,7 +542,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 .image-overlay-tags {
@@ -424,6 +566,12 @@ body {
   font-family: var(--font-mono);
 }
 
+.ov-tag--danger {
+  background: rgba(255, 42, 95, 0.35);
+  color: var(--accent-danger);
+  border-color: var(--accent-danger);
+}
+
 .ov-tag--conf {
   background: rgba(0, 240, 255, 0.25);
   color: var(--accent-cyan);
@@ -435,42 +583,53 @@ body {
   top: 35%;
   left: 25%;
   width: 50%;
-  height: 35%;
+  height: 40%;
   border: 2px dashed var(--accent-danger);
   border-radius: 4px;
   box-shadow: 0 0 16px rgba(255, 42, 95, 0.4);
   pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  padding: 4px;
 }
 
-.audio-transcript-card {
+.fissure-label {
+  background: rgba(255, 42, 95, 0.85);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.citizen-meta-bar {
   background: var(--bg-panel-sub);
   border: 1px solid var(--border-subtle);
   border-radius: 8px;
-  padding: 12px 14px;
-}
-
-.trans-head {
+  padding: 10px 14px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-size: 0.72rem;
-  margin-bottom: 6px;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.trans-title {
-  color: var(--accent-cyan);
-  font-weight: 700;
-  font-family: var(--font-mono);
+.c-meta-item {
+  display: flex;
+  flex-direction: column;
 }
 
-.trans-reporter {
+.c-meta-k {
+  font-size: 0.65rem;
   color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-weight: 700;
 }
 
-.trans-body {
-  font-size: 0.88rem;
+.c-meta-v {
+  font-size: 0.85rem;
+  font-weight: 600;
   color: var(--text-primary);
-  font-style: italic;
 }
 
 .vlm-metric-grid {
