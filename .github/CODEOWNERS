@@ -1,0 +1,12 @@
+# Robo Raksha Folder Ownership Matrix
+# Requires folder owner approval before PRs modifying their directory can be merged.
+
+# Root & Shared Contracts
+/contracts/               @Kritika200520
+README.md                 @Kritika200520
+
+# Module Folder Ownership
+/firmware/                @Kritika200520
+/server/                  @Kritika200520
+/dashboard/               @Kritika200520
+/comms/                   @Kritika200520

@@ -1,0 +1,18 @@
+{
+  "state": "ALERT",
+  "event": "fire",
+  "severity": 12,
+  "clip_url": "http://localhost:5000/static/sample_stream.jpg",
+  "timer_seconds": 45,
+  "options": [
+    "Dispatch fire",
+    "Investigate",
+    "False alarm"
+  ],
+  "latest_telemetry": {
+    "flame": 1,
+    "sound": 87,
+    "vibration": 0,
+    "distance_cm": 45
+  }
+}

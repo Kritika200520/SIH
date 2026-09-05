@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Robo Raksha Boundary Data Contracts",
+  "description": "Agreed inter-module data schemas for Person 1 (Server), Person 2/3 (Dashboard), Person 4 (Comms), and Robot Firmware.",
+  "contracts": {
+    "robot_to_server": {
+      "endpoint": "POST /api/telemetry",
+      "description": "Sent continuously or periodically by the Robot Firmware to Person 1's Server.",
+      "example": {
+        "flame": 1,
+        "sound": 87,
+        "vibration": 0,
+        "distance_cm": 45
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "flame": { "type": "integer", "description": "1 = Flame detected, 0 = No flame" },
+          "sound": { "type": "integer", "description": "Decibels / raw analog audio level (e.g. >70 is loud)" },
+          "vibration": { "type": "integer", "description": "1 = Movement/vibration detected, 0 = Stationary/no movement" },
+          "distance_cm": { "type": "integer", "description": "Ultrasonic distance in cm" }
+        },
+        "required": ["flame", "sound", "vibration", "distance_cm"]
+      }
+    },
+    "server_to_dashboard": {
+      "endpoint": "GET /api/dashboard/status",
+      "description": "Polled by Person 3's Dashboard JS every second to update Person 2's UI.",
+      "example": {
+        "state": "ALERT",
+        "event": "fire",
+        "severity": 8,
+        "clip_url": "http://localhost:5000/static/sample_stream.jpg",
+        "timer_seconds": 45,
+        "options": ["Dispatch fire", "Investigate", "False alarm"],
+        "latest_telemetry": {
+          "flame": 1,
+          "sound": 87,
+          "vibration": 0,
+          "distance_cm": 45
+        }
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "state": { "type": "string", "enum": ["NORMAL", "ALERT", "DISPATCHED", "CANCELLED", "INVESTIGATING"] },
+          "event": { "type": "string" },
+          "severity": { "type": "number" },
+          "clip_url": { "type": "string" },
+          "timer_seconds": { "type": "integer" },
+          "options": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "latest_telemetry": { "type": "object" }
+        },
+        "required": ["state", "event", "severity", "clip_url", "timer_seconds", "options"]
+      }
+    },
+    "dashboard_to_server": {
+      "endpoint": "POST /api/dashboard/action",
+      "description": "Sent by Person 3's Dashboard JS when an operator clicks a button on Person 2's UI.",
+      "example": {
+        "action": "Investigate"
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": ["Dispatch fire", "Investigate", "False alarm"]
+          }
+        },
+        "required": ["action"]
+      }
+    },
+    "server_to_comms": {
+      "endpoint": "POST http://localhost:5001/api/comms/dispatch",
+      "description": "Triggered by Person 1's Server when timer hits zero unanswered or when operator clicks 'Dispatch fire'.",
+      "example": {
+        "service": "fire",
+        "lat": 12.9716,
+        "lng": 77.5946,
+        "message": "FIRE EMERGENCY DETECTED! Flame: 1, Sound: 87. Stationary for 90s. Severity Score: 8. Immediate assistance required."
+      },
+      "schema": {
+        "type": "object",
+        "properties": {
+          "service": { "type": "string" },
+          "lat": { "type": "number" },
+          "lng": { "type": "number" },
+          "message": { "type": "string" }
+        },
+        "required": ["service", "lat", "lng", "message"]
+      }
+    }
+  }
+}
