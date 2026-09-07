@@ -725,7 +725,7 @@ function renderDashboard(data) {
   }
 }
 
-let lastSeenSosTimestamp = null;
+let lastSeenSosTimestamp = sessionStorage.getItem("bhoomi_last_seen_sos") || null;
 
 function playAlertChime() {
   try {
@@ -751,6 +751,7 @@ function handleWhatsAppAlertPopup(alertData) {
   const alertKey = alertData.id || `${alertData.sender}_${alertData.text}_${alertData.timestamp}`;
   if (alertKey === lastSeenSosTimestamp) return;
   lastSeenSosTimestamp = alertKey;
+  sessionStorage.setItem("bhoomi_last_seen_sos", alertKey);
 
   console.log("[BHOOMI-RAKSHA] Emergency WhatsApp Alert Triggered:", alertData);
 
