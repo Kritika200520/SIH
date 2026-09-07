@@ -420,6 +420,24 @@ def handle_incoming_whatsapp():
     # Meta requires a 200 OK fast response to acknowledge receipt
     return jsonify({"status": "EVENT_RECEIVED"}), 200
 
+@app.route("/api/webhook/simulate", methods=["POST"])
+def simulate_whatsapp_webhook():
+    """
+    Direct endpoint to simulate an incoming citizen WhatsApp message for testing/demos.
+    """
+    data = request.get_json() or {}
+    sender = data.get("sender", "919773834230")
+    text_body = data.get("text", "Emergency SOS: Flash flood water rising rapidly near bridge, road cracked!")
+    
+    CURRENT_STATE["latest_whatsapp_alert"] = {
+        "sender": sender,
+        "text": text_body,
+        "timestamp": time.strftime("%H:%M:%S"),
+        "msg_type": "text"
+    }
+    scoring_engine.add_log(f"SIMULATED WhatsApp SOS from +{sender}: '{text_body[:40]}...'", "ALERT")
+    return jsonify({"success": True, "alert": CURRENT_STATE["latest_whatsapp_alert"]})
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

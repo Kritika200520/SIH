@@ -727,9 +727,30 @@ function renderDashboard(data) {
 
 let lastSeenSosTimestamp = null;
 
+function playAlertChime() {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
+    osc.frequency.setValueAtTime(1174.66, audioCtx.currentTime + 0.15); // D6 note
+    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.45);
+  } catch (e) {
+    console.log("Audio chime error:", e);
+  }
+}
+
 function handleWhatsAppAlertPopup(alertData) {
-  if (!alertData || alertData.timestamp === lastSeenSosTimestamp) return;
-  lastSeenSosTimestamp = alertData.timestamp;
+  if (!alertData) return;
+  const alertKey = `${alertData.sender}_${alertData.timestamp}`;
+  if (alertKey === lastSeenSosTimestamp) return;
+  lastSeenSosTimestamp = alertKey;
 
   const modal = document.getElementById("whatsapp-sos-modal");
   const senderPhone = document.getElementById("sos-sender-phone");
@@ -742,12 +763,41 @@ function handleWhatsAppAlertPopup(alertData) {
 
   if (modal) {
     modal.style.display = "flex";
+    playAlertChime();
   }
 }
 
 function dismissSosModal() {
   const modal = document.getElementById("whatsapp-sos-modal");
   if (modal) modal.style.display = "none";
+}
+
+/**
+ * 1-Click Simulator to test WhatsApp SOS modal popup
+ */
+async function simulateIncomingWhatsApp() {
+  const testPhone = "919773834230";
+  const testMsg = "Emergency SOS: Flash flood water rising rapidly near bridge, road cracked!";
+  
+  handleWhatsAppAlertPopup({
+    sender: testPhone,
+    text: testMsg,
+    timestamp: new Date().toLocaleTimeString(),
+    msg_type: "text"
+  });
+
+  try {
+    await fetch("/api/webhook/simulate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sender: testPhone,
+        text: testMsg
+      })
+    });
+  } catch (e) {
+    console.warn("Simulate webhook call:", e);
+  }
 }
 
 /**
