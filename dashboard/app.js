@@ -735,14 +735,14 @@ function playAlertChime() {
     osc.connect(gain);
     gain.connect(audioCtx.destination);
     osc.type = "sine";
-    osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
-    osc.frequency.setValueAtTime(1174.66, audioCtx.currentTime + 0.15); // D6 note
+    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+    osc.frequency.setValueAtTime(1174.66, audioCtx.currentTime + 0.15);
     gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
     osc.start();
     osc.stop(audioCtx.currentTime + 0.45);
   } catch (e) {
-    console.log("Audio chime error:", e);
+    console.log("Audio chime info:", e);
   }
 }
 
@@ -751,6 +751,8 @@ function handleWhatsAppAlertPopup(alertData) {
   const alertKey = `${alertData.sender}_${alertData.timestamp}`;
   if (alertKey === lastSeenSosTimestamp) return;
   lastSeenSosTimestamp = alertKey;
+
+  console.log("[BHOOMI-RAKSHA] Emergency WhatsApp Alert Triggered:", alertData);
 
   const modal = document.getElementById("whatsapp-sos-modal");
   const senderPhone = document.getElementById("sos-sender-phone");
@@ -762,14 +764,18 @@ function handleWhatsAppAlertPopup(alertData) {
   if (timestampEl) timestampEl.innerText = `Live Alert • Received at ${alertData.timestamp}`;
 
   if (modal) {
-    modal.style.display = "flex";
+    modal.style.setProperty("display", "flex", "important");
+    modal.classList.add("sos-modal--active");
     playAlertChime();
   }
 }
 
 function dismissSosModal() {
   const modal = document.getElementById("whatsapp-sos-modal");
-  if (modal) modal.style.display = "none";
+  if (modal) {
+    modal.style.setProperty("display", "none", "important");
+    modal.classList.remove("sos-modal--active");
+  }
 }
 
 /**
