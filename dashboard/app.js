@@ -779,50 +779,6 @@ function dismissSosModal() {
   }
 }
 
-const EMERGENCY_SOS_PRESETS = [
-  "Heavy rain and road crack near Joshimath temple, please send evacuation route!",
-  "Landslide debris falling on Chamoli Badrinath Highway, road blocked!",
-  "Water overflow and river mud level rising rapidly near bridge, family trapped!",
-  "Severe ground fissure visible near residential ward, slope sliding!",
-  "Flash flood warning: High water torrent entered lower village, need high ridge route!"
-];
-
-let sosPresetIndex = 0;
-
-/**
- * 1-Click Simulator to test WhatsApp SOS modal popup with varied/custom message
- */
-async function simulateIncomingWhatsApp() {
-  const testPhone = "919773834230";
-  // Rotate message so every click shows a fresh, different emergency report
-  const testMsg = EMERGENCY_SOS_PRESETS[sosPresetIndex % EMERGENCY_SOS_PRESETS.length];
-  sosPresetIndex++;
-  
-  const currentTimestamp = new Date().toLocaleTimeString();
-
-  handleWhatsAppAlertPopup({
-    sender: testPhone,
-    contact_name: "Kritika S Narayan",
-    text: testMsg,
-    timestamp: currentTimestamp,
-    msg_type: "text",
-    id: `sim_${Date.now()}`
-  });
-
-  try {
-    await fetch("/api/webhook/simulate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        sender: testPhone,
-        text: testMsg
-      })
-    });
-  } catch (e) {
-    console.warn("Simulate webhook call:", e);
-  }
-}
-
 /**
  * Render AI Anti-Spam & Authenticity Protocol HUD
  */
