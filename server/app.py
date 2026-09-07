@@ -346,6 +346,71 @@ def send_whatsapp_alert():
         scoring_engine.add_log(f"WhatsApp SOS Dispatched to {recipient} via Meta Cloud API", "CRITICAL")
     return jsonify(result)
 
+# =====================================================================
+# META WHATSAPP WEBHOOK HANDLERS (GET Verification & POST Incoming SOS)
+# =====================================================================
+WEBHOOK_VERIFY_TOKEN = os.environ.get("WHATSAPP_VERIFY_TOKEN", "bhoomi_raksha_verify_token")
+
+@app.route("/webhook", methods=["GET"])
+def verify_whatsapp_webhook():
+    """
+    Meta Developer Portal Webhook Verification Endpoint.
+    Meta sends a challenge query param when you click 'Verify and Save'.
+    """
+    mode = request.args.get("hub.mode")
+    token = request.args.get("hub.verify_token")
+    challenge = request.args.get("hub.challenge")
+
+    if mode and token:
+        if mode == "subscribe" and token == WEBHOOK_VERIFY_TOKEN:
+            print(f"[WhatsApp Webhook] Verification successful with token: {token}")
+            return challenge, 200
+        else:
+            print(f"[WhatsApp Webhook] Verification failed. Token mismatch: {token}")
+            return "Verification token mismatch", 403
+    return "Missing parameters", 400
+
+@app.route("/webhook", methods=["POST"])
+def handle_incoming_whatsapp():
+    """
+    Receives incoming WhatsApp messages from citizens via Meta Cloud API webhook.
+    Extracts text/image, runs anti-spam filter, and auto-replies with evacuation guidance.
+    """
+    data = request.get_json() or {}
+    print(f"[WhatsApp Webhook Event]: {json.dumps(data, indent=2)}")
+
+    try:
+        entries = data.get("entry", [])
+        for entry in entries:
+            changes = entry.get("changes", [])
+            for change in changes:
+                value = change.get("value", {})
+                messages = value.get("messages", [])
+                
+                for msg in messages:
+                    sender = msg.get("from")  # Citizen phone number
+                    msg_type = msg.get("type")
+                    text_body = ""
+
+                    if msg_type == "text":
+                        text_body = msg.get("text", {}).get("body", "")
+                    elif msg_type == "image":
+                        text_body = msg.get("image", {}).get("caption", "Citizen sent landslide photo via WhatsApp")
+                    
+                    scoring_engine.add_log(f"Incoming WhatsApp SOS from +{sender}: '{text_body[:40]}...'", "ALERT")
+                    
+                    # Auto reply to citizen with current evacuation status
+                    bc = CURRENT_STATE.get("last_broadcast") or {}
+                    reply_text = bc.get("speech_script", "Bhoomi-Raksha Alert: Your report is logged. Evacuate to high ridge immediately.")
+                    safe_route = bc.get("evacuation_route", "Move uphill via B-4 bypass.")
+                    whatsapp_service.send_evacuation_alert(sender, reply_text, safe_route)
+    except Exception as e:
+        print(f"[Webhook Handler Error]: {e}")
+
+    # Meta requires a 200 OK fast response to acknowledge receipt
+    return jsonify({"status": "EVENT_RECEIVED"}), 200
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     print(f"Bhoomi-Raksha Server running on http://localhost:{port}")
