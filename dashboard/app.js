@@ -748,7 +748,7 @@ function playAlertChime() {
 
 function handleWhatsAppAlertPopup(alertData) {
   if (!alertData) return;
-  const alertKey = `${alertData.sender}_${alertData.timestamp}`;
+  const alertKey = alertData.id || `${alertData.sender}_${alertData.text}_${alertData.timestamp}`;
   if (alertKey === lastSeenSosTimestamp) return;
   lastSeenSosTimestamp = alertKey;
 
@@ -759,7 +759,8 @@ function handleWhatsAppAlertPopup(alertData) {
   const messageContent = document.getElementById("sos-message-content");
   const timestampEl = document.getElementById("sos-timestamp");
 
-  if (senderPhone) senderPhone.innerText = `+${alertData.sender}`;
+  const displayName = alertData.contact_name ? `${alertData.contact_name} (+${alertData.sender})` : `+${alertData.sender}`;
+  if (senderPhone) senderPhone.innerText = displayName;
   if (messageContent) messageContent.innerText = `"${alertData.text}"`;
   if (timestampEl) timestampEl.innerText = `Live Alert • Received at ${alertData.timestamp}`;
 

@@ -388,25 +388,51 @@ def handle_incoming_whatsapp():
             for change in changes:
                 value = change.get("value", {})
                 messages = value.get("messages", [])
+                contacts = value.get("contacts", [])
                 
+                # Extract contact name if available
+                contact_name = "Citizen"
+                if contacts:
+                    contact_name = contacts[0].get("profile", {}).get("name", "Citizen")
+
                 for msg in messages:
-                    sender = msg.get("from")  # Citizen phone number
-                    msg_type = msg.get("type")
+                    sender = msg.get("from", "Unknown")  # Citizen phone number
+                    msg_type = msg.get("type", "text")
                     text_body = ""
 
                     if msg_type == "text":
                         text_body = msg.get("text", {}).get("body", "")
                     elif msg_type == "image":
-                        text_body = msg.get("image", {}).get("caption", "Citizen sent landslide photo via WhatsApp")
+                        text_body = msg.get("image", {}).get("caption") or "Citizen uploaded landslide damage photo"
+                    elif msg_type == "audio" or msg_type == "voice":
+                        text_body = "Citizen sent voice SOS note"
+                    elif msg_type == "location":
+                        loc = msg.get("location", {})
+                        text_body = f"Location SOS shared: Lat {loc.get('latitude')}, Lng {loc.get('longitude')}"
+                    elif msg_type == "button":
+                        text_body = msg.get("button", {}).get("text", "Button clicked")
+                    elif msg_type == "interactive":
+                        inter = msg.get("interactive", {})
+                        text_body = inter.get("button_reply", {}).get("title") or inter.get("list_reply", {}).get("title") or "Interactive reply"
+                    else:
+                        text_body = f"Citizen sent {msg_type} message"
+
+                    # Fallback if empty
+                    if not text_body or not text_body.strip():
+                        text_body = "Emergency SOS: Landslide alert reported by citizen!"
+
+                    current_time_str = time.strftime("%H:%M:%S")
                     
-                    scoring_engine.add_log(f"Incoming WhatsApp SOS from +{sender}: '{text_body[:40]}...'", "ALERT")
+                    scoring_engine.add_log(f"Incoming WhatsApp SOS from +{sender} ({contact_name}): '{text_body[:40]}...'", "CRITICAL")
                     
                     # Store latest emergency alert for Web Dashboard Live Popup
                     CURRENT_STATE["latest_whatsapp_alert"] = {
                         "sender": sender,
-                        "text": text_body or "Emergency assistance requested!",
-                        "timestamp": time.strftime("%H:%M:%S"),
-                        "msg_type": msg_type
+                        "contact_name": contact_name,
+                        "text": text_body,
+                        "timestamp": current_time_str,
+                        "msg_type": msg_type,
+                        "id": f"{sender}_{time.time()}"
                     }
 
                     # Auto reply to citizen with current evacuation status
