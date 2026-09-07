@@ -205,7 +205,8 @@ def get_dashboard_status():
         "dialects": broadcast_agent.list_dialects(),
         "available_scenarios": vlm_engine.get_presets(),
         "spam_filter_presets": spam_filter_engine.get_test_presets(),
-        "latest_whatsapp_alert": CURRENT_STATE.get("latest_whatsapp_alert")
+        "latest_whatsapp_alert": CURRENT_STATE.get("latest_whatsapp_alert"),
+        "latest_broadcast_event": CURRENT_STATE.get("latest_broadcast_event")
     })
 
 @app.route("/api/scenario/trigger", methods=["POST"])
@@ -355,6 +356,48 @@ def operator_action():
     if action == "CONFIRM_DISPATCH":
         scoring_engine.state = "DISPATCHED"
         scoring_engine.add_log("OPERATOR CONFIRMED: Evacuation Siren & Dialect Voice Blast Dispatched to Village", "CRITICAL")
+        
+        # Pull live dialect broadcast alert text and safe corridor route
+        bc = CURRENT_STATE.get("last_broadcast") or {}
+        alert_text = bc.get("speech_script") or bc.get("broadcast_text") or "CRITICAL EMERGENCY WARNING: Severe landslide and debris torrent risk verified. Evacuate immediately to designated high ridge shelters."
+        safe_route = bc.get("evacuation_route") or "Avoid river ravines and culverts. Follow high-ridge bypass corridors until official clearance."
+        dialect = bc.get("dialect_name") or CURRENT_STATE.get("selected_dialect") or "National Broadcast"
+        
+        # Identify recipient phone numbers
+        recipients = ["919995622878", "919773834230"]
+        latest_sos = CURRENT_STATE.get("latest_whatsapp_alert")
+        if latest_sos and latest_sos.get("sender"):
+            clean_s = str(latest_sos["sender"]).replace("+", "").replace(" ", "").replace("-", "")
+            if clean_s and clean_s not in recipients:
+                recipients.append(clean_s)
+
+        # Store in state so /citizen and polling dashboards can render live broadcast SOS
+        broadcast_record = {
+            "title": f"🚨 EMERGENCY EVACUATION BROADCAST ({dialect})",
+            "alert": alert_text,
+            "route": safe_route,
+            "dialect": dialect,
+            "audio_url": bc.get("audio_url", "/static/audio/alert_english.mp3"),
+            "timestamp": time.strftime("%H:%M:%S"),
+            "recipients": recipients
+        }
+        CURRENT_STATE["latest_broadcast_event"] = broadcast_record
+        
+        # Send live text evacuation via WhatsApp Cloud API
+        dispatch_results = []
+        for phone in recipients:
+            res = whatsapp_service.send_evacuation_alert(phone, alert_text, safe_route)
+            dispatch_results.append({"phone": phone, "result": res})
+            scoring_engine.add_log(f"WhatsApp Dialect SOS Dispatched to +{phone}: '{alert_text[:40]}...'", "CRITICAL")
+            
+        return jsonify({
+            "success": True,
+            "state": scoring_engine.state,
+            "broadcast": broadcast_record,
+            "dispatch_results": dispatch_results,
+            "message": f"Broadcast dispatched to {len(recipients)} WhatsApp recipients."
+        })
+        
     elif action == "FALSE_ALARM":
         scoring_engine.state = "NORMAL"
         scoring_engine.severity_score = 0

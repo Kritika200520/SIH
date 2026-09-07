@@ -997,10 +997,17 @@ async function triggerOperatorAction(actionName) {
     });
     const data = await res.json();
     if (actionName === "CONFIRM_DISPATCH") {
-      alert("?? EVACUATION ALERT CONFIRMED!\n\nHyper-localized voice alert dispatched via WhatsApp & IVR blast to village Gram Pradhans.\nRoad corridors updated with dynamic safe bypasses.");
+      const bc = data.broadcast || {};
+      const numRecipients = data.dispatch_results ? data.dispatch_results.length : 2;
+      alert(`🚨 EVACUATION ALERT DISPATCHED TO WHATSAPP!\n\n` +
+            `📢 Dialect Broadcast: ${bc.dialect || "English (National)"}\n` +
+            `📝 Message: "${bc.alert || "Evacuate immediately"}"\n\n` +
+            `🏔️ Safe Corridor: ${bc.route || "High Ridge Bypass"}\n` +
+            `📱 Dispatched to ${numRecipients} Citizens/Pradhans via WhatsApp (+91 99956-22878, +91 97738-34230)`
+      );
       toggleAudioPlayback();
     } else {
-      alert("??? System calibrated. False alarm registered in forensic audit log.");
+      alert("✅ System calibrated. False alarm registered in forensic audit log.");
     }
     fetchDashboardStatus();
   } catch (e) {
