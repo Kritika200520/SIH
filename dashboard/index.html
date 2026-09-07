@@ -433,6 +433,48 @@
     </div>
   </footer>
 
+  <!-- ============================================== -->
+  <!-- LIVE WHATSAPP CITIZEN SOS POPUP MODAL          -->
+  <!-- ============================================== -->
+  <div id="whatsapp-sos-modal" class="sos-modal-overlay" style="display: none;">
+    <div class="sos-modal-card glass-card">
+      <div class="sos-modal-header">
+        <div class="sos-pulse-badge">
+          <span class="pulse-ring"></span>
+          <span class="sos-icon">🚨</span>
+        </div>
+        <div class="sos-title-group">
+          <h4 class="sos-heading">INCOMING CITIZEN WHATSAPP SOS</h4>
+          <span class="sos-sub" id="sos-timestamp">Live Alert • Received Just Now</span>
+        </div>
+        <button class="sos-close-btn" onclick="dismissSosModal()">&times;</button>
+      </div>
+
+      <div class="sos-modal-body">
+        <div class="sos-sender-badge">
+          <span class="sender-label">SENDER MOBILE:</span>
+          <span class="sender-number" id="sos-sender-phone">+91 97738-34230</span>
+        </div>
+
+        <div class="sos-message-bubble">
+          <span class="bubble-tag">CITIZEN DISTRESS MESSAGE:</span>
+          <p class="bubble-text" id="sos-message-content">
+            "Heavy rain and road crack in my area, please send evacuation route!"
+          </p>
+        </div>
+
+        <div class="sos-action-bar">
+          <button class="action-btn btn-broadcast" style="padding: 8px 16px; font-size: 11px;" onclick="triggerOperatorAction('CONFIRM_DISPATCH')">
+            DISPATCH DIALECT SIREN & ROUTE
+          </button>
+          <button class="action-btn btn-calibrate" style="padding: 8px 16px; font-size: 11px;" onclick="dismissSosModal()">
+            ACKNOWLEDGE
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Leaflet Map JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>

@@ -718,6 +718,36 @@ function renderDashboard(data) {
     const latestEvent = data.event_log[0];
     document.getElementById("audit-ticker-msg").innerText = `[${latestEvent.time}] ${latestEvent.event}`;
   }
+
+  // 8. Real-Time WhatsApp Citizen SOS Modal Popup
+  if (data.latest_whatsapp_alert) {
+    handleWhatsAppAlertPopup(data.latest_whatsapp_alert);
+  }
+}
+
+let lastSeenSosTimestamp = null;
+
+function handleWhatsAppAlertPopup(alertData) {
+  if (!alertData || alertData.timestamp === lastSeenSosTimestamp) return;
+  lastSeenSosTimestamp = alertData.timestamp;
+
+  const modal = document.getElementById("whatsapp-sos-modal");
+  const senderPhone = document.getElementById("sos-sender-phone");
+  const messageContent = document.getElementById("sos-message-content");
+  const timestampEl = document.getElementById("sos-timestamp");
+
+  if (senderPhone) senderPhone.innerText = `+${alertData.sender}`;
+  if (messageContent) messageContent.innerText = `"${alertData.text}"`;
+  if (timestampEl) timestampEl.innerText = `Live Alert • Received at ${alertData.timestamp}`;
+
+  if (modal) {
+    modal.style.display = "flex";
+  }
+}
+
+function dismissSosModal() {
+  const modal = document.getElementById("whatsapp-sos-modal");
+  if (modal) modal.style.display = "none";
 }
 
 /**

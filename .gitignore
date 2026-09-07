@@ -33,4 +33,6 @@ server/.env
 .vscode/
 .idea/
 .DS_Store
-Thumbs.db
+# Binaries
+*.exe
+cloudflared.exe

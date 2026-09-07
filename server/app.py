@@ -39,7 +39,8 @@ CURRENT_STATE = {
     "operator_status": "MONITORING",
     "sim_reports": [],
     "last_broadcast": None,
-    "last_spam_check": None
+    "last_spam_check": None,
+    "latest_whatsapp_alert": None
 }
 
 def init_default_scenario(scenario_key="chamoli_fissure"):
@@ -162,7 +163,8 @@ def get_dashboard_status():
         "event_log": scoring_engine.event_log,
         "dialects": broadcast_agent.list_dialects(),
         "available_scenarios": vlm_engine.get_presets(),
-        "spam_filter_presets": spam_filter_engine.get_test_presets()
+        "spam_filter_presets": spam_filter_engine.get_test_presets(),
+        "latest_whatsapp_alert": CURRENT_STATE.get("latest_whatsapp_alert")
     })
 
 @app.route("/api/scenario/trigger", methods=["POST"])
@@ -399,6 +401,14 @@ def handle_incoming_whatsapp():
                     
                     scoring_engine.add_log(f"Incoming WhatsApp SOS from +{sender}: '{text_body[:40]}...'", "ALERT")
                     
+                    # Store latest emergency alert for Web Dashboard Live Popup
+                    CURRENT_STATE["latest_whatsapp_alert"] = {
+                        "sender": sender,
+                        "text": text_body or "Emergency assistance requested!",
+                        "timestamp": time.strftime("%H:%M:%S"),
+                        "msg_type": msg_type
+                    }
+
                     # Auto reply to citizen with current evacuation status
                     bc = CURRENT_STATE.get("last_broadcast") or {}
                     reply_text = bc.get("speech_script", "Bhoomi-Raksha Alert: Your report is logged. Evacuate to high ridge immediately.")
