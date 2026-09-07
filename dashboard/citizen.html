@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bhoomi-Raksha | Citizen WhatsApp Emergency Link</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --wa-dark-bg: #0b141a;
+      --wa-panel-bg: #111b21;
+      --wa-card-bg: #202c33;
+      --wa-green: #25d366;
+      --wa-green-dark: #00a884;
+      --wa-bubble-user: #005c4b;
+      --wa-bubble-bot: #202c33;
+      --text-main: #e9edef;
+      --text-muted: #8696a0;
+      --danger: #ff3b30;
+      --accent: #00f0ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--wa-dark-bg);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 12px;
+    }
+
+    .phone-container {
+      width: 100%;
+      max-width: 440px;
+      height: 94vh;
+      max-height: 860px;
+      background: var(--wa-panel-bg);
+      border-radius: 28px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 168, 132, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* WhatsApp Header */
+    .wa-header {
+      background: var(--wa-card-bg);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      z-index: 10;
+    }
+
+    .wa-avatar-wrap {
+      position: relative;
+    }
+
+    .wa-avatar {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #00a884, #005c4b);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .wa-badge-verified {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      background: var(--wa-green);
+      color: #000;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+      border: 2px solid var(--wa-card-bg);
+    }
+
+    .wa-header-info {
+      flex: 1;
+    }
+
+    .wa-header-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .wa-header-sub {
+      font-size: 11px;
+      color: var(--wa-green);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 500;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--wa-green);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 0.4; }
+    }
+
+    .dashboard-link-btn {
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .dashboard-link-btn:hover {
+      background: var(--accent);
+      color: #000;
+    }
+
+    /* Identity Config Bar */
+    .id-config-bar {
+      background: #182229;
+      padding: 8px 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .id-field {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .id-field label {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .id-field input {
+      background: var(--wa-card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      outline: none;
+    }
+
+    .id-field input:focus {
+      border-color: var(--wa-green);
+    }
+
+    /* Chat Area */
+    .wa-chat-body {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
+      background-size: 24px 24px;
+    }
+
+    .chat-bubble {
+      max-width: 84%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.45;
+      position: relative;
+      word-wrap: break-word;
+      animation: bubblePop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes bubblePop {
+      from { opacity: 0; transform: translateY(8px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .chat-bubble--system {
+      align-self: center;
+      background: rgba(32, 44, 51, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #ffd60a;
+      font-size: 11px;
+      text-align: center;
+      border-radius: 8px;
+      max-width: 90%;
+      padding: 6px 12px;
+    }
+
+    .chat-bubble--incoming {
+      align-self: flex-start;
+      background: var(--wa-bubble-bot);
+      color: var(--text-main);
+      border-bottom-left-radius: 2px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .chat-bubble--outgoing {
+      align-self: flex-end;
+      background: var(--wa-bubble-user);
+      color: #ffffff;
+      border-bottom-right-radius: 2px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .bubble-meta {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 4px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .check-icon {
+      color: #53bdeb;
+      font-size: 11px;
+    }
+
+    /* Quick Preset Chips */
+    .quick-chips-bar {
+      padding: 8px 12px;
+      background: var(--wa-panel-bg);
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      scrollbar-width: none;
+    }
+    .quick-chips-bar::-webkit-scrollbar { display: none; }
+
+    .chip-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 14px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .chip-btn:hover {
+      background: rgba(0, 168, 132, 0.2);
+      color: #fff;
+      border-color: var(--wa-green);
+    }
+
+    /* Input Footer */
+    .wa-input-footer {
+      background: var(--wa-card-bg);
+      padding: 10px 14px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .message-input {
+      flex: 1;
+      background: var(--wa-panel-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 10px 16px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .message-input:focus {
+      border-color: var(--wa-green);
+    }
+
+    .send-btn {
+      width: 44px;
+      height: 44px;
+      background: var(--wa-green);
+      border: none;
+      border-radius: 50%;
+      color: #0b141a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .send-btn:hover {
+      transform: scale(1.06);
+      background: #20ba5a;
+    }
+
+    .send-btn:active {
+      transform: scale(0.95);
+    }
+
+    .status-toast {
+      position: fixed;
+      top: 20px;
+      background: rgba(0, 168, 132, 0.95);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: all 0.3s ease;
+      z-index: 100;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+    .status-toast--show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="toast" class="status-toast">🚨 Distress Alert Dispatched to Bhoomi-Raksha!</div>
+
+  <div class="phone-container">
+    <!-- Header -->
+    <div class="wa-header">
+      <div class="wa-avatar-wrap">
+        <div class="wa-avatar">🛡️</div>
+        <div class="wa-badge-verified">✓</div>
+      </div>
+      <div class="wa-header-info">
+        <div class="wa-header-title">
+          Bhoomi-Raksha SOS
+        </div>
+        <div class="wa-header-sub">
+          <span class="live-dot"></span> Emergency Citizen Hotline
+        </div>
+      </div>
+      <a href="/" target="_blank" class="dashboard-link-btn" title="Open Main Command Center">
+        🖥️ Dashboard
+      </a>
+    </div>
+
+    <!-- Citizen Info Header -->
+    <div class="id-config-bar">
+      <div class="id-field">
+        <label>Your Name</label>
+        <input type="text" id="citizen-name" value="Kartikeya Malviya" placeholder="Enter name">
+      </div>
+      <div class="id-field">
+        <label>Your Phone No.</label>
+        <input type="text" id="citizen-phone" value="+91 99956-22878" placeholder="+91...">
+      </div>
+    </div>
+
+    <!-- Chat Messages Feed -->
+    <div class="wa-chat-body" id="chat-feed">
+      <div class="chat-bubble chat-bubble--system">
+        🔒 Official MoES Disaster Link: Any message sent here triggers instant Geotechnical AI analysis & Operator alerts on the Command Dashboard.
+      </div>
+
+      <div class="chat-bubble chat-bubble--incoming">
+        <strong>🤖 Bhoomi-Raksha AI Dispatcher:</strong><br>
+        Namaste. If you spot fresh ground fissures, mountain landslides, or flash floods, please send your distress message immediately. Include location details if possible.
+        <div class="bubble-meta">
+          <span>Official 24x7</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Chips -->
+    <div class="quick-chips-bar">
+      <button class="chip-btn" onclick="setChipText('Heavy rain and road crack in my area, please send evacuation route!')">🌧️ Road crack & heavy rain</button>
+      <button class="chip-btn" onclick="setChipText('Landslide debris falling on highway, vehicle traffic completely blocked!')">🏔️ Highway Landslide Block</button>
+      <button class="chip-btn" onclick="setChipText('River mud level rising rapidly near bridge, family trapped!')">🌊 Flash flood mud rise</button>
+      <button class="chip-btn" onclick="setChipText('Deep slope fissure visible near residential ward, slope sliding!')">⚠️ Residential Slope Slump</button>
+    </div>
+
+    <!-- Message Input Footer -->
+    <div class="wa-input-footer">
+      <input type="text" id="msg-input" class="message-input" placeholder="Type your distress report here..." onkeydown="if(event.key === 'Enter') sendCitizenSos()">
+      <button class="send-btn" onclick="sendCitizenSos()" title="Send WhatsApp SOS">
+        ➤
+      </button>
+    </div>
+  </div>
+
+  <script>
+    function setChipText(text) {
+      const input = document.getElementById("msg-input");
+      input.value = text;
+      input.focus();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.innerText = msg;
+      toast.classList.add("status-toast--show");
+      setTimeout(() => {
+        toast.classList.remove("status-toast--show");
+      }, 3200);
+    }
+
+    async function sendCitizenSos() {
+      const input = document.getElementById("msg-input");
+      const text = input.value.trim();
+      if (!text) return;
+
+      const name = document.getElementById("citizen-name").value.trim() || "Citizen";
+      const phone = document.getElementById("citizen-phone").value.trim() || "+91 99956-22878";
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      // Add user outgoing bubble immediately
+      const chatFeed = document.getElementById("chat-feed");
+      const userBubble = document.createElement("div");
+      userBubble.className = "chat-bubble chat-bubble--outgoing";
+      userBubble.innerHTML = `
+        ${escapeHtml(text)}
+        <div class="bubble-meta">
+          <span>${timeStr}</span>
+          <span class="check-icon">✓✓</span>
+        </div>
+      `;
+      chatFeed.appendChild(userBubble);
+      input.value = "";
+      chatFeed.scrollTop = chatFeed.scrollHeight;
+
+      showToast(`🚨 Distress SOS Dispatched from ${phone}!`);
+
+      try {
+        const res = await fetch("/api/citizen/sos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sender_name: name,
+            sender_phone: phone,
+            message: text,
+            msg_type: "text"
+          })
+        });
+
+        const data = await res.json();
+        
+        // Auto-reply response bubble from Disaster Command
+        setTimeout(() => {
+          const replyBubble = document.createElement("div");
+          replyBubble.className = "chat-bubble chat-bubble--incoming";
+          replyBubble.innerHTML = `
+            <strong>🚨 BHOOMI-RAKSHA EMERGENCY RESPONSE:</strong><br>
+            ${escapeHtml(data.reply || "Your report is logged. Evacuate to designated high ground.")}<br><br>
+            🏔️ <strong>Designated Safe Corridor:</strong> ${escapeHtml(data.safe_route || "Follow high ridge bypass.")}
+            <div class="bubble-meta">
+              <span>${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+          `;
+          chatFeed.appendChild(replyBubble);
+          chatFeed.scrollTop = chatFeed.scrollHeight;
+        }, 600);
+
+      } catch (err) {
+        console.error("SOS transmission error:", err);
+      }
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+  </script>
+</body>
+</html>

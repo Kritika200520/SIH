@@ -144,6 +144,47 @@ init_default_scenario("chamoli_fissure")
 def serve_dashboard():
     return send_from_directory("../dashboard", "index.html")
 
+@app.route("/citizen")
+def serve_citizen_portal():
+    return send_from_directory("../dashboard", "citizen.html")
+
+@app.route("/api/citizen/sos", methods=["POST"])
+def handle_citizen_sos():
+    data = request.get_json() or {}
+    sender_phone = str(data.get("sender_phone") or data.get("phone") or "919995622878")
+    sender_name = str(data.get("sender_name") or data.get("name") or "Citizen")
+    text_body = str(data.get("message") or data.get("text") or "Emergency Landslide SOS")
+    msg_type = data.get("msg_type", "text")
+    
+    clean_sender = sender_phone.replace("+", "").replace(" ", "").replace("-", "")
+    current_time_str = time.strftime("%H:%M:%S")
+    
+    CURRENT_STATE["latest_whatsapp_alert"] = {
+        "sender": clean_sender,
+        "contact_name": sender_name,
+        "text": text_body,
+        "timestamp": current_time_str,
+        "msg_type": msg_type,
+        "id": f"{clean_sender}_{time.time()}"
+    }
+    
+    scoring_engine.add_log(f"Incoming WhatsApp SOS from +{clean_sender} ({sender_name}): '{text_body[:40]}...'", "CRITICAL")
+    
+    bc = CURRENT_STATE.get("last_broadcast") or {}
+    reply_text = bc.get("speech_script", "Bhoomi-Raksha Alert: Your report is logged. Evacuate to high ridge immediately.")
+    safe_route = bc.get("evacuation_route", "Move uphill via B-4 bypass.")
+    
+    # Attempt WhatsApp API notification if token configured
+    whatsapp_service.send_evacuation_alert(clean_sender, reply_text, safe_route)
+    
+    return jsonify({
+        "success": True,
+        "alert": CURRENT_STATE["latest_whatsapp_alert"],
+        "reply": reply_text,
+        "safe_route": safe_route,
+        "timestamp": current_time_str
+    })
+
 @app.route("/static/audio/<path:filename>")
 def serve_audio(filename):
     return send_from_directory("static/audio", filename)
