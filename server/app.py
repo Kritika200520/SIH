@@ -22,6 +22,8 @@ from scoring_engine import scoring_engine
 from routing_engine import routing_engine
 from spam_filter import spam_filter_engine
 from whatsapp_service import whatsapp_service
+import weather_service
+from predictive_engine import predictive_engine
 
 app = Flask(__name__, static_folder="../dashboard", static_url_path="")
 CORS(app)
@@ -47,24 +49,36 @@ def init_default_scenario(scenario_key="chamoli_fissure"):
     # InSAR and Rainfall for Scenario
     if scenario_key == "chamoli_fissure":
         insar_disp = 14.8
-        rainfall_24h = 78.5
         slope_angle = 38.0
         cluster_n = 4
     elif scenario_key == "wayanad_flood":
         insar_disp = 18.6
-        rainfall_24h = 145.0
         slope_angle = 34.5
         cluster_n = 7
     elif scenario_key == "shimla_subsidence":
         insar_disp = 11.5
-        rainfall_24h = 92.0
         slope_angle = 42.0
         cluster_n = 3
     else: # False alarm
         insar_disp = 0.5
-        rainfall_24h = 12.0
         slope_angle = 18.0
         cluster_n = 1
+
+    # Fetch live weather data (Rainfall)
+    lat = sector_profile["coordinates"]["lat"]
+    lng = sector_profile["coordinates"]["lng"]
+    live_rainfall = weather_service.get_current_rainfall(lat, lng)
+    
+    if live_rainfall is not None:
+        rainfall_24h = live_rainfall
+    else:
+        # Fallback to mock values if API fails
+        fallback_rain = {
+            "chamoli_fissure": 78.5,
+            "wayanad_flood": 145.0,
+            "shimla_subsidence": 92.0
+        }
+        rainfall_24h = fallback_rain.get(scenario_key, 12.0)
 
     fs_data = geo_rag_engine.calculate_safety_factor(sector_profile, slope_deg=slope_angle, insar_disp_mm=insar_disp)
     risk_data = scoring_engine.compute_composite_risk(vlm_data, insar_disp, fs_data, rainfall_24h, cluster_n)
@@ -78,6 +92,14 @@ def init_default_scenario(scenario_key="chamoli_fissure"):
         sector_id=sector_profile["id"],
         vlm_depth_cm=vlm_data.get("fissure_depth_cm", 8.4),
         turbidity_pct=vlm_data.get("turbidity_index_pct", 45.0)
+    )
+
+    # AI Predictive Analytics Engine (using Live Weather, Geotech, and VLM)
+    ai_prediction = predictive_engine.predict_risk_and_timeline(
+        rainfall_mm=rainfall_24h,
+        insar_mm=insar_disp,
+        slope_deg=slope_angle,
+        fissure_cm=vlm_data.get("fissure_depth_cm", 8.4)
     )
 
     # AI Hallucination & Spam Filter Verification
@@ -108,6 +130,7 @@ def init_default_scenario(scenario_key="chamoli_fissure"):
         "sector_profile": sector_profile,
         "broadcast": broadcast_data,
         "dynamic_routing": nav_routes,
+        "ai_prediction": ai_prediction,
         "spam_filter": spam_verif
     }
     

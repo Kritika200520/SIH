@@ -1,21 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BHOOMI-RAKSHA ? Dynamic Evacuation Pathfinding & Vision-RAG AI</title>
-  
+  <title>BHOOMI-RAKSHA | Dynamic Evacuation Pathfinding &amp; Vision-RAG AI</title>
+
   <!-- Fonts: Inter + Fira Code -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
   <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
   <!-- Custom Apple Titanium Stylesheet -->
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="theme-titanium">
 
   <!-- ============================================== -->
@@ -33,13 +38,13 @@
         <span class="brand-name">BHOOMI<span class="text-accent">-RAKSHA</span></span>
       </div>
       <span class="brand-divider">/</span>
-      <span class="brand-sub">DYNAMIC EVACUATION ROUTING ? GENAI MOAT</span>
+      <span class="brand-sub">DYNAMIC EVACUATION ROUTING | GENAI MOAT</span>
     </div>
 
     <!-- Center Scenario Selector -->
     <div class="hud-scenarios">
       <button class="sc-pill sc-pill--active" id="btn-sc-chamoli" onclick="selectScenario('chamoli_fissure')">
-        <span class="sc-dot dot-red"></span> Chamoli (8.4cm Crack ? Blocked)
+        <span class="sc-dot dot-red"></span> Chamoli (8.4cm Crack - Blocked)
       </button>
       <button class="sc-pill" id="btn-sc-wayanad" onclick="selectScenario('wayanad_flood')">
         <span class="sc-dot dot-cyan"></span> Wayanad (Debris Flood)
@@ -66,6 +71,14 @@
         <span class="chip-k">STABILITY Fs</span>
         <span class="chip-v text-danger" id="stat-fs">0.84 CRITICAL</span>
       </div>
+      <div class="telem-chip">
+        <span class="chip-k">LIVE WEATHER (24H)</span>
+        <span class="chip-v text-cyan" id="stat-weather">-- mm</span>
+      </div>
+      <div class="telem-chip" id="sync-chip" style="border-color: rgba(16, 185, 129, 0.4);">
+        <span class="chip-k">EDGE NODE SYNC</span>
+        <span class="chip-v text-safe" id="stat-sync">[PASS] CLOUD ONLINE</span>
+      </div>
     </div>
   </header>
 
@@ -75,8 +88,9 @@
   <aside class="floating-panel floating-panel--left glass-card" id="panel-left">
     <div class="panel-header">
       <div class="panel-title-group">
-        <svg class="panel-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="12 2 19 21 12 17 5 21 12 2"/>
+        <svg class="panel-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <polygon points="12 2 19 21 12 17 5 21 12 2" />
         </svg>
         <h3>DYNAMIC PATHFINDING VS GOOGLE MAPS</h3>
       </div>
@@ -87,18 +101,19 @@
       <!-- 1. Side-by-Side Pathfinding Comparison Card (The SIH Pitch Moat) -->
       <div class="route-comparison-card">
         <div class="route-comp-header">
-          <span class="comp-title">?? REAL-TIME EVACUATION ROUTE ARBITRATION</span>
+          <span class="comp-title">[LIVE] REAL-TIME EVACUATION ROUTE ARBITRATION</span>
           <div class="evac-mode-switch">
-            <button class="mode-btn mode-btn--active" id="btn-mode-veh" onclick="switchEvacMode('vehicle')">?? Vehicle</button>
-            <button class="mode-btn" id="btn-mode-foot" onclick="switchEvacMode('foot')">?? Foot Trail</button>
+            <button class="mode-btn mode-btn--active" id="btn-mode-veh"
+              onclick="switchEvacMode('vehicle')">Vehicle</button>
+            <button class="mode-btn" id="btn-mode-foot" onclick="switchEvacMode('foot')">Foot Trail</button>
           </div>
         </div>
 
         <!-- Google Maps (Naive Baseline) -->
         <div class="route-option route-option--naive">
           <div class="route-opt-top">
-            <span class="route-tag tag-danger">? STANDARD GOOGLE MAPS (NAIVE)</span>
-            <span class="route-stat text-danger" id="naive-dist">3.6 km ? +4.5h DELAY</span>
+            <span class="route-tag tag-danger">[X] STANDARD GOOGLE MAPS (NAIVE)</span>
+            <span class="route-stat text-danger" id="naive-dist">3.6 km | +4.5h DELAY</span>
           </div>
           <p class="route-warning-text" id="naive-warn">
             Routes directly into active 8.4cm Tension Fissure collapse at KM 248! (Hazard Exposure: 95%)
@@ -108,11 +123,12 @@
         <!-- Bhoomi-Raksha Dynamic Safe Route -->
         <div class="route-option route-option--safe">
           <div class="route-opt-top">
-            <span class="route-tag tag-safe">? BHOOMI-RAKSHA HAZARD-AWARE CORRIDOR</span>
-            <span class="route-stat text-safe" id="safe-dist">4.2 km ? 12 mins (OPEN)</span>
+            <span class="route-tag tag-safe">[OK] BHOOMI-RAKSHA HAZARD-AWARE CORRIDOR</span>
+            <span class="route-stat text-safe" id="safe-dist">4.2 km | 12 mins (OPEN)</span>
           </div>
           <p class="route-clear-text" id="safe-desc">
-            Hazard Cost Surface Algorithm penalizes valley shear plane; dynamically routes via Auli High Ridge B-4 bypass to elevation +2800m.
+            Hazard Cost Surface Algorithm penalizes valley shear plane; dynamically routes via Auli High Ridge B-4
+            bypass to elevation +2800m.
           </p>
         </div>
       </div>
@@ -124,17 +140,19 @@
           <span class="photo-tag tag-class" id="vlm-tag-class">TENSION SCARP</span>
           <span class="photo-tag tag-conf" id="vlm-tag-conf">93.5% CONFIDENCE</span>
         </div>
-        <img id="vlm-preview-img" src="https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&w=800&q=80" alt="Citizen Field Upload">
+        <img id="vlm-preview-img"
+          src="https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&w=800&q=80"
+          alt="Citizen Field Upload">
         <div class="fissure-box-overlay" id="fissure-box">
-          <span class="fissure-badge">VLM SEGMENTATION: 8.4cm DEPTH ? 14.2cm WIDTH</span>
+          <span class="fissure-badge">VLM SEGMENTATION: 8.4cm DEPTH x 14.2cm WIDTH</span>
         </div>
       </div>
 
       <!-- 3. Photo Meta & Diagnostic Metrics -->
       <div class="photo-meta-strip">
         <div class="meta-row">
-          <span class="meta-k">LOCATION & GPS</span>
-          <span class="meta-v" id="reporter-loc">Marwari Ward 9, Joshimath (30.5562?N, 79.5636?E)</span>
+          <span class="meta-k">LOCATION &amp; GPS</span>
+          <span class="meta-v" id="reporter-loc">Marwari Ward 9, Joshimath (30.5562 N, 79.5636 E)</span>
         </div>
         <div class="meta-row">
           <span class="meta-k">SOURCE NODE</span>
@@ -147,30 +165,39 @@
         <div class="metric-cell">
           <span class="cell-label">FISSURE DEPTH</span>
           <span class="cell-val" id="metric-depth">8.4 <small>cm</small></span>
-          <div class="progress-track"><div class="progress-bar bg-danger" id="bar-depth" style="width: 84%"></div></div>
+          <div class="progress-track">
+            <div class="progress-bar bg-danger" id="bar-depth" style="width: 84%"></div>
+          </div>
         </div>
         <div class="metric-cell">
           <span class="cell-label">CRACK WIDTH</span>
           <span class="cell-val" id="metric-width">14.2 <small>cm</small></span>
-          <div class="progress-track"><div class="progress-bar bg-danger" id="bar-width" style="width: 71%"></div></div>
+          <div class="progress-track">
+            <div class="progress-bar bg-danger" id="bar-width" style="width: 71%"></div>
+          </div>
         </div>
         <div class="metric-cell">
           <span class="cell-label">TURBIDITY</span>
           <span class="cell-val" id="metric-turbidity">45.0 <small>%</small></span>
-          <div class="progress-track"><div class="progress-bar bg-amber" id="bar-turbidity" style="width: 45%"></div></div>
+          <div class="progress-track">
+            <div class="progress-bar bg-amber" id="bar-turbidity" style="width: 45%"></div>
+          </div>
         </div>
         <div class="metric-cell">
           <span class="cell-label">SOIL SATURATION</span>
           <span class="cell-val" id="metric-sat">82.0 <small>%</small></span>
-          <div class="progress-track"><div class="progress-bar bg-danger" id="bar-sat" style="width: 82%"></div></div>
+          <div class="progress-track">
+            <div class="progress-bar bg-danger" id="bar-sat" style="width: 82%"></div>
+          </div>
         </div>
       </div>
 
       <!-- VLM Geotechnical Diagnostic Explanation -->
       <div class="explanation-card">
-        <span class="exp-title">📊 GEOTECHNICAL AI DIAGNOSIS:</span>
+        <span class="exp-title">GEOTECHNICAL AI DIAGNOSIS:</span>
         <p class="exp-text" id="vlm-explanation">
-          VLM extracted an 8.4cm deep longitudinal tension fissure along the crown scarp. High pore-water pressure indicates imminent rotational slump failure.
+          VLM extracted an 8.4cm deep longitudinal tension fissure along the crown scarp. High pore-water pressure
+          indicates imminent rotational slump failure.
         </p>
       </div>
 
@@ -178,55 +205,59 @@
       <div class="spam-filter-card">
         <div class="spam-header">
           <div class="spam-title-group">
-            <span class="spam-icon">🛡️</span>
-            <span class="spam-title">AI SPAM & AUTHENTICITY PROTOCOL</span>
+            <span class="spam-icon">SHIELD</span>
+            <span class="spam-title">AI SPAM &amp; AUTHENTICITY PROTOCOL</span>
           </div>
           <span class="badge-mini badge-mini--safe" id="spam-status-badge">PASSED (99%)</span>
         </div>
 
         <p class="spam-pitch-note">
-          Cross-references EXIF metadata with live cell tower stream and perceptual sub-hashes to block stock photos, old disasters, and GPS spoofing.
+          Cross-references EXIF metadata with live cell tower stream and perceptual sub-hashes to block stock photos,
+          old disasters, and GPS spoofing.
         </p>
 
         <!-- Interactive Test Triggers -->
         <div class="spam-preset-pills">
-          <button class="spam-pill spam-pill--active" id="btn-spam-live_authentic_field" onclick="testSpamPreset('live_authentic_field')">
-            🟢 Field Photo (Joshimath)
+          <button class="spam-pill spam-pill--active" id="btn-spam-live_authentic_field"
+            onclick="testSpamPreset('live_authentic_field')">
+            [PASS] Field Photo (Joshimath)
           </button>
           <button class="spam-pill" id="btn-spam-recycled_stock_spam" onclick="testSpamPreset('recycled_stock_spam')">
-            🔴 Recycled Stock Photo
+            [FAIL] Recycled Stock Photo
           </button>
           <button class="spam-pill" id="btn-spam-gps_spoof_hoax" onclick="testSpamPreset('gps_spoof_hoax')">
-            🔴 GPS Spoof (Mumbai)
+            [FAIL] GPS Spoof (Mumbai)
           </button>
-          <button class="spam-pill" id="btn-spam-manipulated_photoshop_fake" onclick="testSpamPreset('manipulated_photoshop_fake')">
-            🔴 Photoshop Tampered
+          <button class="spam-pill" id="btn-spam-manipulated_photoshop_fake"
+            onclick="testSpamPreset('manipulated_photoshop_fake')">
+            [FAIL] Photoshop Tampered
           </button>
         </div>
 
         <!-- Real-time Verification Telemetry -->
         <div class="spam-telemetry-box">
           <div class="spam-telem-row">
-            <span class="telem-k">🛰️ EXIF vs GPS STREAM:</span>
+            <span class="telem-k">EXIF vs GPS STREAM:</span>
             <span class="telem-v text-safe" id="spam-gps-delta">14.0 m (MATCH - Ward 9)</span>
           </div>
           <div class="spam-telem-row">
-            <span class="telem-k">📶 TOWER TRIANGULATION:</span>
+            <span class="telem-k">TOWER TRIANGULATION:</span>
             <span class="telem-v text-safe" id="spam-tower-cid">BSNL Circle UK (LAC: 2481 / CID: 58210)</span>
           </div>
           <div class="spam-telem-row">
-            <span class="telem-k">🖼️ dHash DEDUPLICATION:</span>
+            <span class="telem-k">dHash DEDUPLICATION:</span>
             <span class="telem-v text-safe" id="spam-dhash-match">0% Duplicate (Unique Field Frame)</span>
           </div>
           <div class="spam-telem-row">
-            <span class="telem-k">🔬 COMPRESSION / ELA:</span>
+            <span class="telem-k">COMPRESSION / ELA:</span>
             <span class="telem-v text-safe" id="spam-ela-score">96% Raw Sensor Consistency</span>
           </div>
         </div>
 
         <div class="spam-reason-box" id="spam-reason-box">
           <span class="spam-reason-text" id="spam-decision-reason">
-            ✅ Verified: EXIF GPS, Cell Tower ID, Raw Sensor Noise & Timestamp match. Zero duplicate hashes in national archive.
+            Verified: EXIF GPS, Cell Tower ID, Raw Sensor Noise &amp; Timestamp match. Zero duplicate hashes in national
+            archive.
           </span>
         </div>
       </div>
@@ -239,10 +270,11 @@
   <aside class="floating-panel floating-panel--right glass-card" id="panel-right">
     <div class="panel-header">
       <div class="panel-title-group">
-        <svg class="panel-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        <svg class="panel-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
         </svg>
-        <h3>RISK FUSION & DIALECT BROADCASTER</h3>
+        <h3>RISK FUSION &amp; DIALECT BROADCASTER</h3>
       </div>
       <span class="badge-mini badge-mini--cyan" id="composite-score-badge">RISK: 87/100</span>
     </div>
@@ -264,19 +296,46 @@
         <div class="factor-breakdown">
           <div class="factor-item">
             <div class="factor-label"><span>1. VLM Fissure Depth (30%)</span><strong id="bk-vlm">84%</strong></div>
-            <div class="factor-track"><div class="factor-fill bg-danger" id="prog-vlm" style="width: 84%"></div></div>
+            <div class="factor-track">
+              <div class="factor-fill bg-danger" id="prog-vlm" style="width: 84%"></div>
+            </div>
           </div>
           <div class="factor-item">
             <div class="factor-label"><span>2. Sentinel-1 InSAR Shift (25%)</span><strong id="bk-sar">74%</strong></div>
-            <div class="factor-track"><div class="factor-fill bg-danger" id="prog-sar" style="width: 74%"></div></div>
+            <div class="factor-track">
+              <div class="factor-fill bg-danger" id="prog-sar" style="width: 74%"></div>
+            </div>
           </div>
           <div class="factor-item">
             <div class="factor-label"><span>3. GSI Slope Fs (25%)</span><strong id="bk-fs">90%</strong></div>
-            <div class="factor-track"><div class="factor-fill bg-danger" id="prog-fs" style="width: 90%"></div></div>
+            <div class="factor-track">
+              <div class="factor-fill bg-danger" id="prog-fs" style="width: 90%"></div>
+            </div>
           </div>
           <div class="factor-item">
-            <div class="factor-label"><span>4. IMD 24h Rainfall (20%)</span><strong id="bk-rain">78%</strong></div>
-            <div class="factor-track"><div class="factor-fill bg-amber" id="prog-rain" style="width: 78%"></div></div>
+            <div class="factor-label"><span>4. Live Weather API Rainfall (20%)</span><strong id="bk-rain">78%</strong>
+            </div>
+            <div class="factor-track">
+              <div class="factor-fill bg-amber" id="prog-rain" style="width: 78%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1.5 AI/ML Predictive Forecast -->
+      <div class="rag-info-card" style="margin-top: 15px; border-left-color: #f59e0b;">
+        <div class="rag-header">
+          <span class="rag-label">AI PREDICTIVE FORECAST:</span>
+          <span class="rag-tag" id="ai-model-tag">XGBoost Ensemble</span>
+        </div>
+        <div class="metric-grid" style="margin-top: 10px; gap: 8px;">
+          <div class="metric-cell" style="flex: 1;">
+            <span class="cell-label" style="font-size: 10px;">PROBABILITY</span>
+            <span class="cell-val text-danger" id="ai-prob">-- <small>%</small></span>
+          </div>
+          <div class="metric-cell" style="flex: 2;">
+            <span class="cell-label" style="font-size: 10px;">TIMELINE</span>
+            <span class="cell-val text-amber" id="ai-timeline" style="font-size: 14px;">--</span>
           </div>
         </div>
       </div>
@@ -284,7 +343,7 @@
       <!-- 2. GSI Geological Survey RAG Snippets -->
       <div class="rag-info-card">
         <div class="rag-header">
-          <span class="rag-label">?? GSI GEOLOGICAL KNOWLEDGE BASE:</span>
+          <span class="rag-label">GSI GEOLOGICAL KNOWLEDGE BASE:</span>
           <span class="rag-tag" id="rag-sector-tag">SHEET #UK-CHAMOLI</span>
         </div>
         <ul class="rag-bullets" id="rag-excerpts-list">
@@ -297,7 +356,7 @@
       <!-- 3. Regional Dialect Voice Broadcaster -->
       <div class="broadcast-section">
         <div class="broadcast-top-row">
-          <span class="bc-title">??? DIALECT VOICE BROADCASTER:</span>
+          <span class="bc-title">DIALECT VOICE BROADCASTER:</span>
           <select id="dialect-select" class="dialect-select-input" onchange="changeDialect(this.value)">
             <option value="Garhwali">Garhwali (Chamoli / Uttarakhand)</option>
             <option value="Malayalam">Malayalam (Wayanad / Kerala)</option>
@@ -310,22 +369,24 @@
 
         <div class="speech-script-box">
           <p class="speech-text" id="bc-script-text">
-            ??????! ????? ?????? ??????? ??? ???? ??????? ?? ???? ???? ??? ????? ??? ??? ?? ??? ?????! ??? ??? ???? ?????? ?? ???? B-4 ?????? ???
+            EMERGENCY ALERT: Severe landslide risk detected in your area. Evacuate immediately via designated safe
+            routes. Move towards high ground via B-4 bypass corridor.
           </p>
           <div class="evac-route-box">
-            <span class="evac-k">?? SAFE HIGH-RIDGE EVACUATION:</span>
-            <span class="evac-v" id="bc-route-text">Evacuate uphill towards Auli ridge path via B-4 bypass. Avoid lower river ravines.</span>
+            <span class="evac-k">SAFE HIGH-RIDGE EVACUATION:</span>
+            <span class="evac-v" id="bc-route-text">Evacuate uphill towards Auli ridge path via B-4 bypass. Avoid lower
+              river ravines.</span>
           </div>
         </div>
 
         <!-- Sleek Audio Player -->
         <div class="audio-control-card">
           <button class="btn-play-trigger" id="btn-audio-play" onclick="toggleAudioPlayback()">
-            <span id="play-icon">?</span>
+            <span id="play-icon">&#9654;</span>
           </button>
           <div class="audio-meta">
             <span class="audio-name" id="audio-label">Emergency Broadcast Voice Note (Garhwali)</span>
-            <span class="audio-meta-sub">Synthesized in 1.2s ? WhatsApp & IVR Audio Dispatch</span>
+            <span class="audio-meta-sub">Synthesized in 1.2s | WhatsApp &amp; IVR Audio Dispatch</span>
           </div>
           <div class="wave-visualizer" id="audio-wave-anim">
             <span></span><span></span><span></span><span></span><span></span><span></span>
@@ -335,10 +396,10 @@
         <!-- Dispatch Actions -->
         <div class="action-button-grid">
           <button class="action-btn btn-broadcast" onclick="triggerOperatorAction('CONFIRM_DISPATCH')">
-            ?? BROADCAST VOICE SOS & SIRENS
+            BROADCAST VOICE SOS &amp; SIRENS
           </button>
           <button class="action-btn btn-calibrate" onclick="triggerOperatorAction('FALSE_ALARM')">
-            ??? CALIBRATE / FALSE ALARM
+            CALIBRATE / FALSE ALARM
           </button>
         </div>
       </div>
@@ -351,24 +412,32 @@
   <footer class="bottom-hud-bar glass-card">
     <div class="map-layers-group">
       <span class="hud-label">MAP LAYERS:</span>
-      <button class="layer-pill layer-pill--active" id="tog-traffic" onclick="toggleMapLayer('traffic')">?? Traffic Corridors</button>
-      <button class="layer-pill layer-pill--active" id="tog-routes" onclick="toggleMapLayer('routes')">??? Dynamic Routes</button>
-      <button class="layer-pill layer-pill--active" id="tog-insar" onclick="toggleMapLayer('insar')">??? Sentinel-1 InSAR</button>
-      <button class="layer-pill layer-pill--active" id="tog-evac" onclick="toggleMapLayer('evac')">?? High-Ridge Shelters</button>
-      <button class="layer-pill layer-pill--active" id="tog-pins" onclick="toggleMapLayer('pins')">?? Citizen Reports</button>
-      <button class="layer-pill layer-pill--highlight" onclick="simulateNewCitizenClick()">? Drop Test Pin</button>
+      <button class="layer-pill layer-pill--active" id="tog-traffic" onclick="toggleMapLayer('traffic')">Traffic
+        Corridors</button>
+      <button class="layer-pill layer-pill--active" id="tog-routes" onclick="toggleMapLayer('routes')">Dynamic
+        Routes</button>
+      <button class="layer-pill layer-pill--active" id="tog-insar" onclick="toggleMapLayer('insar')">Sentinel-1
+        InSAR</button>
+      <button class="layer-pill layer-pill--active" id="tog-evac" onclick="toggleMapLayer('evac')">High-Ridge
+        Shelters</button>
+      <button class="layer-pill layer-pill--active" id="tog-pins" onclick="toggleMapLayer('pins')">Citizen
+        Reports</button>
+      <button class="layer-pill layer-pill--highlight" onclick="simulateNewCitizenClick()">+ Drop Test Pin</button>
     </div>
 
     <!-- Mini Audit Log -->
     <div class="audit-mini-ticker">
       <span class="audit-tag">HAZARD SURFACE:</span>
-      <span class="audit-msg" id="audit-ticker-msg">NetworkX Hazard Surface active: Blocked NH-58 Marwari Ward 9 edge re-weighted to ? cost. Traffic rerouted to Auli B-4 bypass.</span>
+      <span class="audit-msg" id="audit-ticker-msg">NetworkX Hazard Surface active: Blocked NH-58 Marwari Ward 9 edge
+        re-weighted to max cost. Traffic rerouted to Auli B-4 bypass.</span>
     </div>
   </footer>
 
   <!-- Leaflet Map JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <!-- Dashboard Controller Script -->
   <script src="app.js"></script>
 </body>
+
 </html>

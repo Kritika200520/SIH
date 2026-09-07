@@ -1174,3 +1174,8 @@ html, body {
     width: 380px;
   }
 }
+
+/* Dynamic Progress Bar Colors */
+.bg-safe { background-color: var(--accent-safe) !important; }
+.bg-amber { background-color: var(--accent-amber) !important; }
+.bg-danger { background-color: var(--accent-danger) !important; }

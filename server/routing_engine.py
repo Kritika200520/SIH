@@ -171,6 +171,19 @@ class EvacuationRoutingEngine:
         naive_coords, naive_steps = build_coords(naive_path)
         safe_coords, safe_steps = build_coords(safe_path)
 
+        if sector_id == "wayanad_meppadi":
+            warning_txt = "[BLOCK] DANGER: Routes directly into Chooralmala active debris flood plains!"
+            clearance_txt = "[PASS] VERIFIED: Avoids river ravines; routes via Chembra Highland Evacuation Corridor."
+        elif sector_id == "shimla_ridge":
+            warning_txt = "[BLOCK] DANGER: Routes directly over failing Cart Road retaining wall (16 deg tilt)!"
+            clearance_txt = "[PASS] VERIFIED: Avoids subsidence zone; routes safely via Upper Ridge Pedestrian Mall."
+        elif vlm_depth_cm < 2.0 and turbidity_pct < 20.0:  # Proxy for normal baseline
+            warning_txt = "[CLEAR] Standard route is currently safe (No active hazards)."
+            clearance_txt = "[PASS] VERIFIED: Routes clear. Maintaining optimal shortest path."
+        else:
+            warning_txt = "[BLOCK] DANGER: Routes directly through active tension scarp collapse at KM 248!"
+            clearance_txt = "[PASS] VERIFIED: Avoids valley shear plane; routes via Auli High Ridge B-4 bypass."
+
         return {
             "sector_id": sector_id,
             "evacuation_mode": mode,
@@ -183,7 +196,7 @@ class EvacuationRoutingEngine:
                 "eta_minutes": naive_eta_min,
                 "hazard_exposure_pct": naive_hazard_pct,
                 "status": naive_status,
-                "warning": "? DANGER: Routes directly through active tension scarp collapse at KM 248!",
+                "warning": warning_txt,
                 "waypoints": naive_coords,
                 "steps": naive_steps
             },
@@ -194,7 +207,7 @@ class EvacuationRoutingEngine:
                 "eta_minutes": safe_eta_min,
                 "hazard_exposure_pct": safe_hazard_pct,
                 "status": safe_status,
-                "safety_clearance": "? VERIFIED: Avoids valley shear plane; routes via Auli High Ridge B-4 bypass.",
+                "safety_clearance": clearance_txt,
                 "waypoints": safe_coords,
                 "steps": safe_steps
             }

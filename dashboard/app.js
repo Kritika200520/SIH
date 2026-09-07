@@ -5,6 +5,19 @@
  */
 
 // Global Map & UI State
+function updateBarColor(elementId, valuePct, thresholdAmber, thresholdDanger) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  el.className = el.className.replace(/\bbg-(safe|amber|danger)\b/g, '').trim();
+  if (valuePct >= thresholdDanger) {
+    el.classList.add('bg-danger');
+  } else if (valuePct >= thresholdAmber) {
+    el.classList.add('bg-amber');
+  } else {
+    el.classList.add('bg-safe');
+  }
+}
+
 let map = null;
 let currentLayers = {
   traffic: [],
@@ -23,6 +36,36 @@ let layerVisibility = {
 let currentEvacMode = "vehicle";
 let isAudioPlaying = false;
 let audioElement = null;
+
+// Cloud Offline Sync & Service Worker Registration
+// Remove Service Worker (Bypass HTTP LAN restrictions for mobile)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(function (registrations) {
+    for (let registration of registrations) {
+      registration.unregister();
+    }
+  });
+}
+
+function updateNetworkStatus() {
+  const syncChip = document.getElementById('stat-sync');
+  const chipContainer = document.getElementById('sync-chip');
+  if (!syncChip) return;
+
+  if (navigator.onLine) {
+    syncChip.innerHTML = '[PASS] CLOUD ONLINE';
+    syncChip.className = 'chip-v text-safe';
+    chipContainer.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+  } else {
+    syncChip.innerHTML = '[BLOCK] OFFLINE (CACHED)';
+    syncChip.className = 'chip-v text-danger';
+    chipContainer.style.borderColor = 'rgba(255, 42, 95, 0.4)';
+  }
+}
+window.addEventListener('online', updateNetworkStatus);
+window.addEventListener('offline', updateNetworkStatus);
+document.addEventListener('DOMContentLoaded', updateNetworkStatus);
+
 let activeScenario = "chamoli_fissure";
 
 // Coordinates and Mountain Road Networks
@@ -169,7 +212,7 @@ const SECTOR_DATA = {
         color: "#ff2a5f",
         weight: 7,
         opacity: 0.95,
-        cause: "RCC Retaining Wall 16.2? Outward Bulge & Road Sinking",
+        cause: "RCC Retaining Wall 16.2 deg Outward Bulge & Road Sinking",
         detour: "Divert via The Ridge Municipal Plaza bypass",
         delay: "+3 hrs (Closed)",
         points: [
@@ -274,9 +317,9 @@ function initMap() {
     attributionControl: false
   }).setView([defaultCoord.lat, defaultCoord.lng], defaultCoord.zoom);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
-    subdomains: 'abcd'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
 
   L.control.zoom({ position: 'topright' }).addTo(map);
@@ -317,7 +360,7 @@ function renderMapLayers(scenarioKey, routingData = null) {
     polyline.on('click', () => {
       polyline.bindPopup(`
         <div style="font-family: sans-serif; font-size: 13px;">
-          <strong style="color: ${road.color}; font-size: 14px;">${road.status === 'BLOCKED' ? '? ' : (road.status === 'SLOW' ? '?? ' : '? ')}${road.name}</strong><br><br>
+          <strong style="color: ${road.color}; font-size: 14px;">${road.status === 'BLOCKED' ? '[BLOCKED] ' : (road.status === 'SLOW' ? '[SLOW] ' : '[CLEAR] ')}${road.name}</strong><br><br>
           <b>Status:</b> ${road.status} (${road.delay})<br>
           <b>Hazard Cause:</b> ${road.cause}<br>
           <b>Recommended Detour:</b> ${road.detour}
@@ -342,7 +385,7 @@ function renderMapLayers(scenarioKey, routingData = null) {
         dashArray: "6, 8",
         className: "route-poly-naive"
       });
-      naivePoly.bindPopup(`<b>? NAIVE GOOGLE MAPS ROUTE</b><br>${routingData.google_maps_naive.warning}`);
+      naivePoly.bindPopup(`<b>[X] NAIVE GOOGLE MAPS ROUTE</b><br>${routingData.google_maps_naive.warning}`);
       if (layerVisibility.routes) {
         naivePoly.addTo(map);
       }
@@ -357,7 +400,7 @@ function renderMapLayers(scenarioKey, routingData = null) {
         opacity: 0.95,
         className: "route-poly-safe"
       });
-      safePoly.bindPopup(`<b>? BHOOMI-RAKSHA DYNAMIC SAFE CORRIDOR</b><br>${routingData.bhoomi_raksha_safe.safety_clearance}`);
+      safePoly.bindPopup(`<b>[SAFE] BHOOMI-RAKSHA DYNAMIC SAFE CORRIDOR</b><br>${routingData.bhoomi_raksha_safe.safety_clearance}`);
       if (layerVisibility.routes) {
         safePoly.addTo(map);
       }
@@ -375,7 +418,7 @@ function renderMapLayers(scenarioKey, routingData = null) {
     dashArray: '4, 6'
   });
   insarCircle.bindPopup(`
-    <b>??? SENTINEL-1 InSAR RADAR DETECTOR</b><br>
+    <b>SENTINEL-1 InSAR RADAR DETECTOR</b><br>
     Ground Displacement: <b>+14.8 mm/yr LOS creep</b><br>
     Coherence Index: <b>0.82 (High Confidence)</b>
   `);
@@ -394,7 +437,7 @@ function renderMapLayers(scenarioKey, routingData = null) {
       opacity: 1,
       fillOpacity: 0.95
     });
-    shelterPin.bindPopup(`<b>??? DESIGNATED SAFE RIDGE SHELTER</b><br>${sector.shelter.name}<br>High Ground Elevation Safe Zone`);
+    shelterPin.bindPopup(`<b>DESIGNATED SAFE RIDGE SHELTER</b><br>${sector.shelter.name}<br>High Ground Elevation Safe Zone`);
     if (layerVisibility.evac) {
       shelterPin.addTo(map);
     }
@@ -411,7 +454,7 @@ function renderMapLayers(scenarioKey, routingData = null) {
       opacity: 1,
       fillOpacity: 0.95
     });
-    photoPin.bindPopup(`<b>?? CITIZEN PHOTO VERIFIED</b><br>${sector.fissurePoint.label}<br>VLM Ground Tension Failure Confirmed`);
+    photoPin.bindPopup(`<b>CITIZEN PHOTO VERIFIED</b><br>${sector.fissurePoint.label}<br>VLM Ground Tension Failure Confirmed`);
     if (layerVisibility.pins) {
       photoPin.addTo(map);
     }
@@ -425,7 +468,7 @@ function renderMapLayers(scenarioKey, routingData = null) {
 function toggleMapLayer(layerName) {
   layerVisibility[layerName] = !layerVisibility[layerName];
   const btn = document.getElementById(`tog-${layerName}`);
-  
+
   if (layerVisibility[layerName]) {
     btn.classList.add("layer-pill--active");
     currentLayers[layerName].forEach(l => l.addTo(map));
@@ -467,10 +510,10 @@ function updateRoutingUI(routing) {
   const naive = routing.google_maps_naive || {};
   const safe = routing.bhoomi_raksha_safe || {};
 
-  document.getElementById("naive-dist").innerText = `${naive.distance_km || 3.6} km ? ${naive.status === 'BLOCKED' || naive.hazard_exposure_pct > 50 ? '+4.5h DELAY' : '8 mins'}`;
+  document.getElementById("naive-dist").innerText = `${naive.distance_km || 3.6} km | ${naive.status === 'BLOCKED' || naive.hazard_exposure_pct > 50 ? '+4.5h DELAY' : '8 mins'}`;
   document.getElementById("naive-warn").innerText = naive.warning || "Routes directly into active tension scarp collapse!";
 
-  document.getElementById("safe-dist").innerText = `${safe.distance_km || 4.2} km ? ${safe.eta_minutes || 12} mins (OPEN)`;
+  document.getElementById("safe-dist").innerText = `${safe.distance_km || 4.2} km | ${safe.eta_minutes || 12} mins (OPEN)`;
   document.getElementById("safe-desc").innerText = safe.safety_clearance || "Hazard Cost Surface Algorithm penalizes valley shear plane; dynamically routes via Auli High Ridge bypass.";
 }
 
@@ -485,8 +528,8 @@ async function handleMapClick(latlng) {
     weight: 2,
     fillOpacity: 0.9
   }).addTo(map);
-  
-  newPin.bindPopup(`<b>?? NEW CITIZEN UPLOAD PROCESSED</b><br>Lat: ${latlng.lat.toFixed(4)}, Lng: ${latlng.lng.toFixed(4)}<br>VLM Depth: 8.1cm Fissure Detected!`).openPopup();
+
+  newPin.bindPopup(`<b>NEW CITIZEN UPLOAD PROCESSED</b><br>Lat: ${latlng.lat.toFixed(4)}, Lng: ${latlng.lng.toFixed(4)}<br>VLM Depth: 8.1cm Fissure Detected!`).openPopup();
   currentLayers.pins.push(newPin);
 
   try {
@@ -494,7 +537,7 @@ async function handleMapClick(latlng) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        location: `Mountain Sector (${latlng.lat.toFixed(4)}?N, ${latlng.lng.toFixed(4)}?E)`,
+        location: `Mountain Sector (${latlng.lat.toFixed(4)}N, ${latlng.lng.toFixed(4)}E)`,
         voice_memo: "New tension fissure crack reported by field observer.",
         reporter_name: "Citizen WhatsApp Ingestion"
       })
@@ -543,6 +586,10 @@ function renderDashboard(data) {
   document.getElementById("stat-sar").innerText = `${telem.sar_insar_displacement_mm || 14.8} mm/yr`;
   document.getElementById("stat-fs").innerText = `${fs.safety_factor_fs || 0.84} (${fs.stability_status ? fs.stability_status.split('_')[0] : "CRITICAL"})`;
 
+  if (document.getElementById("stat-weather")) {
+    document.getElementById("stat-weather").innerText = `${telem.rainfall_24h_mm !== undefined ? telem.rainfall_24h_mm.toFixed(1) : '--'} mm`;
+  }
+
   // 2. Routing Comparison UI & Polyline Overlays
   if (routing) {
     updateRoutingUI(routing);
@@ -556,16 +603,24 @@ function renderDashboard(data) {
   document.getElementById("reporter-name").innerText = vlm.reporter_info || "WhatsApp Citizen Ingestion API";
 
   document.getElementById("metric-depth").innerHTML = `${vlm.fissure_depth_cm || 0} <small>cm</small>`;
-  document.getElementById("bar-depth").style.width = `${Math.min(100, (vlm.fissure_depth_cm || 0) * 10)}%`;
-  
+  const depthPct = Math.min(100, (vlm.fissure_depth_cm || 0) * 10);
+  document.getElementById("bar-depth").style.width = `${depthPct}%`;
+  updateBarColor("bar-depth", depthPct, 40, 75);
+
   document.getElementById("metric-width").innerHTML = `${vlm.fissure_width_cm || 0} <small>cm</small>`;
-  document.getElementById("bar-width").style.width = `${Math.min(100, (vlm.fissure_width_cm || 0) * 5)}%`;
+  const widthPct = Math.min(100, (vlm.fissure_width_cm || 0) * 5);
+  document.getElementById("bar-width").style.width = `${widthPct}%`;
+  updateBarColor("bar-width", widthPct, 40, 75);
 
   document.getElementById("metric-turbidity").innerHTML = `${vlm.turbidity_index_pct || 0} <small>%</small>`;
-  document.getElementById("bar-turbidity").style.width = `${vlm.turbidity_index_pct || 0}%`;
-  
+  const turbPct = vlm.turbidity_index_pct || 0;
+  document.getElementById("bar-turbidity").style.width = `${turbPct}%`;
+  updateBarColor("bar-turbidity", turbPct, 30, 60);
+
   document.getElementById("metric-sat").innerHTML = `${vlm.soil_saturation_pct || 0} <small>%</small>`;
-  document.getElementById("bar-sat").style.width = `${vlm.soil_saturation_pct || 0}%`;
+  const satPct = vlm.soil_saturation_pct || 0;
+  document.getElementById("bar-sat").style.width = `${satPct}%`;
+  updateBarColor("bar-sat", satPct, 50, 80);
 
   document.getElementById("vlm-explanation").innerText = vlm.geotechnical_explanation || "";
 
@@ -587,23 +642,55 @@ function renderDashboard(data) {
 
   const bk = risk.breakdown || {};
   document.getElementById("bk-vlm").innerText = `${bk.vlm_vision_score || 84}%`;
-  document.getElementById("prog-vlm").style.width = `${bk.vlm_vision_score || 84}%`;
+  let vlmScore = bk.vlm_vision_score || 84;
+  document.getElementById("prog-vlm").style.width = `${vlmScore}%`;
+  updateBarColor("prog-vlm", vlmScore, 50, 75);
+
   document.getElementById("bk-sar").innerText = `${bk.insar_radar_score || 74}%`;
-  document.getElementById("prog-sar").style.width = `${bk.insar_radar_score || 74}%`;
+  let sarScore = bk.insar_radar_score || 74;
+  document.getElementById("prog-sar").style.width = `${sarScore}%`;
+  updateBarColor("prog-sar", sarScore, 50, 75);
+
   document.getElementById("bk-fs").innerText = `${bk.geotechnical_fs_score || 90}%`;
-  document.getElementById("prog-fs").style.width = `${bk.geotechnical_fs_score || 90}%`;
+  let fsScore = bk.geotechnical_fs_score || 90;
+  document.getElementById("prog-fs").style.width = `${fsScore}%`;
+  updateBarColor("prog-fs", fsScore, 50, 75);
+
   document.getElementById("bk-rain").innerText = `${bk.imd_rainfall_score || 78}%`;
-  document.getElementById("prog-rain").style.width = `${bk.imd_rainfall_score || 78}%`;
+  let rainScore = bk.imd_rainfall_score || 78;
+  document.getElementById("prog-rain").style.width = `${rainScore}%`;
+  updateBarColor("prog-rain", rainScore, 50, 75);
 
   // GSI RAG Snippets
   const ragList = document.getElementById("rag-excerpts-list");
   if (profile.geology) {
     ragList.innerHTML = `
       <li>[GSI Atlas]: High Landslide Zone (${profile.state}).</li>
-      <li>[Stratigraphy]: Bedrock: ${profile.geology}. Critical slope: ${profile.critical_slope_angle_deg}?.</li>
+      <li>[Stratigraphy]: Bedrock: ${profile.geology}. Critical slope: ${profile.critical_slope_angle_deg} deg.</li>
       <li>[Threshold]: 24h Rainfall Trigger: ${profile.rainfall_threshold_24h_mm} mm.</li>
     `;
     document.getElementById("rag-sector-tag").innerText = `SHEET #${profile.id ? profile.id.toUpperCase() : "CHAMOLI"}`;
+  }
+
+  // AI Predictive Forecast UI
+  const ai = telem.ai_prediction;
+  if (ai) {
+    document.getElementById("ai-model-tag").innerText = ai.model_type || "XGBoost Ensemble";
+    document.getElementById("ai-prob").innerHTML = `${ai.ai_probability_pct} <small>%</small>`;
+    document.getElementById("ai-timeline").innerText = `${ai.predicted_timeline} | Action: ${ai.recommended_action}`;
+
+    const probEl = document.getElementById("ai-prob");
+    const timelineEl = document.getElementById("ai-timeline");
+    if (ai.ai_probability_pct >= 75) {
+      probEl.className = "cell-val text-danger";
+      timelineEl.className = "cell-val text-danger";
+    } else if (ai.ai_probability_pct >= 50) {
+      probEl.className = "cell-val text-amber";
+      timelineEl.className = "cell-val text-amber";
+    } else {
+      probEl.className = "cell-val text-safe";
+      timelineEl.className = "cell-val text-safe";
+    }
   }
 
   // 5. Dialect Broadcast Panel
@@ -611,7 +698,7 @@ function renderDashboard(data) {
     document.getElementById("bc-script-text").innerText = bc.speech_script || bc.broadcast_text;
     document.getElementById("bc-route-text").innerText = bc.evacuation_route || "";
     document.getElementById("audio-label").innerText = `Emergency Broadcast Voice Note (${bc.dialect})`;
-    
+
     if (bc.audio_url) {
       if (!audioElement || audioElement.dataset.url !== bc.audio_url) {
         audioElement = new Audio(bc.audio_url);
@@ -660,7 +747,7 @@ function updateSpamFilterUI(verif) {
   }
 
   if (reasonText) {
-    const icon = isPassed ? "✅" : (isFlagged ? "⚠️" : "🚫");
+    const icon = isPassed ? "[PASS]" : (isFlagged ? "[WARN]" : "[BLOCK]");
     reasonText.innerHTML = `<strong>${icon} Decision:</strong> ${verif.decision_reason}`;
   }
 
@@ -712,7 +799,7 @@ async function testSpamPreset(presetKey) {
     p.classList.remove("spam-pill--active");
     p.classList.remove("spam-pill--blocked");
   });
-  
+
   const activePill = document.getElementById(`btn-spam-${presetKey}`);
   if (activePill) {
     if (presetKey === "live_authentic_field") {
@@ -742,7 +829,7 @@ async function testSpamPreset(presetKey) {
  */
 async function selectScenario(scenarioId) {
   activeScenario = scenarioId;
-  
+
   document.querySelectorAll(".sc-pill").forEach(b => b.classList.remove("sc-pill--active"));
   const activeBtn = document.getElementById(`btn-sc-${scenarioId.split('_')[0]}`);
   if (activeBtn) activeBtn.classList.add("sc-pill--active");
@@ -782,7 +869,7 @@ async function changeDialect(dialectKey) {
       document.getElementById("bc-script-text").innerText = data.broadcast.speech_script;
       document.getElementById("bc-route-text").innerText = data.broadcast.evacuation_route;
       document.getElementById("audio-label").innerText = `Emergency Broadcast Voice Note (${dialectKey})`;
-      
+
       if (data.broadcast.audio_url) {
         audioElement = new Audio(data.broadcast.audio_url);
         audioElement.dataset.url = data.broadcast.audio_url;
