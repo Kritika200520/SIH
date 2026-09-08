@@ -88,69 +88,50 @@
   <aside class="floating-panel floating-panel--left glass-card" id="panel-left">
     <div class="panel-header">
       <div class="panel-title-group">
-        <svg class="panel-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+        <svg class="panel-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
           stroke-width="2">
           <polygon points="12 2 19 21 12 17 5 21 12 2" />
         </svg>
-        <h3>DYNAMIC NAVIGATION</h3>
+        <h3>DYNAMIC PATHFINDING VS GOOGLE MAPS</h3>
       </div>
-      <div class="panel-header-actions">
-        <span class="badge-mini badge-mini--safe" id="routing-badge">SAFE BYPASS</span>
-        <button class="btn-panel-collapse" id="btn-toggle-left" onclick="togglePanel('left')" title="Toggle Panel View">&minus;</button>
-      </div>
-    </div>
-
-    <!-- Minimal Segment Tab Bar -->
-    <div class="panel-tabs-bar">
-      <button class="panel-tab-btn tab-btn-left tab-btn--active" id="tab-btn-nav" onclick="switchPanelTab('left', 'nav')">
-        🧭 Routes &amp; Evacuation
-      </button>
-      <button class="panel-tab-btn tab-btn-left" id="tab-btn-vision" onclick="switchPanelTab('left', 'vision')">
-        🔬 Vision AI &amp; Shield
-      </button>
+      <span class="badge-mini badge-mini--safe" id="routing-badge">HAZARD RE-WEIGHTED</span>
     </div>
 
     <div class="panel-body">
-      <!-- TAB 1: Navigation & Route Comparison -->
-      <div id="tab-content-nav" class="panel-tab-content">
-        <!-- 1. Side-by-Side Pathfinding Comparison Card (The SIH Pitch Moat) -->
-        <div class="route-comparison-card">
-          <div class="route-comp-header">
-            <span class="comp-title">[LIVE] REAL-TIME EVACUATION ROUTE ARBITRATION</span>
-            <div class="evac-mode-switch">
-              <button class="mode-btn mode-btn--active" id="btn-mode-veh"
-                onclick="switchEvacMode('vehicle')">Vehicle</button>
-              <button class="mode-btn" id="btn-mode-foot" onclick="switchEvacMode('foot')">Foot Trail</button>
-            </div>
-          </div>
-
-          <!-- Google Maps (Naive Baseline) -->
-          <div class="route-option route-option--naive">
-            <div class="route-opt-top">
-              <span class="route-tag tag-danger">[X] STANDARD GOOGLE MAPS (NAIVE)</span>
-              <span class="route-stat text-danger" id="naive-dist">3.6 km | +4.5h DELAY</span>
-            </div>
-            <p class="route-warning-text" id="naive-warn">
-              Routes directly into active 8.4cm Tension Fissure collapse at KM 248! (Hazard Exposure: 95%)
-            </p>
-          </div>
-
-          <!-- Bhoomi-Raksha Dynamic Safe Route -->
-          <div class="route-option route-option--safe">
-            <div class="route-opt-top">
-              <span class="route-tag tag-safe">[OK] BHOOMI-RAKSHA HAZARD-AWARE CORRIDOR</span>
-              <span class="route-stat text-safe" id="safe-dist">4.2 km | 12 mins (OPEN)</span>
-            </div>
-            <p class="route-clear-text" id="safe-desc">
-              Hazard Cost Surface Algorithm penalizes valley shear plane; dynamically routes via Auli High Ridge B-4
-              bypass to elevation +2800m.
-            </p>
+      <!-- 1. Side-by-Side Pathfinding Comparison Card (The SIH Pitch Moat) -->
+      <div class="route-comparison-card">
+        <div class="route-comp-header">
+          <span class="comp-title">[LIVE] REAL-TIME EVACUATION ROUTE ARBITRATION</span>
+          <div class="evac-mode-switch">
+            <button class="mode-btn mode-btn--active" id="btn-mode-veh"
+              onclick="switchEvacMode('vehicle')">Vehicle</button>
+            <button class="mode-btn" id="btn-mode-foot" onclick="switchEvacMode('foot')">Foot Trail</button>
           </div>
         </div>
-      </div>
 
-      <!-- TAB 2: Vision AI, Metrics & Spam Shield -->
-      <div id="tab-content-vision" class="panel-tab-content" style="display: none;">
+        <!-- Google Maps (Naive Baseline) -->
+        <div class="route-option route-option--naive">
+          <div class="route-opt-top">
+            <span class="route-tag tag-danger">[X] STANDARD GOOGLE MAPS (NAIVE)</span>
+            <span class="route-stat text-danger" id="naive-dist">3.6 km | +4.5h DELAY</span>
+          </div>
+          <p class="route-warning-text" id="naive-warn">
+            Routes directly into active 8.4cm Tension Fissure collapse at KM 248! (Hazard Exposure: 95%)
+          </p>
+        </div>
+
+        <!-- Bhoomi-Raksha Dynamic Safe Route -->
+        <div class="route-option route-option--safe">
+          <div class="route-opt-top">
+            <span class="route-tag tag-safe">[OK] BHOOMI-RAKSHA HAZARD-AWARE CORRIDOR</span>
+            <span class="route-stat text-safe" id="safe-dist">4.2 km | 12 mins (OPEN)</span>
+          </div>
+          <p class="route-clear-text" id="safe-desc">
+            Hazard Cost Surface Algorithm penalizes valley shear plane; dynamically routes via Auli High Ridge B-4
+            bypass to elevation +2800m.
+          </p>
+        </div>
+      </div>
 
       <!-- 2. Citizen Field Photo with VLM Segmentation -->
       <div class="photo-viewer-card">
@@ -280,8 +261,7 @@
           </span>
         </div>
       </div>
-      </div> <!-- End tab-content-vision -->
-    </div> <!-- End panel-body -->
+    </div>
   </aside>
 
   <!-- ============================================== -->
@@ -290,159 +270,140 @@
   <aside class="floating-panel floating-panel--right glass-card" id="panel-right">
     <div class="panel-header">
       <div class="panel-title-group">
-        <svg class="panel-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor"
+        <svg class="panel-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
           stroke-width="2">
           <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
         </svg>
-        <h3>DISASTER COMMAND</h3>
+        <h3>RISK FUSION &amp; DIALECT BROADCASTER</h3>
       </div>
-      <div class="panel-header-actions">
-        <span class="badge-mini badge-mini--cyan" id="composite-score-badge">RISK: 87/100</span>
-        <button class="btn-panel-collapse" id="btn-toggle-right" onclick="togglePanel('right')" title="Toggle Panel View">&minus;</button>
-      </div>
-    </div>
-
-    <!-- Minimal Segment Tab Bar -->
-    <div class="panel-tabs-bar">
-      <button class="panel-tab-btn tab-btn-right tab-btn--active" id="tab-btn-broadcast" onclick="switchPanelTab('right', 'broadcast')">
-        📢 Dialect SOS &amp; Sirens
-      </button>
-      <button class="panel-tab-btn tab-btn-right" id="tab-btn-threat" onclick="switchPanelTab('right', 'threat')">
-        📊 Threat &amp; InSAR RAG
-      </button>
+      <span class="badge-mini badge-mini--cyan" id="composite-score-badge">RISK: 87/100</span>
     </div>
 
     <div class="panel-body">
-      <!-- TAB 1: Dialect Voice Broadcaster & Predictive ML -->
-      <div id="tab-content-broadcast" class="panel-tab-content">
-        <!-- 3. Regional Dialect Voice Broadcaster -->
-        <div class="broadcast-section">
-          <div class="broadcast-top-row">
-            <span class="bc-title">DIALECT VOICE BROADCASTER:</span>
-            <select id="dialect-select" class="dialect-select-input" onchange="changeDialect(this.value)">
-              <option value="Garhwali">Garhwali (Chamoli / Uttarakhand)</option>
-              <option value="Malayalam">Malayalam (Wayanad / Kerala)</option>
-              <option value="Pahari">Pahari (Shimla / HP)</option>
-              <option value="Nepali">Nepali (Darjeeling / Sikkim)</option>
-              <option value="Hindi">Hindi (Common)</option>
-              <option value="English">English (National)</option>
-            </select>
-          </div>
-
-          <div class="speech-script-box">
-            <p class="speech-text" id="bc-script-text">
-              EMERGENCY ALERT: Severe landslide risk detected in your area. Evacuate immediately via designated safe
-              routes. Move towards high ground via B-4 bypass corridor.
-            </p>
-            <div class="evac-route-box">
-              <span class="evac-k">SAFE HIGH-RIDGE EVACUATION:</span>
-              <span class="evac-v" id="bc-route-text">Evacuate uphill towards Auli ridge path via B-4 bypass. Avoid lower
-                river ravines.</span>
-            </div>
-          </div>
-
-          <!-- Sleek Audio Player -->
-          <div class="audio-control-card">
-            <button class="btn-play-trigger" id="btn-audio-play" onclick="toggleAudioPlayback()">
-              <span id="play-icon">&#9654;</span>
-            </button>
-            <div class="audio-meta">
-              <span class="audio-name" id="audio-label">Emergency Broadcast Voice Note (Garhwali)</span>
-              <span class="audio-meta-sub">Synthesized in 1.2s | WhatsApp &amp; IVR Audio Dispatch</span>
-            </div>
-            <div class="wave-visualizer" id="audio-wave-anim">
-              <span></span><span></span><span></span><span></span><span></span><span></span>
-            </div>
-          </div>
-
-          <!-- Dispatch Actions -->
-          <div class="action-button-grid">
-            <button class="action-btn btn-broadcast" onclick="triggerOperatorAction('CONFIRM_DISPATCH')">
-              BROADCAST VOICE SOS &amp; SIRENS
-            </button>
-            <button class="action-btn btn-calibrate" onclick="triggerOperatorAction('FALSE_ALARM')">
-              CALIBRATE / FALSE ALARM
-            </button>
+      <!-- 1. Threat Gauge & Risk Breakdown Row -->
+      <div class="risk-gauge-row">
+        <div class="radial-gauge">
+          <svg viewBox="0 0 100 100">
+            <circle class="gauge-base" cx="50" cy="50" r="42"></circle>
+            <circle class="gauge-arc" id="gauge-fill-circle" cx="50" cy="50" r="42"></circle>
+          </svg>
+          <div class="gauge-center">
+            <span class="gauge-number" id="risk-score-num">87</span>
+            <span class="gauge-sub">INDEX</span>
           </div>
         </div>
 
-        <!-- 1.5 AI/ML Predictive Forecast -->
-        <div class="rag-info-card" style="margin-top: 14px; border-left-color: #f59e0b;">
-          <div class="rag-header">
-            <span class="rag-label">AI PREDICTIVE FORECAST:</span>
-            <span class="rag-tag" id="ai-model-tag">XGBoost Ensemble</span>
-          </div>
-          <div class="metric-grid" style="margin-top: 10px; gap: 8px;">
-            <div class="metric-cell" style="flex: 1;">
-              <span class="cell-label" style="font-size: 10px;">PROBABILITY</span>
-              <span class="cell-val text-danger" id="ai-prob">-- <small>%</small></span>
-            </div>
-            <div class="metric-cell" style="flex: 2;">
-              <span class="cell-label" style="font-size: 10px;">TIMELINE</span>
-              <span class="cell-val text-amber" id="ai-timeline" style="font-size: 14px;">--</span>
+        <div class="factor-breakdown">
+          <div class="factor-item">
+            <div class="factor-label"><span>1. VLM Fissure Depth (30%)</span><strong id="bk-vlm">84%</strong></div>
+            <div class="factor-track">
+              <div class="factor-fill bg-danger" id="prog-vlm" style="width: 84%"></div>
             </div>
           </div>
-        </div>
-      </div> <!-- End tab-content-broadcast -->
-
-      <!-- TAB 2: Threat Radial Gauge & InSAR RAG -->
-      <div id="tab-content-threat" class="panel-tab-content" style="display: none;">
-        <!-- 1. Threat Gauge & Risk Breakdown Row -->
-        <div class="risk-gauge-row">
-          <div class="radial-gauge">
-            <svg viewBox="0 0 100 100">
-              <circle class="gauge-base" cx="50" cy="50" r="42"></circle>
-              <circle class="gauge-arc" id="gauge-fill-circle" cx="50" cy="50" r="42"></circle>
-            </svg>
-            <div class="gauge-center">
-              <span class="gauge-number" id="risk-score-num">87</span>
-              <span class="gauge-sub">INDEX</span>
+          <div class="factor-item">
+            <div class="factor-label"><span>2. Sentinel-1 InSAR Shift (25%)</span><strong id="bk-sar">74%</strong></div>
+            <div class="factor-track">
+              <div class="factor-fill bg-danger" id="prog-sar" style="width: 74%"></div>
             </div>
           </div>
-
-          <div class="factor-breakdown">
-            <div class="factor-item">
-              <div class="factor-label"><span>1. VLM Fissure Depth (30%)</span><strong id="bk-vlm">84%</strong></div>
-              <div class="factor-track">
-                <div class="factor-fill bg-danger" id="prog-vlm" style="width: 84%"></div>
-              </div>
+          <div class="factor-item">
+            <div class="factor-label"><span>3. GSI Slope Fs (25%)</span><strong id="bk-fs">90%</strong></div>
+            <div class="factor-track">
+              <div class="factor-fill bg-danger" id="prog-fs" style="width: 90%"></div>
             </div>
-            <div class="factor-item">
-              <div class="factor-label"><span>2. Sentinel-1 InSAR Shift (25%)</span><strong id="bk-sar">74%</strong></div>
-              <div class="factor-track">
-                <div class="factor-fill bg-danger" id="prog-sar" style="width: 74%"></div>
-              </div>
+          </div>
+          <div class="factor-item">
+            <div class="factor-label"><span>4. Live Weather API Rainfall (20%)</span><strong id="bk-rain">78%</strong>
             </div>
-            <div class="factor-item">
-              <div class="factor-label"><span>3. GSI Slope Fs (25%)</span><strong id="bk-fs">90%</strong></div>
-              <div class="factor-track">
-                <div class="factor-fill bg-danger" id="prog-fs" style="width: 90%"></div>
-              </div>
-            </div>
-            <div class="factor-item">
-              <div class="factor-label"><span>4. Live Weather API Rainfall (20%)</span><strong id="bk-rain">78%</strong>
-              </div>
-              <div class="factor-track">
-                <div class="factor-fill bg-amber" id="prog-rain" style="width: 78%"></div>
-              </div>
+            <div class="factor-track">
+              <div class="factor-fill bg-amber" id="prog-rain" style="width: 78%"></div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- 2. GSI Geological Survey RAG Snippets -->
-        <div class="rag-info-card" style="margin-top: 14px;">
-          <div class="rag-header">
-            <span class="rag-label">GSI GEOLOGICAL KNOWLEDGE BASE:</span>
-            <span class="rag-tag" id="rag-sector-tag">SHEET #UK-CHAMOLI</span>
-          </div>
-          <ul class="rag-bullets" id="rag-excerpts-list">
-            <li>[GSI Atlas]: Very High Landslide Susceptibility Zone (Zone IV/V).</li>
-            <li>[Stratigraphy]: MCT shear zone, fractured Gneiss, Quartzite.</li>
-            <li>[Threshold]: 24-Hour trigger threshold is 65.0 mm precipitation.</li>
-          </ul>
+      <!-- 1.5 AI/ML Predictive Forecast -->
+      <div class="rag-info-card" style="margin-top: 15px; border-left-color: #f59e0b;">
+        <div class="rag-header">
+          <span class="rag-label">AI PREDICTIVE FORECAST:</span>
+          <span class="rag-tag" id="ai-model-tag">XGBoost Ensemble</span>
         </div>
-      </div> <!-- End tab-content-threat -->
-    </div> <!-- End panel-body -->
+        <div class="metric-grid" style="margin-top: 10px; gap: 8px;">
+          <div class="metric-cell" style="flex: 1;">
+            <span class="cell-label" style="font-size: 10px;">PROBABILITY</span>
+            <span class="cell-val text-danger" id="ai-prob">-- <small>%</small></span>
+          </div>
+          <div class="metric-cell" style="flex: 2;">
+            <span class="cell-label" style="font-size: 10px;">TIMELINE</span>
+            <span class="cell-val text-amber" id="ai-timeline" style="font-size: 14px;">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. GSI Geological Survey RAG Snippets -->
+      <div class="rag-info-card">
+        <div class="rag-header">
+          <span class="rag-label">GSI GEOLOGICAL KNOWLEDGE BASE:</span>
+          <span class="rag-tag" id="rag-sector-tag">SHEET #UK-CHAMOLI</span>
+        </div>
+        <ul class="rag-bullets" id="rag-excerpts-list">
+          <li>[GSI Atlas]: Very High Landslide Susceptibility Zone (Zone IV/V).</li>
+          <li>[Stratigraphy]: MCT shear zone, fractured Gneiss, Quartzite.</li>
+          <li>[Threshold]: 24-Hour trigger threshold is 65.0 mm precipitation.</li>
+        </ul>
+      </div>
+
+      <!-- 3. Regional Dialect Voice Broadcaster -->
+      <div class="broadcast-section">
+        <div class="broadcast-top-row">
+          <span class="bc-title">DIALECT VOICE BROADCASTER:</span>
+          <select id="dialect-select" class="dialect-select-input" onchange="changeDialect(this.value)">
+            <option value="Garhwali">Garhwali (Chamoli / Uttarakhand)</option>
+            <option value="Malayalam">Malayalam (Wayanad / Kerala)</option>
+            <option value="Pahari">Pahari (Shimla / HP)</option>
+            <option value="Nepali">Nepali (Darjeeling / Sikkim)</option>
+            <option value="Hindi">Hindi (Common)</option>
+            <option value="English">English (National)</option>
+          </select>
+        </div>
+
+        <div class="speech-script-box">
+          <p class="speech-text" id="bc-script-text">
+            EMERGENCY ALERT: Severe landslide risk detected in your area. Evacuate immediately via designated safe
+            routes. Move towards high ground via B-4 bypass corridor.
+          </p>
+          <div class="evac-route-box">
+            <span class="evac-k">SAFE HIGH-RIDGE EVACUATION:</span>
+            <span class="evac-v" id="bc-route-text">Evacuate uphill towards Auli ridge path via B-4 bypass. Avoid lower
+              river ravines.</span>
+          </div>
+        </div>
+
+        <!-- Sleek Audio Player -->
+        <div class="audio-control-card">
+          <button class="btn-play-trigger" id="btn-audio-play" onclick="toggleAudioPlayback()">
+            <span id="play-icon">&#9654;</span>
+          </button>
+          <div class="audio-meta">
+            <span class="audio-name" id="audio-label">Emergency Broadcast Voice Note (Garhwali)</span>
+            <span class="audio-meta-sub">Synthesized in 1.2s | WhatsApp &amp; IVR Audio Dispatch</span>
+          </div>
+          <div class="wave-visualizer" id="audio-wave-anim">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+
+        <!-- Dispatch Actions -->
+        <div class="action-button-grid">
+          <button class="action-btn btn-broadcast" onclick="triggerOperatorAction('CONFIRM_DISPATCH')">
+            BROADCAST VOICE SOS &amp; SIRENS
+          </button>
+          <button class="action-btn btn-calibrate" onclick="triggerOperatorAction('FALSE_ALARM')">
+            CALIBRATE / FALSE ALARM
+          </button>
+        </div>
+      </div>
+    </div>
   </aside>
 
   <!-- ============================================== -->
