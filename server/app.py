@@ -52,10 +52,10 @@ def init_default_scenario(scenario_key="chamoli_fissure"):
         insar_disp = 14.8
         slope_angle = 38.0
         cluster_n = 4
-    elif scenario_key == "wayanad_flood":
+    elif scenario_key == "darjeeling_fissure":
         insar_disp = 18.6
-        slope_angle = 34.5
-        cluster_n = 7
+        slope_angle = 35.0
+        cluster_n = 6
     elif scenario_key == "shimla_subsidence":
         insar_disp = 11.5
         slope_angle = 42.0
@@ -76,7 +76,7 @@ def init_default_scenario(scenario_key="chamoli_fissure"):
         # Fallback to mock values if API fails
         fallback_rain = {
             "chamoli_fissure": 78.5,
-            "wayanad_flood": 145.0,
+            "darjeeling_fissure": 135.0,
             "shimla_subsidence": 92.0
         }
         rainfall_24h = fallback_rain.get(scenario_key, 12.0)

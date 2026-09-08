@@ -30,27 +30,27 @@ GEOLOGICAL_SURVEY_PROFILES = {
             "recommended_action": "Evacuate uphill towards Auli ridge path via B-4 bypass. Strictly avoid riverside ravines and lower market road."
         }
     },
-    "wayanad_meppadi": {
-        "id": "wayanad_meppadi",
-        "region_name": "Meppadi - Chooralmala - Mundakkai, Wayanad",
-        "state": "Kerala",
-        "primary_dialect": "Malayalam",
+    "darjeeling_teesta": {
+        "id": "darjeeling_teesta",
+        "region_name": "Teesta Valley & Tindharia, Darjeeling / Sikkim",
+        "state": "West Bengal / Sikkim",
+        "primary_dialect": "Nepali",
         "fallback_dialect": "English",
-        "coordinates": {"lat": 11.5332, "lng": 76.1320},
-        "geology": "Lateritic soil mantle over Charnockite basement rock, high pore-water pressure vulnerability",
-        "critical_slope_angle_deg": 32.0,
-        "cohesion_kpa": 11.5,
-        "friction_angle_deg": 25.5,
-        "soil_density_kn_m3": 18.2,
-        "rainfall_threshold_24h_mm": 120.0,
+        "coordinates": {"lat": 26.9660, "lng": 88.3580},
+        "geology": "Darjeeling Gneiss and Daling group phyllites, severe toe erosion along Teesta River",
+        "critical_slope_angle_deg": 35.0,
+        "cohesion_kpa": 12.0,
+        "friction_angle_deg": 28.0,
+        "soil_density_kn_m3": 19.0,
+        "rainfall_threshold_24h_mm": 110.0,
         "historical_events": [
-            "2019 Puthumala Debris Flow and Estate Burial",
-            "2024 Chooralmala-Mundakkai Catastrophic Landslide and Flash Flood"
+            "1968 Darjeeling Catastrophic Multi-Slope Failure",
+            "2023 South Lhonak Glacial Lake Outburst and Teesta Landslides"
         ],
         "evacuation_routes": {
-            "safe_zones": ["Meppadi Higher Secondary School Relief Camp", "Chembra Peak High Ridge Shelter"],
-            "danger_ravines": ["Iruvaipuzha River Basin", "Chooralmala Bridge Ravine", "Mundakkai Stream Gap"],
-            "recommended_action": "Move immediately to Meppadi highland shelters. Keep clear of stream embankments and tea plantation slope gullies."
+            "safe_zones": ["Tindharia Highland Assembly Point", "Kurseong Ridge Safe Haven"],
+            "danger_ravines": ["Teesta River Gorge", "Paglajhora Sinking Zone"],
+            "recommended_action": "Evacuate uphill towards Kurseong ridge. Strictly avoid Teesta riverbank road."
         }
     },
     "shimla_ridge": {
@@ -108,7 +108,7 @@ SYNTHETIC_SAR_SERIES = {
         {"time": "T-7d",  "displacement_mm": 10.4, "coherence": 0.82},
         {"time": "T-24h", "displacement_mm": 14.8, "coherence": 0.78}
     ],
-    "wayanad_meppadi": [
+    "darjeeling_teesta": [
         {"time": "T-60d", "displacement_mm": 0.8, "coherence": 0.91},
         {"time": "T-30d", "displacement_mm": 2.1, "coherence": 0.88},
         {"time": "T-15d", "displacement_mm": 5.4, "coherence": 0.84},

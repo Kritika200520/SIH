@@ -28,7 +28,7 @@ class TestBhoomiRakshaSystem(unittest.TestCase):
         print("[OK] Test 1 Passed: /api/dashboard/status returned full telemetry & routing")
 
     def test_02_scenario_switching(self):
-        scenarios = ["chamoli_fissure", "wayanad_flood", "shimla_subsidence", "false_alarm_normal"]
+        scenarios = ["chamoli_fissure", "darjeeling_fissure", "shimla_subsidence", "false_alarm_normal"]
         for sc in scenarios:
             res = self.app.post("/api/scenario/trigger", 
                                 data=json.dumps({"scenario_id": sc}),

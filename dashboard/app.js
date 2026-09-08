@@ -134,70 +134,6 @@ const SECTOR_DATA = {
     fissurePoint: { lat: 30.5562, lng: 79.5636, label: "Tension Scarp: 8.4cm Depth" }
   },
 
-  "wayanad_flood": {
-    lat: 11.5332,
-    lng: 76.1320,
-    zoom: 14,
-    name: "Meppadi - Chooralmala - Mundakkai, Wayanad",
-    roads: [
-      {
-        id: "rd-choor-1",
-        name: "Chooralmala Bridge & River Highway (Iruvaipuzha Basin)",
-        status: "BLOCKED",
-        severity: "CRITICAL",
-        color: "#ff2a5f",
-        weight: 7,
-        opacity: 0.95,
-        cause: "Massive Debris Flow Slurry (Turbidity 94.8%) & Bridge Damage",
-        detour: "Halt all traffic; evacuate upstream towards Chembra Peak Camp",
-        delay: "BRIDGE CUT-OFF",
-        points: [
-          [11.5280, 76.1260],
-          [11.5310, 76.1290],
-          [11.5332, 76.1320],
-          [11.5350, 76.1350]
-        ]
-      },
-      {
-        id: "rd-mund-2",
-        name: "Mundakkai Tea Estate Access Road",
-        status: "SLOW",
-        severity: "WARNING",
-        color: "#f59e0b",
-        weight: 6,
-        opacity: 0.9,
-        cause: "Heavy Water Inundation & Silt Accumulation (145mm Rain)",
-        detour: "Emergency rescue convoys only",
-        delay: "+1.2 hrs",
-        points: [
-          [11.5350, 76.1350],
-          [11.5370, 76.1390],
-          [11.5390, 76.1430]
-        ]
-      },
-      {
-        id: "rd-mep-evac",
-        name: "Meppadi Higher Secondary School Evacuation Corridor",
-        status: "CLEAR",
-        severity: "SAFE",
-        color: "#10b981",
-        weight: 6,
-        opacity: 0.9,
-        cause: "Elevated Ridge Safe Zone",
-        detour: "Primary Designated Safe Corridor",
-        delay: "0 mins (Flowing)",
-        points: [
-          [11.5310, 76.1290],
-          [11.5350, 76.1250],
-          [11.5390, 76.1220],
-          [11.5430, 76.1200]
-        ]
-      }
-    ],
-    shelter: { lat: 11.5430, lng: 76.1200, name: "Meppadi High Ground Relief Camp" },
-    fissurePoint: { lat: 11.5332, lng: 76.1320, label: "Debris Slurry Dam Breach Zone" }
-  },
-
   "shimla_subsidence": {
     lat: 31.1048,
     lng: 77.1734,
@@ -295,7 +231,6 @@ const SECTOR_DATA = {
 // Scenario Photos
 const SCENARIO_IMAGES = {
   "chamoli_fissure": "https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&w=800&q=80",
-  "wayanad_flood": "https://images.unsplash.com/photo-1547683905-f686c993aae5?auto=format&fit=crop&w=800&q=80",
   "shimla_subsidence": "https://images.unsplash.com/photo-1590496793929-36417d3117de?auto=format&fit=crop&w=800&q=80",
   "false_alarm_normal": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80"
 };
@@ -694,17 +629,25 @@ function renderDashboard(data) {
   }
 
   // 5. Dialect Broadcast Panel
-  if (bc.dialect) {
-    document.getElementById("bc-script-text").innerText = bc.speech_script || bc.broadcast_text;
-    document.getElementById("bc-route-text").innerText = bc.evacuation_route || "";
-    document.getElementById("audio-label").innerText = `Emergency Broadcast Voice Note (${bc.dialect})`;
+  const dialectSelectEl = document.getElementById("dialect-select");
+  const activeDialectKey = dialectSelectEl ? dialectSelectEl.value : (bc.dialect || "Nepali");
+  const localTemplate = DIALECT_LOCAL_TEMPLATES[activeDialectKey];
 
-    if (bc.audio_url) {
-      if (!audioElement || audioElement.dataset.url !== bc.audio_url) {
-        audioElement = new Audio(bc.audio_url);
-        audioElement.dataset.url = bc.audio_url;
-        audioElement.onended = () => stopAudioUI();
-      }
+  if (localTemplate && (!bc.dialect || bc.dialect === activeDialectKey)) {
+    document.getElementById("bc-script-text").innerText = bc.speech_script || localTemplate.text;
+    document.getElementById("bc-route-text").innerText = bc.evacuation_route || localTemplate.route;
+    document.getElementById("audio-label").innerText = `Emergency Broadcast Voice Note (${activeDialectKey})`;
+  } else if (localTemplate) {
+    document.getElementById("bc-script-text").innerText = localTemplate.text;
+    document.getElementById("bc-route-text").innerText = localTemplate.route;
+    document.getElementById("audio-label").innerText = `Emergency Broadcast Voice Note (${activeDialectKey})`;
+  }
+
+  if (bc.audio_url) {
+    if (!audioElement || audioElement.dataset.url !== bc.audio_url) {
+      audioElement = new Audio(bc.audio_url);
+      audioElement.dataset.url = bc.audio_url;
+      audioElement.onended = () => stopAudioUI();
     }
   }
 
@@ -940,9 +883,49 @@ async function selectScenario(scenarioId) {
 }
 
 /**
+ * Dialect Templates (Nepali, Garhwali, Pahari, Hindi, English)
+ */
+const DIALECT_LOCAL_TEMPLATES = {
+  "Nepali": {
+    name: "Nepali (Darjeeling / Sikkim)",
+    text: "आपत्कालीन चेतावनी! तपाईंको क्षेत्रमा गम्भीर पहिरोको उच्च जोखिम छ। कृपया तुरुन्त सुरक्षित र अग्लो स्थानतर्फ जानुहोस्।",
+    route: "खोला र नदीहरूबाट टाढा रहनुहोस् र माथिल्लो बाईपास मार्ग (B-4) प्रयोग गर्नुहोस्।"
+  },
+  "Garhwali": {
+    name: "Garhwali (Chamoli / Uttarakhand)",
+    text: "सावधान! तुम्हारा इलाका मा भारी भूस्खलन को खतरा च। कृप्या तुरंत सुरक्षित और डांडा (ऊंचे स्थान) की तरफ जावा।",
+    route: "गाड़-गदेरा (नदी-नालों) से दूर रवां और माथिल्लो बाटो (B-4 बाईपास) को प्रयोग करा।"
+  },
+  "Pahari": {
+    name: "Pahari (Shimla / HP)",
+    text: "चेतावनी! ज़मीन खिसकणे रा भारी ख़तरा ऐ। कृपया सारे तुरंत सुरखित ऊंचे स्थानां जो प्रस्थान करो।",
+    route: "खड्डों ते दूर रओ ते मथेला रस्ता (B-4 बाईपास) बरतिया।"
+  },
+  "Hindi": {
+    name: "Hindi (Common North)",
+    text: "आपातकालीन चेतावनी! आपके क्षेत्र में भारी भूस्खलन का खतरा है। कृपया तुरंत सुरक्षित और ऊंचे स्थानों की ओर निकल जाएं।",
+    route: "नदी-नालों से दूर रहें और ऊपरी सुरक्षित मार्ग (B-4 बाईपास) का प्रयोग करें।"
+  },
+  "English": {
+    name: "English (National Broadcast)",
+    text: "CRITICAL EMERGENCY WARNING: Severe landslide and debris torrent risk verified. Evacuate immediately to designated high ridge shelters.",
+    route: "Avoid river ravines and culverts. Follow high-ridge bypass corridors (B-4) until official clearance."
+  }
+};
+
+/**
  * Change Dialect for Voice Broadcast
  */
 async function changeDialect(dialectKey) {
+  // 1. Instant local UI update (zero delay, fail-proof)
+  const localTemplate = DIALECT_LOCAL_TEMPLATES[dialectKey];
+  if (localTemplate) {
+    document.getElementById("bc-script-text").innerText = localTemplate.text;
+    document.getElementById("bc-route-text").innerText = localTemplate.route;
+    document.getElementById("audio-label").innerText = `Emergency Broadcast Voice Note (${dialectKey})`;
+  }
+
+  // 2. Fetch server-generated audio and sync state
   try {
     const res = await fetch("/api/broadcast/generate", {
       method: "POST",
@@ -962,7 +945,7 @@ async function changeDialect(dialectKey) {
       }
     }
   } catch (e) {
-    console.error("Dialect change error:", e);
+    console.error("Dialect change server sync note:", e);
   }
 }
 

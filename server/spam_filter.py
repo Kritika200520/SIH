@@ -28,14 +28,14 @@ class SpamFilterEngine:
                 "valid_mcc": [404, 405], # India MCC
                 "valid_lac_prefixes": [246, 248]
             },
-            "wayanad_chooralmala": {
-                "name": "Chooralmala, Wayanad (KL)",
-                "lat": 11.5360,
-                "lon": 76.1384,
+            "darjeeling_teesta": {
+                "name": "Teesta Valley, Darjeeling (WB/SK)",
+                "lat": 26.9660,
+                "lon": 88.3580,
                 "allowed_radius_km": 20.0,
-                "telecom_circle": "KERALA",
+                "telecom_circle": "WEST_BENGAL_SIKKIM",
                 "valid_mcc": [404, 405],
-                "valid_lac_prefixes": [480, 482]
+                "valid_lac_prefixes": [353, 354]
             },
             "shimla_subsidence": {
                 "name": "Krishna Nagar, Shimla (HP)",

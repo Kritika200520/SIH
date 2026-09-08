@@ -7,41 +7,35 @@ import os, hashlib
 from gtts import gTTS
 
 DIALECT_TEMPLATES = {
+    "Nepali": {
+        "name": "Nepali (Darjeeling / Sikkim)",
+        "lang_code": "ne",
+        "text": "आपत्कालीन चेतावनी! तपाईंको क्षेत्रमा गम्भीर पहिरोको उच्च जोखिम छ। कृपया तुरुन्त सुरक्षित र अग्लो स्थानतर्फ जानुहोस्।",
+        "route_instruction": "खोला र नदीहरूबाट टाढा रहनुहोस् र माथिल्लो बाईपास मार्ग (B-4) प्रयोग गर्नुहोस्।"
+    },
     "Garhwali": {
         "name": "Garhwali (Chamoli / Uttarakhand)",
         "lang_code": "hi",
-        "text": "आपातकालीन चेतावनी! आपके क्षेत्र में भारी भूस्खलन का खतरा है। कृपया तुरंत सुरक्षित और ऊंचे स्थानों की ओर निकल जाएं।",
-        "route_instruction": "नदी-नालों से दूर रहें और ऊपरी मार्ग (B-4) का प्रयोग करें।"
-    },
-    "Malayalam": {
-        "name": "Malayalam (Wayanad / Kerala)",
-        "lang_code": "ml",
-        "text": "അടിയന്തര മുന്നറിയിപ്പ്! നിങ്ങളുടെ പ്രദേശത്ത് കനത്ത ഉരുൾപൊട്ടലിന് സാധ്യതയുണ്ട്. ദയവായി ഉടൻ തന്നെ സുരക്ഷിതമായ ഉയർന്ന സ്ഥലങ്ങളിലേക്ക് മാറുക.",
-        "route_instruction": "നദികളിൽ നിന്നും അകന്നു നിൽക്കുക, സുരക്ഷിതമായ ഉയർന്ന വഴികൾ മാത്രം ഉപയോഗിക്കുക."
+        "text": "सावधान! तुम्हारा इलाका मा भारी भूस्खलन को खतरा च। कृप्या तुरंत सुरक्षित और डांडा (ऊंचे स्थान) की तरफ जावा।",
+        "route_instruction": "गाड़-गदेरा (नदी-नालों) से दूर रवां और माथिल्लो बाटो (B-4 बाईपास) को प्रयोग करा।"
     },
     "Pahari": {
         "name": "Pahari / Himachali (Shimla)",
         "lang_code": "hi",
-        "text": "चेतावनी! जमीन खिसकने का भारी खतरा है। कृपया तुरंत सुरक्षित आश्रयों की ओर प्रस्थान करें।",
-        "route_instruction": "खड्डों से दूर रहें और मुख्य सड़क (बाईपास) का उपयोग करें।"
-    },
-    "Nepali": {
-        "name": "Nepali (Darjeeling / Sikkim)",
-        "lang_code": "ne",
-        "text": "आपत्कालीन चेतावनी! तपाईको क्षेत्रमा गम्भीर पहिरोको जोखिम छ। कृपया तुरुन्तै सुरक्षित र उच्च स्थानहरूमा जानुहोस्।",
-        "route_instruction": "खोला र नदीहरूबाट टाढा रहनुहोस् र सुरक्षित उच्च मार्गहरूको प्रयोग गर्नुहोस्।"
+        "text": "चेतावनी! ज़मीन खिसकणे रा भारी ख़तरा ऐ। कृपया सारे तुरंत सुरखित ऊंचे स्थानां जो प्रस्थान करो।",
+        "route_instruction": "खड्डों ते दूर रओ ते मथेला रस्ता (B-4 बाईपास) बरतिया।"
     },
     "Hindi": {
         "name": "Hindi (Common North)",
         "lang_code": "hi",
-        "text": "गंभीर आपातकालीन चेतावनी: भारी भूस्खलन और मलबे के खतरे की पुष्टि हुई है। तुरंत नामित ऊंचे आश्रयों की ओर जाएं।",
-        "route_instruction": "नदियों और खाइयों से बचें। आधिकारिक मंजूरी मिलने तक सुरक्षित ऊपरी बाईपास कॉरिडोर का पालन करें।"
+        "text": "आपातकालीन चेतावनी! आपके क्षेत्र में भारी भूस्खलन का खतरा है। कृपया तुरंत सुरक्षित और ऊंचे स्थानों की ओर निकल जाएं।",
+        "route_instruction": "नदी-नालों से दूर रहें और ऊपरी सुरक्षित मार्ग (B-4 बाईपास) का प्रयोग करें।"
     },
     "English": {
         "name": "English (National Broadcast)",
         "lang_code": "en",
         "text": "CRITICAL EMERGENCY WARNING: Severe landslide and debris torrent risk verified. Evacuate immediately to designated high ridge shelters.",
-        "route_instruction": "Avoid river ravines and culverts. Follow high-ridge bypass corridors until official clearance."
+        "route_instruction": "Avoid river ravines and culverts. Follow high-ridge bypass corridors (B-4) until official clearance."
     }
 }
 

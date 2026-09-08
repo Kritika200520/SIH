@@ -23,22 +23,22 @@ SCENARIO_PRESETS = {
         "voice_memo_transcript": "Pahad ki mitti fat rahi hai, sadak pe bade darar aagaye hain, paani risne laga hai.",
         "reporter_info": "Ramesh Singh Rawat (Gram Pradhan)"
     },
-    "wayanad_flood": {
-        "scenario_id": "wayanad_flood",
-        "title": "Wayanad - Hyper-Concentrated Muddy Debris Torrent",
-        "location_name": "Chooralmala Bridge, Wayanad (11.5332, 76.1320)",
-        "sector_id": "wayanad_meppadi",
-        "dialect": "Malayalam",
+    "darjeeling_fissure": {
+        "scenario_id": "darjeeling_fissure",
+        "title": "Darjeeling / Sikkim - Teesta Valley Landslide & Mud Slurry",
+        "location_name": "Tindharia & Teesta Valley Road, Darjeeling (26.9660, 88.3580)",
+        "sector_id": "darjeeling_teesta",
+        "dialect": "Nepali",
         "hazard_classification": "DEBRIS_MUD_TORRENT",
-        "fissure_depth_cm": 6.2,
-        "fissure_width_cm": 22.0,
-        "turbidity_index_pct": 94.8,
-        "soil_saturation_pct": 96.5,
-        "vegetation_tilt_deg": 22.0,
-        "confidence_score_pct": 96.0,
-        "geotechnical_explanation": "VLM spectral turbidity analysis confirms 94.8% sediment slurry concentration. Sudden water colour change to dark brown with uprooted trees signals a massive upstream catchment debris dam breach and flash flood.",
-        "voice_memo_transcript": "Iruvaipuzha puzhayile vellam manchira aayittundu. Huge roaring sound from Chembra hills!",
-        "reporter_info": "Suneesh K. (Chooralmala Resident)"
+        "fissure_depth_cm": 6.8,
+        "fissure_width_cm": 18.5,
+        "turbidity_index_pct": 88.0,
+        "soil_saturation_pct": 92.0,
+        "vegetation_tilt_deg": 19.5,
+        "confidence_score_pct": 94.0,
+        "geotechnical_explanation": "VLM analysis identifies rapid saturated debris slumping along the Teesta gorge slope. Heavy river toe erosion combined with phyllite bedrock fracturing indicates active translational slide hazard.",
+        "voice_memo_transcript": "माथि डाँडाबाट ठूलो पहिरो खस्दैछ, बाटो पूरै बन्द भएको छ, खोला उर्लिएर आएको छ।",
+        "reporter_info": "Pemba Sherpa (Gram Samiti Member)"
     },
     "shimla_subsidence": {
         "scenario_id": "shimla_subsidence",

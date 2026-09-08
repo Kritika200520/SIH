@@ -32,28 +32,26 @@ ROAD_NETWORKS = {
         "default_dest": "N_AULI_SHELTER"
     },
 
-    "wayanad_meppadi": {
+    "darjeeling_teesta": {
         "nodes": {
-            "N_CHOORAL_ENTRY": {"lat": 11.5280, "lng": 76.1260, "name": "Chooralmala Road Entry", "elev_m": 720},
-            "N_CHOORAL_BRIDGE":{"lat": 11.5332, "lng": 76.1320, "name": "Chooralmala Bridge (Debris Slurry Breach)", "elev_m": 740},
-            "N_MUNDAKKAI_LOW": {"lat": 11.5370, "lng": 76.1390, "name": "Mundakkai Valley Road", "elev_m": 760},
-            "N_MEPPADI_BYPASS": {"lat": 11.5310, "lng": 76.1290, "name": "Meppadi Highland Bypass Route", "elev_m": 880},
-            "N_CHEMBRA_RIDGE": {"lat": 11.5380, "lng": 76.1240, "name": "Chembra Peak Foothill Trail", "elev_m": 1120},
-            "N_MEPPADI_SHELTER":{"lat": 11.5430, "lng": 76.1200, "name": "Meppadi High Ground Relief Camp (Safe)", "elev_m": 950}
+            "N_TEESTA_ENTRY": {"lat": 26.9600, "lng": 88.3500, "name": "Teesta Valley Entry Gate", "elev_m": 450},
+            "N_PAGLAJHORA": {"lat": 26.9660, "lng": 88.3580, "name": "Paglajhora Sinking Section (Landslide Cutoff)", "elev_m": 580},
+            "N_TINDHARIA_LOW": {"lat": 26.9720, "lng": 88.3650, "name": "Lower Tindharia Road", "elev_m": 690},
+            "N_KURSEONG_BYPASS": {"lat": 26.9630, "lng": 88.3450, "name": "Kurseong Mountain Bypass", "elev_m": 1100},
+            "N_TINDHARIA_HIGH": {"lat": 26.9700, "lng": 88.3400, "name": "Tindharia Upper Ridge Trail", "elev_m": 1350},
+            "N_KURSEONG_SHELTER":{"lat": 26.9800, "lng": 88.3350, "name": "Kurseong High Ground Relief Camp", "elev_m": 1450}
         },
         "edges": [
-            # Main Low Valley Route (Shortest = 2.9km, but blocked by slurry dam breach)
-            {"u": "N_CHOORAL_ENTRY", "v": "N_CHOORAL_BRIDGE", "length_km": 0.9, "type": "highway", "name": "Chooralmala River Highway", "hazard_zone": "debris_flow"},
-            {"u": "N_CHOORAL_BRIDGE","v": "N_MUNDAKKAI_LOW",  "length_km": 0.8, "type": "valley_road", "name": "Mundakkai Valley Link", "hazard_zone": "debris_flow"},
-            {"u": "N_MUNDAKKAI_LOW", "v": "N_MEPPADI_SHELTER", "length_km": 1.2, "type": "link", "name": "Valley to Camp Road", "hazard_zone": "subsidence"},
+            {"u": "N_TEESTA_ENTRY", "v": "N_PAGLAJHORA", "length_km": 1.0, "type": "highway", "name": "NH-10 Teesta Valley Highway", "hazard_zone": "debris_flow"},
+            {"u": "N_PAGLAJHORA", "v": "N_TINDHARIA_LOW", "length_km": 0.9, "type": "valley_road", "name": "Lower Gorge Road", "hazard_zone": "debris_flow"},
+            {"u": "N_TINDHARIA_LOW", "v": "N_KURSEONG_SHELTER", "length_km": 1.2, "type": "link", "name": "Gorge to Camp Road", "hazard_zone": "subsidence"},
 
-            # Safe Highland Bypass Route (4.1km)
-            {"u": "N_CHOORAL_ENTRY", "v": "N_MEPPADI_BYPASS", "length_km": 1.1, "type": "bypass", "name": "Meppadi Highland Diversion", "hazard_zone": "none"},
-            {"u": "N_MEPPADI_BYPASS","v": "N_CHEMBRA_RIDGE",  "length_km": 1.7, "type": "ridge_road", "name": "Chembra Foothill Evacuation Corridor", "hazard_zone": "none"},
-            {"u": "N_CHEMBRA_RIDGE", "v": "N_MEPPADI_SHELTER", "length_km": 1.3, "type": "ridge_road", "name": "Meppadi Shelter Main Path", "hazard_zone": "none"}
+            {"u": "N_TEESTA_ENTRY", "v": "N_KURSEONG_BYPASS", "length_km": 1.4, "type": "bypass", "name": "Kurseong Mountain Diversion", "hazard_zone": "none"},
+            {"u": "N_KURSEONG_BYPASS", "v": "N_TINDHARIA_HIGH", "length_km": 1.6, "type": "ridge_road", "name": "Upper Ridge Evacuation Corridor", "hazard_zone": "none"},
+            {"u": "N_TINDHARIA_HIGH", "v": "N_KURSEONG_SHELTER", "length_km": 1.5, "type": "ridge_road", "name": "Kurseong Highland Safe Path", "hazard_zone": "none"}
         ],
-        "default_start": "N_CHOORAL_ENTRY",
-        "default_dest": "N_MEPPADI_SHELTER"
+        "default_start": "N_TEESTA_ENTRY",
+        "default_dest": "N_KURSEONG_SHELTER"
     },
 
     "shimla_ridge": {
@@ -171,9 +169,9 @@ class EvacuationRoutingEngine:
         naive_coords, naive_steps = build_coords(naive_path)
         safe_coords, safe_steps = build_coords(safe_path)
 
-        if sector_id == "wayanad_meppadi":
-            warning_txt = "[BLOCK] DANGER: Routes directly into Chooralmala active debris flood plains!"
-            clearance_txt = "[PASS] VERIFIED: Avoids river ravines; routes via Chembra Highland Evacuation Corridor."
+        if sector_id == "darjeeling_teesta":
+            warning_txt = "[BLOCK] DANGER: Routes directly into Paglajhora active Teesta gorge landslide!"
+            clearance_txt = "[PASS] VERIFIED: Avoids river gorge; routes via Kurseong Upper Ridge Corridor."
         elif sector_id == "shimla_ridge":
             warning_txt = "[BLOCK] DANGER: Routes directly over failing Cart Road retaining wall (16 deg tilt)!"
             clearance_txt = "[PASS] VERIFIED: Avoids subsidence zone; routes safely via Upper Ridge Pedestrian Mall."
