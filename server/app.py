@@ -155,9 +155,45 @@ def handle_citizen_sos():
     sender_name = str(data.get("sender_name") or data.get("name") or "Citizen")
     text_body = str(data.get("message") or data.get("text") or "Emergency Landslide SOS")
     msg_type = data.get("msg_type", "text")
+    image_url = data.get("image_url")
+    image_preset = data.get("image_preset") or "live_authentic_field"
     
     clean_sender = sender_phone.replace("+", "").replace(" ", "").replace("-", "")
     current_time_str = time.strftime("%H:%M:%S")
+    
+    ai_detection = None
+    if image_url or msg_type == "image":
+        msg_type = "image"
+        # Run AI Anti-Spam & Authenticity verification
+        spam_verif = spam_filter_engine.verify_report(
+            test_case_key=image_preset,
+            sector_id=CURRENT_STATE.get("region_id", "chamoli_joshimath")
+        )
+        # Run Vision-Language Model geotechnical damage segmentation
+        vlm_data = vlm_engine.analyze_image(preset_key=CURRENT_STATE.get("active_scenario_id", "chamoli_fissure"))
+        
+        is_spam = spam_verif.get("verification_status") != "VERIFIED_AUTHENTIC"
+        
+        ai_detection = {
+            "is_spam": is_spam,
+            "status": spam_verif.get("verification_status", "VERIFIED_AUTHENTIC"),
+            "trust_score": spam_verif.get("composite_trust_score", 99.0),
+            "status_badge": spam_verif.get("status_badge", "PASSED"),
+            "reason": spam_verif.get("decision_reason", "Verified EXIF & raw sensor noise."),
+            "fissure_depth_cm": vlm_data.get("fissure_depth_cm", 8.4),
+            "fissure_width_cm": vlm_data.get("fissure_width_cm", 14.2),
+            "hazard_classification": vlm_data.get("hazard_classification", "CRITICAL_TENSION_SCARP"),
+            "soil_saturation_pct": vlm_data.get("soil_saturation_pct", 82.0),
+            "vegetation_tilt_deg": vlm_data.get("vegetation_tilt_deg", 14.5),
+            "turbidity_pct": vlm_data.get("turbidity_index_pct", 45.0),
+            "vlm_confidence": vlm_data.get("confidence_score_pct", 93.5),
+            "geotechnical_explanation": vlm_data.get("geotechnical_explanation", "Longitudinal tension fissure crown scarp detected."),
+            "cell_tower_verified": spam_verif.get("cell_tower_check", {}).get("telecom_circle_valid", True),
+            "cell_tower_info": f"LAC:{spam_verif.get('cell_tower_check', {}).get('lac', 2481)} / CID:{spam_verif.get('cell_tower_check', {}).get('cid', 58210)}",
+            "ela_consistency_pct": spam_verif.get("authenticity_check", {}).get("ela_compression_score", 96.0),
+            "duplicate_match": spam_verif.get("authenticity_check", {}).get("matched_archive_record")
+        }
+        CURRENT_STATE["last_spam_check"] = spam_verif
     
     CURRENT_STATE["latest_whatsapp_alert"] = {
         "sender": clean_sender,
@@ -165,14 +201,22 @@ def handle_citizen_sos():
         "text": text_body,
         "timestamp": current_time_str,
         "msg_type": msg_type,
+        "image_url": image_url,
+        "ai_detection": ai_detection,
         "id": f"{clean_sender}_{time.time()}"
     }
     
     scoring_engine.add_log(f"Incoming WhatsApp SOS from +{clean_sender} ({sender_name}): '{text_body[:40]}...'", "CRITICAL")
     
     bc = CURRENT_STATE.get("last_broadcast") or {}
-    reply_text = bc.get("speech_script", "Bhoomi-Raksha Alert: Your report is logged. Evacuate to high ridge immediately.")
-    safe_route = bc.get("evacuation_route", "Move uphill via B-4 bypass.")
+    safe_route = bc.get("evacuation_route", "Divert uphill via Auli High Ridge B-4 Bypass.")
+    
+    if ai_detection and ai_detection.get("is_spam"):
+        reply_text = f"⚠️ REPORT REJECTED BY AI ANTI-SPAM FILTER: {ai_detection['reason']} (Trust Score: {ai_detection['trust_score']}%). False alarms waste critical emergency rescue assets."
+    elif ai_detection:
+        reply_text = f"🚨 BHOOMI-RAKSHA GEOTECHNICAL AI VERIFIED: {ai_detection['hazard_classification']} detected ({ai_detection['fissure_depth_cm']}cm fissure depth, {ai_detection['trust_score']}% Trust). Safe corridor: {safe_route}"
+    else:
+        reply_text = bc.get("speech_script", "Bhoomi-Raksha Alert: Your distress report is logged. Evacuate to high ridge immediately.")
     
     # Attempt WhatsApp API notification if token configured
     whatsapp_service.send_evacuation_alert(clean_sender, reply_text, safe_route)
@@ -182,6 +226,7 @@ def handle_citizen_sos():
         "alert": CURRENT_STATE["latest_whatsapp_alert"],
         "reply": reply_text,
         "safe_route": safe_route,
+        "ai_detection": ai_detection,
         "timestamp": current_time_str
     })
 

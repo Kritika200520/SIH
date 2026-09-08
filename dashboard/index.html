@@ -464,6 +464,15 @@
           </p>
         </div>
 
+        <!-- Attached Field Photo & AI Vision Detection -->
+        <div id="sos-image-container" style="display: none; margin-bottom: 12px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.15); background: #0b141a;">
+          <img id="sos-modal-image" src="" alt="Citizen Distress Photo" style="width: 100%; max-height: 150px; object-fit: cover; display: block;">
+          <div id="sos-ai-badge-row" style="padding: 6px 10px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.6); font-size: 11px;">
+            <span id="sos-ai-status-pill" style="font-weight: 700; color: #10b981;">🟢 VERIFIED AUTHENTIC</span>
+            <span id="sos-ai-metrics" style="color: #00f0ff; font-family: monospace; font-weight: 600;">Fissure: 8.4cm | Trust: 99%</span>
+          </div>
+        </div>
+
         <div class="sos-action-bar">
           <button class="action-btn btn-broadcast" style="padding: 8px 16px; font-size: 11px;" onclick="triggerOperatorAction('CONFIRM_DISPATCH')">
             DISPATCH DIALECT SIREN & ROUTE

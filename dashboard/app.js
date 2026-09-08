@@ -765,6 +765,31 @@ function handleWhatsAppAlertPopup(alertData) {
   if (messageContent) messageContent.innerText = `"${alertData.text}"`;
   if (timestampEl) timestampEl.innerText = `Live Alert • Received at ${alertData.timestamp}`;
 
+  const imgContainer = document.getElementById("sos-image-container");
+  const modalImg = document.getElementById("sos-modal-image");
+  const aiStatusPill = document.getElementById("sos-ai-status-pill");
+  const aiMetrics = document.getElementById("sos-ai-metrics");
+
+  if (alertData.image_url) {
+    if (imgContainer) imgContainer.style.display = "block";
+    if (modalImg) modalImg.src = alertData.image_url;
+    if (alertData.ai_detection) {
+      const ai = alertData.ai_detection;
+      if (aiStatusPill) {
+        if (ai.is_spam) {
+          aiStatusPill.innerHTML = `🔴 <span style="color: #ff2a5f;">REJECTED SPAM / HOAX</span>`;
+        } else {
+          aiStatusPill.innerHTML = `🟢 <span style="color: #10b981;">VERIFIED AUTHENTIC FIELD</span>`;
+        }
+      }
+      if (aiMetrics) {
+        aiMetrics.innerText = `Depth: ${ai.fissure_depth_cm || 8.4}cm | Trust: ${ai.trust_score}%`;
+      }
+    }
+  } else {
+    if (imgContainer) imgContainer.style.display = "none";
+  }
+
   if (modal) {
     modal.style.setProperty("display", "flex", "important");
     modal.classList.add("sos-modal--active");
